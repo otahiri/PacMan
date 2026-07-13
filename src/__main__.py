@@ -2,8 +2,13 @@ import pygame
 from mazegenerator.mazegenerator import MazeGenerator
 
 
-def draw_cell(maze: list[list[int]], screen: pygame.Surface, corner: tuple, size: tuple, thickness: int):
-
+def draw_cell(
+    maze: list[list[int]],
+    screen: pygame.Surface,
+    corner: tuple,
+    size: tuple,
+    thickness: int,
+):
     """render cell on the screen
 
     Args:
@@ -31,21 +36,33 @@ def draw_cell(maze: list[list[int]], screen: pygame.Surface, corner: tuple, size
         for cell in row:
             (
                 pygame.draw.line(
-                    screen, white, (cord_x, cord_y), (cord_x + x_intervals, cord_y), thickness
+                    screen,
+                    white,
+                    (cord_x, cord_y),
+                    (cord_x + x_intervals, cord_y),
+                    thickness,
                 )
                 if 1 & cell
                 else None
             )
             (
                 pygame.draw.line(
-                    screen, white, (cord_x + x_intervals, cord_y), (cord_x + x_intervals, cord_y + y_intervals), thickness
+                    screen,
+                    white,
+                    (cord_x + x_intervals, cord_y),
+                    (cord_x + x_intervals, cord_y + y_intervals),
+                    thickness,
                 )
                 if 2 & cell
                 else None
             )
             (
                 pygame.draw.line(
-                    screen, white, (cord_x, cord_y + y_intervals), (cord_x + x_intervals, cord_y + y_intervals), thickness
+                    screen,
+                    white,
+                    (cord_x, cord_y + y_intervals),
+                    (cord_x + x_intervals, cord_y + y_intervals),
+                    thickness,
                 )
                 if 4 & cell
                 else None
@@ -53,7 +70,11 @@ def draw_cell(maze: list[list[int]], screen: pygame.Surface, corner: tuple, size
 
             (
                 pygame.draw.line(
-                    screen, white, (cord_x, cord_y), (cord_x, cord_y + y_intervals), thickness
+                    screen,
+                    white,
+                    (cord_x, cord_y),
+                    (cord_x, cord_y + y_intervals),
+                    thickness,
                 )
                 if 8 & cell
                 else None
