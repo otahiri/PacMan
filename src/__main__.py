@@ -1,4 +1,7 @@
 from .display import Screen
 
-game = Screen()
-game.game_loop()
+try:
+    game = Screen()
+    game.game_loop()
+except BaseException:
+    pass
