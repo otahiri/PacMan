@@ -3,12 +3,33 @@ from mazegenerator.mazegenerator import MazeGenerator
 
 
 class Corner():
+    """corner object to decide the look of the corner connecting walls
+
+    Attributes:
+        hex: hex value for the corner representing the sides it has
+    """
     def __init__(self) -> None:
+        """constructor of the Corner class"""
         self.hex = 0
 
 
 class Cell():
+    """cell class that has all the attributes of the cell
+
+    Attributes:
+        hex_value: the hex value of the cell representing which  walls are open
+        top_left: top left corner
+        top_right: top right corner
+        bottom_left: bottom left corner
+        bottom_right: bottom right corner
+    """
     def __init__(self, hex: int, corners: list[Corner]) -> None:
+        """constructor of the Cell class
+
+        Args:
+            hex: hex value of the cell
+            corners: list of corners surrounding the cell
+        """
         self.hex_value = hex
         self.top_left = corners[0]
         self.top_right = corners[1]
@@ -39,6 +60,14 @@ class Cell():
 
 def draw_maze(maze: list[list[Cell]], corner_images: dict,
               wall_images: dict, screen: pygame.Surface):
+    """rendering the map in pygame surface
+
+    Args:
+        maze: 2d array containing the cells
+        corner_images: images of all possible corners pre-loaded
+        wall_images: vertical and horzontal walls pre-loaded
+        screen: surface of pygame
+    """
     cord_y = 400
     for y in range(len(maze)):
         cord_x = 400
@@ -65,6 +94,7 @@ def draw_maze(maze: list[list[Cell]], corner_images: dict,
 
 
 def main():
+    """main function"""
     pygame.init()
     asset_path = "assets/walls/"
     screen = pygame.display.set_mode((1400, 1400))
