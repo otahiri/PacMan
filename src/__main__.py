@@ -2,101 +2,92 @@ import pygame
 from mazegenerator.mazegenerator import MazeGenerator
 
 
-def draw_cell(
-    maze: list[list[int]],
-    screen: pygame.Surface,
-    corner: tuple,
-    size: tuple,
-    thickness: int,
-):
-    """render cell on the screen
+class Corner():
+    def __init__(self) -> None:
+        self.hex = 0
 
-    Args:
-        maze: the list of hex value representing the map walls
-        (the bits go from least significant bit to the most significant
-        each representing a direction in the order NESW)
-        screen: the Surface object created by pygame representing the display
-        corner: the cords for the top left corner of the maze
-        used as an anchor for the maze
-        size: the width and height of the maze
-        thickness: the thickness of the lines of the maps
-    """
-    x_intervals = size[0] // len(maze[0])
-    y_intervals = size[1] // len(maze)
-    y = 0
-    white = (
-        255,
-        255,
-        255,
-    )
-    cord_y = corner[1]
-    for row in maze:
-        x = 0
-        cord_x = corner[0]
-        for cell in row:
-            (
-                pygame.draw.line(
-                    screen,
-                    white,
-                    (cord_x, cord_y),
-                    (cord_x + x_intervals, cord_y),
-                    thickness,
-                )
-                if 1 & cell
-                else None
-            )
-            (
-                pygame.draw.line(
-                    screen,
-                    white,
-                    (cord_x + x_intervals, cord_y),
-                    (cord_x + x_intervals, cord_y + y_intervals),
-                    thickness,
-                )
-                if 2 & cell
-                else None
-            )
-            (
-                pygame.draw.line(
-                    screen,
-                    white,
-                    (cord_x, cord_y + y_intervals),
-                    (cord_x + x_intervals, cord_y + y_intervals),
-                    thickness,
-                )
-                if 4 & cell
-                else None
-            )
 
-            (
-                pygame.draw.line(
-                    screen,
-                    white,
-                    (cord_x, cord_y),
-                    (cord_x, cord_y + y_intervals),
-                    thickness,
-                )
-                if 8 & cell
-                else None
-            )
-            x += 1
-            cord_x += y_intervals
+class Cell():
+    def __init__(self, hex: int, corners: list[Corner]) -> None:
+        self.hex_value = hex
+        self.top_left = corners[0]
+        self.top_right = corners[1]
+        self.bottom_left = corners[2]
+        self.bottom_right = corners[3]
+        self.update_corners()
 
-        y += 1
-        cord_y += y_intervals
+    def update_corners(self):
+        """mask the corner hex value according to the hex value of the cell
+            top left corner will have an east side if the cell has a north wall
+            and a south side if the cell has a west wall
+            top right corner will have a west side if the cell has a north wall
+            and a south side if the cell has an east wall
+            bottom right corner will have north side if the cell has an east
+            wall and a west side if the cell has a south wall
+            bottom left corner  will have a north side if the cell has a west
+            wall and an east side if the cell has a south wall
+        """
+        self.top_left.hex |= (1 & self.hex_value) << 1
+        self.top_left.hex |= (8 & self.hex_value) >> 1
+        self.top_right.hex |= (1 & self.hex_value) << 3
+        self.top_right.hex |= (2 & self.hex_value) << 1
+        self.bottom_right.hex |= (2 & self.hex_value) >> 1
+        self.bottom_right.hex |= (4 & self.hex_value) << 1
+        self.bottom_left.hex |= (4 & self.hex_value) >> 1
+        self.bottom_left.hex |= (8 & self.hex_value) >> 3
+
+
+def draw_maze(maze: list[list[Cell]], corner_images: dict,
+              wall_images: dict, screen: pygame.Surface):
+    cord_y = 400
+    for y in range(len(maze)):
+        cord_x = 400
+        for x in range(len(maze[0])):
+            cell = maze[y][x]
+            tl_corner = corner_images[cell.top_left.hex]
+            screen.blit(tl_corner, (cord_x, cord_y))
+            if cell.hex_value & 1:
+                screen.blit(wall_images[0], (cord_x + 16, cord_y))
+            tr_corner = corner_images[cell.top_right.hex]
+            screen.blit(tr_corner, (cord_x + 32, cord_y))
+            if cell.hex_value & 8:
+                screen.blit(wall_images[1], (cord_x, cord_y + 16))
+            if cell.hex_value & 2:
+                screen.blit(wall_images[1], (cord_x + 32, cord_y + 16))
+            bl_corner = corner_images[cell.bottom_left.hex]
+            screen.blit(bl_corner, (cord_x, cord_y + 32))
+            if cell.hex_value & 4:
+                screen.blit(wall_images[0], (cord_x + 16, cord_y + 32))
+            br_corner = corner_images[cell.bottom_right.hex]
+            screen.blit(br_corner, (cord_x + 32, cord_y + 32))
+            cord_x += 32
+        cord_y += 32
 
 
 def main():
+    pygame.init()
+    asset_path = "assets/walls/"
+    screen = pygame.display.set_mode((1400, 1400))
     maze = MazeGenerator()
     maze.generate()
-    for row in maze.maze:
-        print([bin(i) for i in row])
-    print(maze)
-    pygame.init()
-    screen = pygame.display.set_mode((1400, 1400))
+    bit_maze = maze.maze
+    corner_images = {}
+    for i in range(16):
+        corner_images[i] = pygame.image.load(
+                f"{asset_path}{i}.png").convert_alpha()
+    wall_images = {0: pygame.image.load(
+        f"{asset_path}horizontanl_wall.png"),
+                   1: pygame.image.load(
+                       f"{asset_path}vertical_wall.png").convert_alpha()}
+    corner_grid = [[Corner() for _ in range(len(bit_maze) + 1)]
+                   for _ in range(len(bit_maze) + 1)]
+    cell_grid = [[Cell(bit_maze[y][x], [
+        corner_grid[y][x], corner_grid[y][x + 1],
+        corner_grid[y + 1][x], corner_grid[y + 1][x + 1]])
+             for x in range(len(bit_maze[0]))] for y in range(len(bit_maze))]
     running = True
     while running:
-        draw_cell(maze.maze, screen, (200, 200), (500, 500), 5)
+        draw_maze(cell_grid, corner_images, wall_images, screen)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
