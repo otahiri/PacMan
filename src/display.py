@@ -1,5 +1,5 @@
 import pygame
-from src.models import Button
+from src.scenes import MainMenuScene, ScoreboardScene, GameScene, ScoreEntryScene
 
 
 class Screen:
@@ -9,34 +9,33 @@ class Screen:
         self.width = 1280
         self.screen: pygame.Surface = pygame.display.set_mode((self.width, self.height))
         self.clock = pygame.time.Clock()
-
-        self.main_menu_buttons = [
-            Button(lable, (640, 150 * i + 640))
-            for i, lable in enumerate(["Start", "Scores", "Exit"])
+        self.scenes = [
+            MainMenuScene(),
+            GameScene(),
+            ScoreEntryScene(),
+            ScoreboardScene(),
         ]
-        self.score_entry_buttons = [
-            Button(lable, (640, 150 * i + 640))
-            for i, lable in enumerate(["Enter your name"])
-        ]
-        self.current_scene = "main_menu"
+        self.current_scene = 0
 
     def __handle_mouse_click(self) -> None:
-        buttons: list[Button] = []
-        if self.current_scene == "main_menu":
-            buttons = self.main_menu_buttons
-        if self.current_scene == "score_entry":
-            buttons = self.score_entry_buttons
 
-        for b in buttons:
-            if b.in_rage(pygame.mouse.get_pos()):
-                match b.name:
-                    case "Exit":
-                        pygame.quit()
-                        exit()
-                    case "Enter your name":
-                        self.current_scene = "main_menu"
-                    case "Scores":
-                        self.current_scene = "score_entry"
+        if self.current_scene == 0:
+            for button in self.scenes[0].buttons:
+                if button.in_rage(pygame.mouse.get_pos()):
+                    match button.name:
+                        case "Exit":
+                            pygame.quit()
+                            exit()
+                        case "Play":
+                            self.current_scene = 1
+                        case "Scores":
+                            self.current_scene = 3
+
+        elif self.current_scene == 1:
+            self.current_scene = 2
+
+        elif self.current_scene == 3 or self.current_scene == 2:
+            self.current_scene = 0
 
     def game_loop(self) -> None:
 
@@ -52,19 +51,6 @@ class Screen:
                     self.__handle_mouse_click()
 
             self.screen.fill("black")
-            if self.current_scene == "main_menu":
-                self.__draw_main_menu()
-            elif self.current_scene == "score_entry":
-                self.__draw_score_entry()
+            self.scenes[self.current_scene].render_scene(self.screen)
             self.clock.tick(60)
             pygame.display.flip()
-
-    def __draw_main_menu(self) -> None:
-        for button in self.main_menu_buttons:
-            self.screen.blit(button.surf, button.rect)
-            self.screen.blit(button.text_surf, button.text_rect)
-
-    def __draw_score_entry(self) -> None:
-        for button in self.score_entry_buttons:
-            self.screen.blit(button.surf, button.rect)
-            self.screen.blit(button.text_surf, button.text_rect)
