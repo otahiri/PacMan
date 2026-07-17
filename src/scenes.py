@@ -8,6 +8,9 @@ class Scene(ABC):
     @abstractmethod
     def render_scene(self, screen: pygame.Surface) -> None: ...
 
+    @abstractmethod
+    def handle_events(self, events: list[pygame.Event]) -> None: ...
+
 
 class MainMenuScene(Scene):
     def __init__(self) -> None:
@@ -31,6 +34,26 @@ class MainMenuScene(Scene):
                 pygame.draw.rect(screen, "red", button.rect, 5)
             screen.blit(button.text_surf, button.text_rect)
 
+    def handle_events(self, events: list[pygame.Event]) -> None:
+        for event in events:
+
+            if event.type != pygame.MOUSEBUTTONDOWN:
+                continue
+
+            for button in self.buttons:
+
+                if not button.rect.collidepoint(pygame.mouse.get_pos()):
+                    continue
+
+                match button.name:
+                    case "Play":
+                        print("play")
+                    case "Scores":
+                        print("scores")
+                    case "Exit":
+                        pygame.quit()
+                        exit()
+
 
 class ScoreboardScene(Scene):
     def __init__(self) -> None:
@@ -39,6 +62,8 @@ class ScoreboardScene(Scene):
 
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, (0, 0))
+
+    def handle_events(self, events: list[pygame.Event]) -> None: ...
 
 
 class GameScene(Scene):
@@ -49,6 +74,8 @@ class GameScene(Scene):
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, (0, 0))
 
+    def handle_events(self, events: list[pygame.Event]) -> None: ...
+
 
 class ScoreEntryScene(Scene):
     def __init__(self) -> None:
@@ -57,3 +84,5 @@ class ScoreEntryScene(Scene):
 
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, (0, 0))
+
+    def handle_events(self, events: list[pygame.Event]) -> None: ...
