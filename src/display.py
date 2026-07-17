@@ -1,5 +1,5 @@
 import pygame
-from src.scenes import MainMenuScene, ScoreboardScene, GameScene, ScoreEntryScene
+from src.scenes import MainMenuScene, Scene, ScoreboardScene, GameScene, ScoreEntryScene
 
 
 class Screen:
@@ -21,7 +21,7 @@ class Screen:
 
         if self.current_scene == 0:
             for button in self.scenes[0].buttons:
-                if button.in_rage(pygame.mouse.get_pos()):
+                if button.rect.collidepoint(pygame.mouse.get_pos()):
                     match button.name:
                         case "Exit":
                             pygame.quit()

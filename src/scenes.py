@@ -18,7 +18,17 @@ class MainMenuScene(Scene):
 
     def render_scene(self, screen) -> None:
         for button in self.buttons:
-            screen.blit(button.surf, button.rect)
+            is_sellected = button.rect.collidepoint(pygame.mouse.get_pos())
+            thickness = 10
+            if is_sellected:
+                pygame.draw.rect(
+                    screen,
+                    "red",
+                    button.rect.inflate(thickness * 2, thickness * 2),
+                    thickness,
+                )
+            else:
+                pygame.draw.rect(screen, "red", button.rect, 5)
             screen.blit(button.text_surf, button.text_rect)
 
 
