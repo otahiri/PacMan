@@ -1,4 +1,5 @@
 import pygame
+from src.enums import SceneName
 from src.models import Button
 from abc import ABC, abstractmethod
 
@@ -9,7 +10,7 @@ class Scene(ABC):
     def render_scene(self, screen: pygame.Surface) -> None: ...
 
     @abstractmethod
-    def handle_events(self, events: list[pygame.Event]) -> None: ...
+    def handle_events(self, events: list[pygame.Event]) -> None | SceneName: ...
 
 
 class MainMenuScene(Scene):
@@ -34,7 +35,7 @@ class MainMenuScene(Scene):
                 pygame.draw.rect(screen, "red", button.rect, 5)
             screen.blit(button.text_surf, button.text_rect)
 
-    def handle_events(self, events: list[pygame.Event]) -> None:
+    def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:
 
             if event.type != pygame.MOUSEBUTTONDOWN:
@@ -47,9 +48,9 @@ class MainMenuScene(Scene):
 
                 match button.name:
                     case "Play":
-                        print("play")
+                        return SceneName.GAME
                     case "Scores":
-                        print("scores")
+                        return SceneName.SCOREBOARD
                     case "Exit":
                         pygame.quit()
                         exit()
@@ -63,7 +64,12 @@ class ScoreboardScene(Scene):
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, (0, 0))
 
-    def handle_events(self, events: list[pygame.Event]) -> None: ...
+    def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
+        for event in events:
+
+            if event.type != pygame.MOUSEBUTTONDOWN:
+                continue
+            return SceneName.MAIN_MENU
 
 
 class GameScene(Scene):
@@ -74,7 +80,12 @@ class GameScene(Scene):
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, (0, 0))
 
-    def handle_events(self, events: list[pygame.Event]) -> None: ...
+    def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
+        for event in events:
+
+            if event.type != pygame.MOUSEBUTTONDOWN:
+                continue
+            return SceneName.SCORE_ENTRY
 
 
 class ScoreEntryScene(Scene):
@@ -85,4 +96,9 @@ class ScoreEntryScene(Scene):
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, (0, 0))
 
-    def handle_events(self, events: list[pygame.Event]) -> None: ...
+    def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
+        for event in events:
+
+            if event.type != pygame.MOUSEBUTTONDOWN:
+                continue
+            return SceneName.MAIN_MENU
