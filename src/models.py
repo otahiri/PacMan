@@ -1,4 +1,6 @@
 import pygame
+from abc import ABC, abstractmethod
+from src.enums import SceneName
 
 
 class Button:
@@ -12,3 +14,12 @@ class Button:
         self.surf = pygame.surface.Surface((300, 100))
         self.surf.fill("red")
         self.rect = self.surf.get_rect(center=pos)
+
+
+class Scene(ABC):
+
+    @abstractmethod
+    def render_scene(self, screen: pygame.Surface) -> None: ...
+
+    @abstractmethod
+    def handle_events(self, events: list[pygame.Event]) -> None | SceneName: ...

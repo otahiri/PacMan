@@ -1,6 +1,10 @@
 import pygame
 from src.enums import SceneName
-from src.scenes import MainMenuScene, Scene, ScoreboardScene, GameScene, ScoreEntryScene
+from src.models import Scene
+from src.scenes.game import GameScene
+from src.scenes.main_menu import MainMenuScene
+from src.scenes.score_board import ScoreboardScene
+from src.scenes.score_entry import ScoreEntryScene
 
 
 class Screen:
