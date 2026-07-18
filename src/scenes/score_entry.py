@@ -14,6 +14,8 @@ class ScoreEntryScene(Scene):
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:
 
-            if event.type != pygame.MOUSEBUTTONDOWN:
-                continue
-            return SceneName.MAIN_MENU
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return SceneName.MAIN_MENU
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return SceneName.MAIN_MENU
