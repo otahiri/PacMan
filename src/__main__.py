@@ -1,19 +1,20 @@
 import pygame
-from mazegenerator.mazegenerator import MazeGenerator
+import mazegenerator
 
 
-class Corner():
+class Corner:
     """corner object to decide the look of the corner connecting walls
 
     Attributes:
         hex: hex value for the corner representing the sides it has
     """
+
     def __init__(self) -> None:
         """constructor of the Corner class"""
         self.hex = 0
 
 
-class Cell():
+class Cell:
     """cell class that has all the attributes of the cell
 
     Attributes:
@@ -23,6 +24,7 @@ class Cell():
         bottom_left: bottom left corner
         bottom_right: bottom right corner
     """
+
     def __init__(self, hex: int, corners: list[Corner]) -> None:
         """constructor of the Cell class
 
@@ -37,16 +39,16 @@ class Cell():
         self.bottom_right = corners[3]
         self.update_corners()
 
-    def update_corners(self):
+    def update_corners(self) -> None:
         """mask the corner hex value according to the hex value of the cell
-            top left corner will have an east side if the cell has a north wall
-            and a south side if the cell has a west wall
-            top right corner will have a west side if the cell has a north wall
-            and a south side if the cell has an east wall
-            bottom right corner will have north side if the cell has an east
-            wall and a west side if the cell has a south wall
-            bottom left corner  will have a north side if the cell has a west
-            wall and an east side if the cell has a south wall
+        top left corner will have an east side if the cell has a north wall
+        and a south side if the cell has a west wall
+        top right corner will have a west side if the cell has a north wall
+        and a south side if the cell has an east wall
+        bottom right corner will have north side if the cell has an east
+        wall and a west side if the cell has a south wall
+        bottom left corner  will have a north side if the cell has a west
+        wall and an east side if the cell has a south wall
         """
         self.top_left.hex |= (1 & self.hex_value) << 1
         self.top_left.hex |= (8 & self.hex_value) >> 1
@@ -58,8 +60,12 @@ class Cell():
         self.bottom_left.hex |= (8 & self.hex_value) >> 3
 
 
-def draw_maze(maze: list[list[Cell]], corner_images: dict,
-              wall_images: dict, screen: pygame.Surface):
+def draw_maze(
+    maze: list[list[Cell]],
+    corner_images: dict,
+    wall_images: dict,
+    screen: pygame.Surface,
+) -> None:
     """rendering the map in pygame surface
 
     Args:
@@ -93,28 +99,39 @@ def draw_maze(maze: list[list[Cell]], corner_images: dict,
         cord_y += 32
 
 
-def main():
+def main() -> None:
     """main function"""
     pygame.init()
     asset_path = "assets/walls/"
     screen = pygame.display.set_mode((1400, 1400))
-    maze = MazeGenerator()
+    maze = mazegenerator.MazeGenerator()
     maze.generate()
     bit_maze = maze.maze
     corner_images = {}
     for i in range(16):
-        corner_images[i] = pygame.image.load(
-                f"{asset_path}{i}.png").convert_alpha()
-    wall_images = {0: pygame.image.load(
-        f"{asset_path}horizontanl_wall.png"),
-                   1: pygame.image.load(
-                       f"{asset_path}vertical_wall.png").convert_alpha()}
-    corner_grid = [[Corner() for _ in range(len(bit_maze) + 1)]
-                   for _ in range(len(bit_maze) + 1)]
-    cell_grid = [[Cell(bit_maze[y][x], [
-        corner_grid[y][x], corner_grid[y][x + 1],
-        corner_grid[y + 1][x], corner_grid[y + 1][x + 1]])
-             for x in range(len(bit_maze[0]))] for y in range(len(bit_maze))]
+        corner_images[i] = pygame.image.load(f"{asset_path}{i}.png").convert_alpha()
+    wall_images = {
+        0: pygame.image.load(f"{asset_path}horizontanl_wall.png"),
+        1: pygame.image.load(f"{asset_path}vertical_wall.png").convert_alpha(),
+    }
+    corner_grid = [
+        [Corner() for _ in range(len(bit_maze) + 1)] for _ in range(len(bit_maze) + 1)
+    ]
+    cell_grid = [
+        [
+            Cell(
+                bit_maze[y][x],
+                [
+                    corner_grid[y][x],
+                    corner_grid[y][x + 1],
+                    corner_grid[y + 1][x],
+                    corner_grid[y + 1][x + 1],
+                ],
+            )
+            for x in range(len(bit_maze[0]))
+        ]
+        for y in range(len(bit_maze))
+    ]
     running = True
     while running:
         draw_maze(cell_grid, corner_images, wall_images, screen)

@@ -1,16 +1,17 @@
 all: run
 
-run:
+run: 
 	uv run python3 -m src
 
 install:
 	uv sync
-	uv run pip install mazegenerator-2.0.2-py3-none-any.whl
 
-lint:
-	uv run flake8 .
-	uv run mypy . --warn-return-any --warn-unused-ignores\
-		--ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+lint: install
+	uv run mypy -m src --warn-return-any --warn-unused-ignores \
+	--ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+
+	uv run flake8 src
 
 clean:
-	rm -rf __pycache__ .mypy_cache
+	rm -rf .mypy_cache
+	find . -name "__pycache__" -type d -exec rm -rf {} +

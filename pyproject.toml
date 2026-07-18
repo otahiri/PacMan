@@ -3,11 +3,8 @@ name = "pacman"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = [
-    "mazegenerator",
-    "pygame>=2.6.1",
-]
+requires-python = ">=3.10"
+dependencies = ["flake8", "mazegenerator", "mypy", "pygame-ce"]
 
 [tool.uv.sources]
 mazegenerator = { path = "mazegenerator-2.0.2-py3-none-any.whl" }
