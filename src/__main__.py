@@ -1,4 +1,5 @@
 from enum import Enum
+from os import setregid
 import time
 from typing import Any
 import pygame
@@ -73,38 +74,73 @@ class Cell:
 
 
 class Player:
-    def __init__(self, cord_x: int, cord_y: int, maze: list[list[Cell]]) -> None:
-        self.cord = (cord_x, cord_y)
-        maze[cord_y][cord_x].content = self
-        self.direction = Direction.NORTH
-        base_sprite_one = pygame.image.load("assets/player/pacman0.png").convert_alpha()
-        base_sprite_two = pygame.image.load("assets/player/pacman1.png").convert_alpha()
-        self.sprites = [
-            [pygame.transform.rotate(base_sprite_one, 90), pygame.transform.rotate(base_sprite_two, 90)],
-            [base_sprite_one, base_sprite_two],
-            [pygame.transform.rotate(base_sprite_one, -90), pygame.transform.rotate(base_sprite_two, -90)],
-            [pygame.transform.rotate(base_sprite_one, -180), pygame.transform.rotate(base_sprite_two, -180)]
-        ]
+    def __init__(
+        self, cord_x: int, cord_y: int, maze: list[list[Cell]], v_offset: tuple
+    ) -> None:
+        self.v_offset = v_offset
+        self.v_x = cord_x * 32 + v_offset[0] + 16
+        self.v_y = cord_y * 32 + v_offset[1] + 16
+        self.bit_y = cord_y
+        self.bit_x = cord_x
         self.maze = maze
+        self.max_y = (len(self.maze) * 32) + 400
+        self.max_x = (len(self.maze[0]) * 32) + 400
+        self.new_direction = Direction.NORTH
+        self.direction = self.new_direction
+        base_sprite_one = pygame.image.load("assets/player/pacman0.png")
+        base_sprite_two = pygame.image.load("assets/player/pacman1.png")
+        self.empty_sprite = pygame.image.load("assets/player/empty_sprite.png")
+        self.sprites = [
+            [
+                pygame.transform.rotate(base_sprite_one, 90),
+                pygame.transform.rotate(base_sprite_two, 90),
+            ],
+            [base_sprite_one, base_sprite_two],
+            [
+                pygame.transform.rotate(base_sprite_one, -90),
+                pygame.transform.rotate(base_sprite_two, -90),
+            ],
+            [
+                pygame.transform.rotate(base_sprite_one, -180),
+                pygame.transform.rotate(base_sprite_two, -180),
+            ],
+        ]
         self.frame = 0
 
     def get_sprite(self, frame: int):
         animation = self.sprites[self.direction.value[2]][self.frame]
-        if frame % 30 == 0:
+        if frame % 10 == 0:
             self.frame = int(not self.frame)
         return animation
 
-    def move(self, frame: int):
-        if frame % 20 == 0:
-            x, y = self.cord
-            dx, dy, shift = self.direction.value
-            if (1 << shift) & self.maze[y][x].hex_value == 0:
-                new_x = x + dx
-                new_y = y + dy
-                if  0 <= new_y < len(self.maze) and 0 <= new_x < len(self.maze[0]):
-                    self.maze[y][x].content = None
-                    self.cord = (new_x, new_y)
-                    self.maze[new_y][new_x].content = self
+    def move(self, screen: pygame.Surface, frame: int, speed: int):
+        x, y = self.v_x, self.v_y
+        is_centered = (x - 400) % 32 == 16 and (y - 400) % 32 == 16
+        if is_centered:
+            self.bit_y = (y - 400) // 32
+            self.bit_x = (x - 400) // 32
+            dx, dy, shift = self.new_direction.value
+            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
+                self.direction = self.new_direction
+        dx, dy, shift = self.direction.value
+        can_move = False
+        screen.blit(self.empty_sprite, (x, y))
+        if is_centered:
+            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
+                can_move = True
+        else:
+            can_move = True
+        if can_move:
+            new_x = (dx * speed) + x
+            new_y = (dy * speed) + y
+            if 0 <= new_y < self.max_y and 0 <= new_x < self.max_x:
+                self.v_x = new_x
+                self.v_y = new_y
+        self.draw_player(screen, frame)
+
+    def draw_player(self, screen: pygame.Surface, frame: int):
+        screen.blit(self.get_sprite(frame), (self.v_x, self.v_y))
+        pygame.display.update()
 
 
 def draw_maze(
@@ -112,7 +148,6 @@ def draw_maze(
     corner_images: dict,
     wall_images: dict,
     screen: pygame.Surface,
-    frame
 ):
     """rendering the map in pygame surface
 
@@ -135,8 +170,6 @@ def draw_maze(
             screen.blit(tr_corner, (cord_x + 32, cord_y))
             if cell.hex_value & 8:
                 screen.blit(wall_images[1], (cord_x, cord_y + 16))
-            if cell.content:
-                screen.blit(cell.content.get_sprite(frame), (cord_x + 16, cord_y + 16))
             if cell.hex_value & 2:
                 screen.blit(wall_images[1], (cord_x + 32, cord_y + 16))
             bl_corner = corner_images[cell.bottom_left.hex]
@@ -183,13 +216,17 @@ def main():
         ]
         for y in range(len(bit_maze))
     ]
-    player = Player(maze._entryx, maze._entryy, cell_grid)
+    player = Player(maze._entryx, maze._entryy, cell_grid, (400, 400))
     running = True
     frame = 0
+    speed = 4
+    screen.fill(pygame.Color(0, 0, 0))
+    draw_maze(cell_grid, corner_images, wall_images, screen)
+    pygame.display.update()
+    player.draw_player(screen, frame)
+    clock = pygame.time.Clock()
     while running:
-        player.move(frame)
-        screen.fill(pygame.Color(0, 0, 0))
-        draw_maze(cell_grid, corner_images, wall_images, screen, frame)
+        player.move(screen, frame, speed)
         pygame.display.update()
         for event in pygame.event.get():
             match event.type:
@@ -201,13 +238,14 @@ def main():
                         case pygame.K_ESCAPE:
                             running = False
                         case pygame.K_UP | pygame.K_w:
-                            player.direction = Direction.NORTH
+                            player.new_direction = Direction.NORTH
                         case pygame.K_DOWN | pygame.K_s:
-                            player.direction = Direction.SOUTH
+                            player.new_direction = Direction.SOUTH
                         case pygame.K_RIGHT | pygame.K_d:
-                            player.direction = Direction.EAST
+                            player.new_direction = Direction.EAST
                         case pygame.K_LEFT | pygame.K_a:
-                            player.direction = Direction.WEST
+                            player.new_direction = Direction.WEST
+        clock.tick(1200)
         frame = (frame + 1) % 60
 
 
