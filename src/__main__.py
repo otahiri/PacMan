@@ -1,3 +1,7 @@
+from enum import Enum
+from os import setregid
+import time
+from typing import Any
 import pygame
 from src.display import Screen
 
@@ -74,7 +78,6 @@ screen.game_loop()
 #     screen: pygame.Surface,
 # ) -> None:
 #     """rendering the map in pygame surface
-
 #     Args:
 #         maze: 2d array containing the cells
 #         corner_images: images of all possible corners pre-loaded
