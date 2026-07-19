@@ -64,13 +64,13 @@ class Cell:
 
 
 class Maze:
-    def __init__(self, maze: MazeGenerator, v_offset: tuple) -> None:
+    def __init__(self, maze: MazeGenerator, screen_size: tuple) -> None:
         asset_path = "assets/walls/"
         self.max_x = maze._width * 32
         self.max_y = maze._height * 32
         self.v_offset = (
-            (v_offset[0] - self.max_x) // 2,
-            (v_offset[1] - self.max_x) // 2,
+            (screen_size[0] - self.max_x) // 2,
+            (screen_size[1] - self.max_x) // 2,
         )
         self.corner_images: dict = {}
         self.maze = maze

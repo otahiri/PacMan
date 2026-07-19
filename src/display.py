@@ -16,7 +16,7 @@ class Screen:
         self.clock = pygame.time.Clock()
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(),
+            SceneName.GAME: GameScene(self.width, self.height, self.screen),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
         }
