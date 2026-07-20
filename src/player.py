@@ -51,15 +51,13 @@ class Player:
             self.frame = int(not self.frame)
         return animation
 
-    def move(self, screen: pygame.Surface, frame: int):
+    def move(self, screen: pygame.Surface, frame: int, v_offset: tuple):
         x, y = self.v_x, self.v_y
         is_centered = x % 32 == 16 and y % 32 == 16
         if is_centered:
             self.bit_y = y // 32
             self.bit_x = x // 32
-            dx, dy, shift = self.new_direction.value
-            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
-                self.direction = self.new_direction
+            self.direction = self.new_direction
         dx, dy, shift = self.direction.value
         can_move = False
         screen.blit(self.empty_sprite, (x, y))
@@ -78,8 +76,8 @@ class Player:
             if min_y <= new_y < max_y and min_x <= new_x < max_x:
                 self.v_x = new_x
                 self.v_y = new_y
-        return self.draw_player(screen, frame)
+        return self.draw_player(screen, frame, v_offset)
 
-    def draw_player(self, screen: pygame.Surface, frame: int):
-        screen.blit(self.get_sprite(frame), (self.v_x, self.v_y))
+    def draw_player(self, screen: pygame.Surface, frame: int, v_offset: tuple):
+        screen.blit(self.get_sprite(frame), (self.v_x + v_offset[0], self.v_y + v_offset[1]))
         return screen
