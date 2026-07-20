@@ -57,7 +57,9 @@ class Player:
         if is_centered:
             self.bit_y = y // 32
             self.bit_x = x // 32
-            self.direction = self.new_direction
+            dx, dy, shift = self.new_direction.value
+            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
+                self.direction = self.new_direction
         dx, dy, shift = self.direction.value
         can_move = False
         screen.blit(self.empty_sprite, (x, y))
