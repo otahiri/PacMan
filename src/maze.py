@@ -64,7 +64,26 @@ class Cell:
 
 
 class Maze:
+    """maze class containing all info about the map
+
+    Attributes:
+        max_x: the max x value of the maze
+        max_y: the max y value of the maze
+        v_offset: the visual offset to draw the maze to be in the center
+        corner_images: every possible corner image
+        maze: the object from the MazeGenerator model
+        bit_maze: the bit maze from the maze
+        wall_images: all possible wall images
+        cell_grid: grid containing all cells
+    """
+
     def __init__(self, maze: MazeGenerator, screen_size: tuple) -> None:
+        """maze constructor
+
+        Args:
+            maze: the maze object
+            screen_size: the current screen size
+        """
         asset_path = "assets/walls/"
         self.max_x = maze._width * 32
         self.max_y = maze._height * 32
@@ -120,31 +139,27 @@ class Maze:
                     self.corner_images[cell.top_left.hex], (cord_x, cord_y)
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.top_right.hex], (cord_x + 32, cord_y)
+                    self.corner_images[cell.top_right.hex],
+                    (cord_x + 32, cord_y)
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.bottom_left.hex], (cord_x, cord_y + 32)
+                    self.corner_images[cell.bottom_left.hex],
+                    (cord_x, cord_y + 32)
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_right.hex],
                     (cord_x + 32, cord_y + 32),
                 )
                 if cell.hex_value & 1:
-                    maze_surface.blit(self.wall_images[0], (cord_x + 16, cord_y))
+                    maze_surface.blit(self.wall_images[0],
+                                      (cord_x + 16, cord_y))
                 if cell.hex_value & 2:
-                    maze_surface.blit(self.wall_images[1], (cord_x + 32, cord_y + 16))
+                    maze_surface.blit(self.wall_images[1],
+                                      (cord_x + 32, cord_y + 16))
                 if cell.hex_value & 4:
-                    maze_surface.blit(self.wall_images[0], (cord_x + 16, cord_y + 32))
+                    maze_surface.blit(self.wall_images[0],
+                                      (cord_x + 16, cord_y + 32))
                 if cell.hex_value & 8:
-                    maze_surface.blit(self.wall_images[1], (cord_x, cord_y + 16))
+                    maze_surface.blit(self.wall_images[1],
+                                      (cord_x, cord_y + 16))
         return maze_surface
-
-    def draw_maze(self, screen: pygame.Surface):
-        """render the pre_rendered maze on the screen
-
-        Args:
-            screen: surface of pygame
-        """
-
-        rendered_maze = self.render_maze()
-        screen.blit(rendered_maze, self.v_offset)

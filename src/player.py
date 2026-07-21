@@ -4,6 +4,15 @@ from enum import Enum
 
 
 class Direction(Enum):
+    """represent each direction the player can face
+
+    Attributes:
+        NORTH: north direction
+        EAST: east direction
+        SOUTH: south direction
+        WEST: west direction
+    """
+
     NORTH = (0, -1, 0)
     EAST = (1, 0, 1)
     SOUTH = (0, 1, 2)
@@ -11,10 +20,33 @@ class Direction(Enum):
 
 
 class Player:
-    def __init__(
-        self, cord_x: int, cord_y: int,
-        maze: list[list[Cell]]
-    ) -> None:
+    """player class
+
+    Attributes:
+        maze: the cell grid representing the maze
+        speed: the movement speed of the player
+        max_y: the maximum y cord the player can reach
+        max_x: the maximum x cord the player can reach
+        v_x: the visual x cord of the player inside the cell grid
+        v_y: the visual y cord of the player inside the cell grid
+        bit_y: the y cord inside the bit maze
+        bit_x: the x cord inside the bit maze
+        new_direction: the new chosen direction from the player input
+        direction: the direction the player is facing
+        empty_sprite: the empty sprite for the player to remove the old frame
+        sprites: the list of sprite of the player
+        frame: the current frame that passed between 0 and 60
+    """
+
+    def __init__(self, cord_x: int, cord_y: int,
+                 maze: list[list[Cell]]) -> None:
+        """constructor
+
+        Args:
+            cord_x: the cord x inside the bit maze
+            cord_y: the cord y inside the bit maze
+            maze: the cell grid
+        """
         self.maze = maze
         self.speed = 2
         self.max_y = len(self.maze) * 32
@@ -45,13 +77,33 @@ class Player:
         ]
         self.frame = 0
 
-    def get_sprite(self, frame: int):
+    def get_sprite(self, frame: int) -> pygame.Surface:
+        """get the current sprite of the player
+
+        Args:
+            frame: the current frame the game reach between 0 and 60
+
+        Returns:
+            surface with player sprite loaded
+        """
         animation = self.sprites[self.direction.value[2]][self.frame]
         if frame % 10 == 0:
             self.frame = int(not self.frame)
         return animation
 
-    def move(self, screen: pygame.Surface, frame: int, v_offset: tuple):
+    def move(
+        self, screen: pygame.Surface, frame: int, v_offset: tuple
+    ) -> pygame.Surface:
+        """move the player accoding to direction
+
+        Args:
+            screen: the surface the player fraw itself on
+            frame: the current frame
+            v_offset: the visual offset to
+
+        Returns:
+            a surface with the player drawn on it
+        """
         x, y = self.v_x, self.v_y
         is_centered = x % 32 == 16 and y % 32 == 16
         if is_centered:
@@ -79,6 +131,21 @@ class Player:
                 self.v_y = new_y
         return self.draw_player(screen, frame, v_offset)
 
-    def draw_player(self, screen: pygame.Surface, frame: int, v_offset: tuple):
-        screen.blit(self.get_sprite(frame), (self.v_x + v_offset[0], self.v_y + v_offset[1]))
+    def draw_player(
+        self, screen: pygame.Surface, frame: int, v_offset: tuple
+    ) -> pygame.Surface:
+        """draw the player on screen with a v_offset
+
+        Args:
+            screen: the screen to draw the player on
+            frame: the current frame
+            v_offset: the visual offset to draw the player on
+
+        Returns:
+            the screen with player loaded on it
+        """
+        screen.blit(
+            self.get_sprite(frame),
+            (self.v_x + v_offset[0], self.v_y + v_offset[1])
+        )
         return screen
