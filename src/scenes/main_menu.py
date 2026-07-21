@@ -2,6 +2,7 @@ import pygame
 from src.enums import SceneName
 from src.models import Scene
 from src.models import Button
+from src.render import Renderer
 
 
 class MainMenuScene(Scene):
@@ -14,6 +15,8 @@ class MainMenuScene(Scene):
 
         self.button_idx = 0
 
+        self.text = Renderer.get_text("play")
+
     def render_scene(self, renderer) -> None:
         for i, button in enumerate(self.buttons):
 
@@ -22,6 +25,8 @@ class MainMenuScene(Scene):
 
             else:
                 renderer.render(button.idel, (button.x, button.y))
+        for i, c in enumerate(self.text):
+            renderer.render(c, (8 * 5 * i, 0))
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
 

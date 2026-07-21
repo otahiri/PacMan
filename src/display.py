@@ -25,7 +25,6 @@ class Screen:
         self.current_scene: SceneName = SceneName.MAIN_MENU
 
     def game_loop(self) -> None:
-
         running = True
         while running:
             events = pygame.event.get()

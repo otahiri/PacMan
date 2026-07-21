@@ -11,18 +11,22 @@ class Renderer:
 
     @classmethod
     def get_button(cls):
-        idel = pygame.image.load("assets/button/idel.png")
-        hover = pygame.image.load("assets/button/hover.png")
+        size = (32, 11)
+        new_size = (32 * 10, 11 * 10)
 
-        weight = 32
-        height = 11
-        return (idel, hover, weight, height)
+        idel = cls.__scale_surface(
+            pygame.image.load("assets/button/idel.png"), size, new_size
+        )
+        hover = cls.__scale_surface(
+            pygame.image.load("assets/button/hover.png"), size, new_size
+        )
+        return (idel, hover, new_size)
 
     def render(self, source, pos):
         self.window.blit(source, pos)
 
     @classmethod
-    def scale_surface(cls, src_image, size, new_size):
+    def __scale_surface(cls, src_image, size, new_size):
         orig_w, orig_h = size
         new_w, new_h = new_size
 
@@ -40,3 +44,16 @@ class Renderer:
 
     def update_window(self):
         pygame.display.flip()
+
+    @classmethod
+    def get_text(cls, text):
+        result = []
+        for c in text:
+            result.append(
+                cls.__scale_surface(
+                    pygame.image.load(f"assets/letters/{c}.png"),
+                    (8, 16),
+                    (8 * 5, 16 * 5),
+                )
+            )
+        return result
