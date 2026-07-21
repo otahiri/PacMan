@@ -1,6 +1,7 @@
 import pygame
 from src.enums import SceneName
 from src.models import Scene
+from src.render import Renderer
 from src.scenes.game import GameScene
 from src.scenes.main_menu import MainMenuScene
 from src.scenes.score_board import ScoreboardScene
@@ -12,11 +13,12 @@ class Screen:
         print("initialize Screen")
         self.height = 1280
         self.width = 1280
-        self.screen: pygame.Surface = pygame.display.set_mode((self.width, self.height))
-        self.clock = pygame.time.Clock()
+
+        self.renderer: Renderer = Renderer()
+
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(self.width, self.height, self.screen),
+            SceneName.GAME: GameScene(self.width, self.height, self.renderer.window),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
         }
@@ -36,14 +38,12 @@ class Screen:
 
             scene = self.scenes[self.current_scene]
             next_scene = scene.handle_events(events)
-            print(scene.__class__.__name__)
 
             if next_scene:
                 self.current_scene = next_scene
                 scene = self.scenes[next_scene]
 
-            self.screen.fill("black")
-            scene.render_scene(self.screen)
+            self.renderer.clear()
+            scene.render_scene(self.renderer)
 
-            self.clock.tick(60)
-            pygame.display.flip()
+            self.renderer.update_window()

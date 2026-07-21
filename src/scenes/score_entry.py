@@ -5,11 +5,11 @@ from src.models import Scene
 
 class ScoreEntryScene(Scene):
     def __init__(self) -> None:
-        f = pygame.font.Font(None, 100)
-        self.surf = f.render("Score entry", True, "white")
+        print("initialize ScoreEntryScene")
 
-    def render_scene(self, screen) -> None:
-        screen.blit(self.surf, (0, 0))
+    def render_scene(self, renderer) -> None:
+        # renderer.window.blit(self.surf, (0, 0))
+        pass
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:

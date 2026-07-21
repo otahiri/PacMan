@@ -11,10 +11,7 @@ class Direction(Enum):
 
 
 class Player:
-    def __init__(
-        self, cord_x: int, cord_y: int,
-        maze: list[list[Cell]]
-    ) -> None:
+    def __init__(self, cord_x: int, cord_y: int, maze: list[list[Cell]]) -> None:
         self.maze = maze
         self.speed = 2
         self.max_y = len(self.maze) * 32
@@ -80,5 +77,7 @@ class Player:
         return self.draw_player(screen, frame, v_offset)
 
     def draw_player(self, screen: pygame.Surface, frame: int, v_offset: tuple):
-        screen.blit(self.get_sprite(frame), (self.v_x + v_offset[0], self.v_y + v_offset[1]))
+        screen.blit(
+            self.get_sprite(frame), (self.v_x + v_offset[0], self.v_y + v_offset[1])
+        )
         return screen

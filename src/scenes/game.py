@@ -8,23 +8,20 @@ from src.models import Scene
 
 class GameScene(Scene):
     def __init__(self, width, height, screen: pygame.Surface) -> None:
-        f = pygame.font.Font(None, 100)
         self.screen = screen
         self.logical_maze = MazeGenerator()
         self.maze = Maze(self.logical_maze, (width, height))
         self.player = Player(
-            self.logical_maze._entryx,
-            self.logical_maze._entryy,
-            self.maze.cell_grid
+            self.logical_maze._entryx, self.logical_maze._entryy, self.maze.cell_grid
         )
         self.surf = self.maze.render_maze()
         self.frame = 0
 
         self.running = True
 
-    def render_scene(self, screen) -> None:
-        screen.blit(self.surf, self.maze.v_offset)
-        self.player.move(screen, self.frame, self.maze.v_offset)
+    def render_scene(self, renderer) -> None:
+        renderer.window.blit(self.surf, self.maze.v_offset)
+        self.player.move(renderer.window, self.frame, self.maze.v_offset)
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
