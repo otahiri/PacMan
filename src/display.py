@@ -36,7 +36,6 @@ class Screen:
 
             scene = self.scenes[self.current_scene]
             next_scene = scene.handle_events(events)
-            print(scene.__class__.__name__)
 
             if next_scene:
                 self.current_scene = next_scene
