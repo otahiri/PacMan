@@ -210,7 +210,7 @@ class Ghost(Character):
             for direction in Direction:
                 cell_y = self.bit_y + direction.value[1]
                 cell_x = self.bit_x + direction.value[0]
-                is_reverse = self.bit_x == -direction.value[0] and self.bit_y == -direction.value[1]
+                is_reverse = self.direction.value[0] == -direction.value[0] and self.direction.value[1] == -direction.value[1]
                 if (
                     cell_y < len(self.maze)
                     and cell_x < len(self.maze[0])
@@ -226,9 +226,11 @@ class Ghost(Character):
 
             if possible_directions:
                 valid_direction = [d for d in possible_directions if not d[2]]
+                print([d.name for _, d, _ in valid_direction])
                 if not valid_direction:
                     valid_direction = possible_directions
                 valid_direction.sort(key=lambda x: x[0])
+                print([d.name for _, d, _ in valid_direction])
                 self.direction = valid_direction[0][1]
 
         dx, dy, shift = self.direction.value

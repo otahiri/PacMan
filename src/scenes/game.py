@@ -17,7 +17,7 @@ class GameScene(Scene):
             self.logical_maze._entryy,
             self.maze.cell_grid
         )
-        self.ghost = Ghost(self.logical_maze._exitx, self.logical_maze._exity, self.maze.cell_grid)
+        self.red_ghost = Ghost(self.logical_maze._exitx, self.logical_maze._exity, self.maze.cell_grid)
         self.surf = self.maze.render_maze()
         self.frame = 0
 
@@ -26,7 +26,7 @@ class GameScene(Scene):
     def render_scene(self, screen) -> None:
         screen.blit(self.surf, self.maze.v_offset)
         self.player.move(screen, self.frame, self.maze.v_offset)
-        self.ghost.move(screen, self.frame, self.maze.v_offset, self.player)
+        self.red_ghost.move(screen, self.frame, self.maze.v_offset, self.player)
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
