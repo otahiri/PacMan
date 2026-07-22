@@ -27,7 +27,6 @@ class Character(ABC):
     def get_sprite(self, frame: int) -> pygame.Surface: ...
 
 
-
 class Player(Character):
     """player class
 
@@ -168,7 +167,7 @@ class Ghost(Character):
             maze: the cell grid
         """
         self.maze = maze
-        self.speed = 1
+        self.speed = 2
         self.max_y = len(self.maze) * 32
         self.max_x = len(self.maze[0]) * 32
         self.v_x = cord_x * 32 + 16
@@ -197,30 +196,39 @@ class Ghost(Character):
         ]
         self.frame = 0
 
+    def choose_target(self, player: Player) -> tuple:
+        return player.bit_x, player.bit_y
+
     def move(
         self, screen: pygame.Surface, frame: int, v_offset: tuple, player: Player
     ) -> pygame.Surface:
         x, y = self.v_x, self.v_y
         is_centered = x % 32 == 16 and y % 32 == 16
         if is_centered:
-            target_x = player.bit_x
-            target_y = player.bit_y
+            target_x, target_y = self.choose_target(player)
             print(target_x, target_y)
             possible_directions = []
             for direction in Direction:
                 cell_y = self.bit_y + direction.value[1]
                 cell_x = self.bit_x + direction.value[0]
-                is_reverse = self.direction.value[0] == -direction.value[0] and self.direction.value[1] == -direction.value[1]
+                is_reverse = (
+                    self.direction.value[0] == -direction.value[0]
+                    and self.direction.value[1] == -direction.value[1]
+                )
                 if (
                     cell_y < len(self.maze)
                     and cell_x < len(self.maze[0])
-                    and ((1 << direction.value[2]) & self.maze[self.bit_y][self.bit_x].hex_value)
+                    and (
+                        (1 << direction.value[2])
+                        & self.maze[self.bit_y][self.bit_x].hex_value
+                    )
                     == 0
                 ):
                     possible_directions.append(
                         (
                             ((target_x - cell_x) ** 2 + (target_y - cell_y) ** 2),
-                            direction, is_reverse
+                            direction,
+                            is_reverse,
                         )
                     )
 
@@ -285,3 +293,13 @@ class Ghost(Character):
         if frame % 10 == 0:
             self.frame = int(not self.frame)
         return animation
+
+
+class Pinky(Ghost):
+    def __init__(self, cord_x: int, cord_y: int, maze: list[list[Cell]]) -> None:
+        super().__init__(cord_x, cord_y, maze)
+
+    def choose_target(self, player: Player) -> tuple:
+        x = player.bit_x + (player.direction.value[0] * 4)
+        y = player.bit_y + (player.direction.value[1] * 4)
+        return x, y

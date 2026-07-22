@@ -1,6 +1,6 @@
 import pygame
 from pygame.event import Event
-from src import Player, Direction, Maze, Ghost
+from src import Player, Direction, Maze, Ghost, Pinky
 from src.enums import SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene
@@ -18,6 +18,8 @@ class GameScene(Scene):
             self.maze.cell_grid
         )
         self.red_ghost = Ghost(self.logical_maze._exitx, self.logical_maze._exity, self.maze.cell_grid)
+        self.pinky = Pinky(self.logical_maze._exitx, self.logical_maze._exity, self.maze.cell_grid)
+
         self.surf = self.maze.render_maze()
         self.frame = 0
 
@@ -27,6 +29,7 @@ class GameScene(Scene):
         screen.blit(self.surf, self.maze.v_offset)
         self.player.move(screen, self.frame, self.maze.v_offset)
         self.red_ghost.move(screen, self.frame, self.maze.v_offset, self.player)
+        self.pinky.move(screen, self.frame, self.maze.v_offset, self.player)
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
