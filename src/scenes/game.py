@@ -12,7 +12,9 @@ class GameScene(Scene):
         self.logical_maze = MazeGenerator()
         self.maze = Maze(self.logical_maze, (width, height))
         self.player = Player(
-            self.logical_maze._entryx, self.logical_maze._entryy, self.maze.cell_grid
+            self.logical_maze._entryx,
+            self.logical_maze._entryy,
+            self.maze.cell_grid,
         )
         self.surf = self.maze.render_maze()
         self.frame = 0

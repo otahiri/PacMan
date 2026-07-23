@@ -120,23 +120,33 @@ class Maze:
                     self.corner_images[cell.top_left.hex], (cord_x, cord_y)
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.top_right.hex], (cord_x + 32, cord_y)
+                    self.corner_images[cell.top_right.hex],
+                    (cord_x + 32, cord_y),
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.bottom_left.hex], (cord_x, cord_y + 32)
+                    self.corner_images[cell.bottom_left.hex],
+                    (cord_x, cord_y + 32),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_right.hex],
                     (cord_x + 32, cord_y + 32),
                 )
                 if cell.hex_value & 1:
-                    maze_surface.blit(self.wall_images[0], (cord_x + 16, cord_y))
+                    maze_surface.blit(
+                        self.wall_images[0], (cord_x + 16, cord_y)
+                    )
                 if cell.hex_value & 2:
-                    maze_surface.blit(self.wall_images[1], (cord_x + 32, cord_y + 16))
+                    maze_surface.blit(
+                        self.wall_images[1], (cord_x + 32, cord_y + 16)
+                    )
                 if cell.hex_value & 4:
-                    maze_surface.blit(self.wall_images[0], (cord_x + 16, cord_y + 32))
+                    maze_surface.blit(
+                        self.wall_images[0], (cord_x + 16, cord_y + 32)
+                    )
                 if cell.hex_value & 8:
-                    maze_surface.blit(self.wall_images[1], (cord_x, cord_y + 16))
+                    maze_surface.blit(
+                        self.wall_images[1], (cord_x, cord_y + 16)
+                    )
         return maze_surface
 
     def draw_maze(self, screen: pygame.Surface):

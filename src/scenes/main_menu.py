@@ -1,8 +1,7 @@
 import pygame
-from src.enums import SceneName
-from src.models import Scene
+from src.enums import DisplayInfo, SceneName
+from src.models import Scene, Text
 from src.models import Button
-from src.render import Renderer
 
 
 class MainMenuScene(Scene):
@@ -10,12 +9,17 @@ class MainMenuScene(Scene):
         print("initialize MainMenuScene")
         self.buttons = []
 
+        x = DisplayInfo.SCREEN_WIDTH.value // 2
+
         for i, lable in enumerate(["Play", "Scores", "Exit"]):
-            self.buttons.append(Button(lable, (640, 150 * i + 640)))
+
+            y = DisplayInfo.SCREEN_HEIGHT.value // 2 + 150 * i
+
+            self.buttons.append(Button(lable, (x, y)))
 
         self.button_idx = 0
 
-        self.text = Renderer.get_text("play")
+        self.text = Text("hello")
 
     def render_scene(self, renderer) -> None:
         for i, button in enumerate(self.buttons):
@@ -25,8 +29,13 @@ class MainMenuScene(Scene):
 
             else:
                 renderer.render(button.idel, (button.x, button.y))
-        for i, c in enumerate(self.text):
-            renderer.render(c, (8 * 5 * i, 0))
+        self.text.render(
+            renderer,
+            (
+                DisplayInfo.SCREEN_WIDTH.value // 2,
+                DisplayInfo.SCREEN_HEIGHT.value // 2,
+            ),
+        )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
 

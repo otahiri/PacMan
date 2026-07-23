@@ -20,10 +20,27 @@ class Button:
         return is_inside_x and is_inside_y
 
 
+class Text:
+    def __init__(self, text: str) -> None:
+
+        self.text = text
+        self.surf, size = Renderer.get_text(text, 5)
+        self.width, self.height = size
+
+    def render(self, renderer: Renderer, pos: tuple[int, int]):
+        width, height = pos
+        width -= self.width // 2
+        height -= self.height // 2
+
+        renderer.window.blit(self.surf, (width, height))
+
+
 class Scene(ABC):
 
     @abstractmethod
     def render_scene(self, renderer: Renderer) -> None: ...
 
     @abstractmethod
-    def handle_events(self, events: list[pygame.Event]) -> None | SceneName: ...
+    def handle_events(
+        self, events: list[pygame.Event]
+    ) -> None | SceneName: ...

@@ -1,5 +1,5 @@
 import pygame
-from src.enums import SceneName
+from src.enums import DisplayInfo, SceneName
 from src.models import Scene
 from src.render import Renderer
 from src.scenes.game import GameScene
@@ -11,14 +11,16 @@ from src.scenes.score_entry import ScoreEntryScene
 class Screen:
     def __init__(self) -> None:
         print("initialize Screen")
-        self.height = 1280
-        self.width = 1280
 
         self.renderer: Renderer = Renderer()
 
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(self.width, self.height, self.renderer.window),
+            SceneName.GAME: GameScene(
+                DisplayInfo.SCREEN_WIDTH.value,
+                DisplayInfo.SCREEN_HEIGHT.value,
+                self.renderer.window,
+            ),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
         }
