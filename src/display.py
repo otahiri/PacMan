@@ -41,7 +41,6 @@ class Screen:
                 self.current_scene = next_scene
                 scene = self.scenes[next_scene]
 
-            self.screen.fill("black")
             scene.render_scene(self.screen)
 
             self.clock.tick(60)

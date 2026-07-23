@@ -1,4 +1,5 @@
 from .maze import Cell, Corner, Maze
-from .mobs import Character, Player, Direction, Ghost, Pinky
+from .mobs import Character, Player, Direction, Blinky, Pinky, Clyde, Inky
 
-__all__ = ["Cell", "Corner", "Maze", "Player", "Direction", "Character", "Ghost", "Pinky"]
+__all__ = ["Cell", "Corner", "Maze", "Player",
+           "Direction", "Character", "Blinky", "Pinky", "Clyde", "Inky"]

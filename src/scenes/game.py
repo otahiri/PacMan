@@ -1,6 +1,6 @@
 import pygame
 from pygame.event import Event
-from src import Player, Direction, Maze, Ghost, Pinky
+from src import Player, Direction, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene
@@ -12,13 +12,12 @@ class GameScene(Scene):
         self.screen = screen
         self.logical_maze = MazeGenerator()
         self.maze = Maze(self.logical_maze, (width, height))
-        self.player = Player(
-            self.logical_maze._entryx,
-            self.logical_maze._entryy,
-            self.maze.cell_grid
-        )
-        self.red_ghost = Ghost(self.logical_maze._exitx, self.logical_maze._exity, self.maze.cell_grid)
-        self.pinky = Pinky(self.logical_maze._exitx, self.logical_maze._exity, self.maze.cell_grid)
+        self.player = Player(2, self.maze.cell_grid)
+        self.blinky = Blinky(1, self.maze.cell_grid)
+        self.pinky = Pinky(1, self.maze.cell_grid)
+        self.clyde = Clyde(1, self.maze.cell_grid)
+
+        self.inky = Inky(1, self.maze.cell_grid)
 
         self.surf = self.maze.render_maze()
         self.frame = 0
@@ -26,10 +25,15 @@ class GameScene(Scene):
         self.running = True
 
     def render_scene(self, screen) -> None:
+        screen.fill("black")
         screen.blit(self.surf, self.maze.v_offset)
         self.player.move(screen, self.frame, self.maze.v_offset)
-        self.red_ghost.move(screen, self.frame, self.maze.v_offset, self.player)
-        self.pinky.move(screen, self.frame, self.maze.v_offset, self.player)
+        self.blinky.move(screen, self.frame, self.maze.v_offset, [self.player])
+        self.pinky.move(screen, self.frame, self.maze.v_offset, [self.player])
+        self.clyde.move(screen, self.frame, self.maze.v_offset, [self.player])
+        self.inky.move(
+            screen, self.frame, self.maze.v_offset, [self.player, self.blinky]
+        )
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
