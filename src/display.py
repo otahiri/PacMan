@@ -4,6 +4,7 @@ from src.models import Scene
 from src.render import Renderer
 from src.scenes.game import GameScene
 from src.scenes.main_menu import MainMenuScene
+from src.scenes.option import OptionsScene
 from src.scenes.score_board import ScoreboardScene
 from src.scenes.score_entry import ScoreEntryScene
 
@@ -23,6 +24,7 @@ class Screen:
             ),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
+            SceneName.OPTIONS: OptionsScene(),
         }
         self.current_scene: SceneName = SceneName.MAIN_MENU
 
@@ -46,5 +48,6 @@ class Screen:
 
             self.renderer.clear()
             scene.render_scene(self.renderer)
+            # self.renderer.draw_debug()
 
             self.renderer.update_window()

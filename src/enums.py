@@ -6,6 +6,7 @@ class SceneName(Enum):
     GAME = auto()
     SCORE_ENTRY = auto()
     SCOREBOARD = auto()
+    OPTIONS = auto()
 
 
 class Asset(Enum):
@@ -13,6 +14,8 @@ class Asset(Enum):
     LETTER_WIDTH = 8
     LETTER_HEIGHT = 16
     LETTER_SPACING = 5
+    BUTTON_WIDTH = 32
+    BUTTON_HEIGHT = 11
 
 
 class DisplayInfo(Enum):

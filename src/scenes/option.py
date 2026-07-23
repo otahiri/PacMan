@@ -4,10 +4,10 @@ from src.models import Scene, Text
 from src.render import Renderer
 
 
-class ScoreboardScene(Scene):
+class OptionsScene(Scene):
     def __init__(self) -> None:
-        print("initialize ScoreboardScene")
-        self.text = Text("score board", (640, 640), "white")
+        print("initialize OptionsScene")
+        self.text = Text("options", (640, 640), "white")
 
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(

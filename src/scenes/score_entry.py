@@ -1,15 +1,19 @@
 import pygame
 from src.enums import SceneName
-from src.models import Scene
+from src.models import Scene, Text
+from src.render import Renderer
 
 
 class ScoreEntryScene(Scene):
     def __init__(self) -> None:
         print("initialize ScoreEntryScene")
+        self.text = Text("score entry", (640, 640), "white")
 
-    def render_scene(self, renderer) -> None:
-        # renderer.window.blit(self.surf, (0, 0))
-        pass
+    def render_scene(self, renderer: Renderer) -> None:
+        renderer.render(
+            self.text.surf,
+            self.text.pos,
+        )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:

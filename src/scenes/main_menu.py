@@ -1,41 +1,36 @@
 import pygame
 from src.enums import DisplayInfo, SceneName
-from src.models import Scene, Text
+from src.models import Scene
 from src.models import Button
+from src.render import Renderer
 
 
 class MainMenuScene(Scene):
     def __init__(self) -> None:
         print("initialize MainMenuScene")
+
         self.buttons = []
 
         x = DisplayInfo.SCREEN_WIDTH.value // 2
+        spacing = 120
+        scale = 10
 
-        for i, lable in enumerate(["Play", "Scores", "Exit"]):
+        for i, lable in enumerate(["play", "scores", "option", "exit"]):
 
-            y = DisplayInfo.SCREEN_HEIGHT.value // 2 + 150 * i
-
-            self.buttons.append(Button(lable, (x, y)))
+            y = DisplayInfo.SCREEN_HEIGHT.value // 2 + spacing * i
+            self.buttons.append(Button(lable, (x, y), scale))
 
         self.button_idx = 0
 
-        self.text = Text("hello")
-
-    def render_scene(self, renderer) -> None:
+    def render_scene(self, renderer: Renderer) -> None:
         for i, button in enumerate(self.buttons):
 
             if self.button_idx == i:
-                renderer.render(button.hover, (button.x, button.y))
-
+                renderer.render(button.hover, button.pos)
             else:
-                renderer.render(button.idel, (button.x, button.y))
-        self.text.render(
-            renderer,
-            (
-                DisplayInfo.SCREEN_WIDTH.value // 2,
-                DisplayInfo.SCREEN_HEIGHT.value // 2,
-            ),
-        )
+                renderer.render(button.idel, button.pos)
+
+            renderer.render(button.text.surf, button.text.pos)
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
 
@@ -63,16 +58,19 @@ class MainMenuScene(Scene):
                         self.button_idx = i
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                return self.__go_to_scene()
+                if event.button == 1:
+                    return self.__go_to_scene()
 
     def __go_to_scene(self) -> None | SceneName:
         for i, button in enumerate(self.buttons):
             if i == self.button_idx:
                 match button.name:
-                    case "Play":
+                    case "play":
                         return SceneName.GAME
-                    case "Scores":
+                    case "scores":
                         return SceneName.SCOREBOARD
-                    case "Exit":
+                    case "option":
+                        return SceneName.OPTIONS
+                    case "exit":
                         pygame.quit()
                         exit()

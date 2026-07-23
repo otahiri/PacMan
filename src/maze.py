@@ -1,7 +1,6 @@
 from typing import Any
 import pygame
 from mazegenerator import MazeGenerator
-from pygame.transform import set_smoothscale_backend
 
 
 class Corner:
@@ -42,7 +41,7 @@ class Cell:
         self.bottom_right = corners[3]
         self.update_corners()
 
-    def update_corners(self):
+    def update_corners(self) -> None:
         """mask the corner hex value according to the hex value of the cell
         top left corner will have an east side if the cell has a north wall
         and a south side if the cell has a west wall
@@ -149,7 +148,7 @@ class Maze:
                     )
         return maze_surface
 
-    def draw_maze(self, screen: pygame.Surface):
+    def draw_maze(self, screen: pygame.Surface) -> None:
         """render the pre_rendered maze on the screen
 
         Args:
