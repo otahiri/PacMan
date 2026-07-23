@@ -1,7 +1,7 @@
+from .gums import Gum, SuperGum
 from typing import Any
 import pygame
 from mazegenerator import MazeGenerator
-from pygame.transform import set_smoothscale_backend
 
 
 class Corner:
@@ -27,7 +27,7 @@ class Cell:
         bottom_right: bottom right corner
     """
 
-    def __init__(self, hex: int, corners: list[Corner]) -> None:
+    def __init__(self, hex: int, corners: list[Corner], content: Any, cord: tuple) -> None:
         """constructor of the Cell class
 
         Args:
@@ -41,6 +41,8 @@ class Cell:
         self.bottom_left = corners[2]
         self.bottom_right = corners[3]
         self.update_corners()
+        self.content = content
+        self.cord = cord
 
     def update_corners(self):
         """mask the corner hex value according to the hex value of the cell
@@ -115,7 +117,8 @@ class Maze:
                         corner_grid[y][x + 1],
                         corner_grid[y + 1][x],
                         corner_grid[y + 1][x + 1],
-                    ],
+                    ], Gum(10, (x, y)) if self.bit_maze[y][x] != 15 else None,
+                    (x, y)
                 )
                 for x in range(len(self.bit_maze[0]))
             ]
@@ -162,4 +165,7 @@ class Maze:
                 if cell.hex_value & 8:
                     maze_surface.blit(self.wall_images[1],
                                       (cord_x, cord_y + 16))
+                if cell.content:
+                    maze_surface.blit(cell.content.sprite, (cord_x + 16, cord_y + 16))
+
         return maze_surface

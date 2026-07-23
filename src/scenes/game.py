@@ -3,6 +3,7 @@ from pygame.event import Event
 from src import Player, Direction, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import SceneName
 from mazegenerator import MazeGenerator
+from src.maze import Cell
 from src.models import Scene
 
 
@@ -13,14 +14,15 @@ class GameScene(Scene):
         self.logical_maze = MazeGenerator()
         self.maze = Maze(self.logical_maze, (width, height))
         self.player = Player(2, self.maze.cell_grid)
-        self.blinky = Blinky(1, self.maze.cell_grid)
-        self.pinky = Pinky(1, self.maze.cell_grid)
-        self.clyde = Clyde(1, self.maze.cell_grid)
+        self.blinky = Blinky(2, self.maze.cell_grid)
+        self.pinky = Pinky(2, self.maze.cell_grid)
+        self.clyde = Clyde(2, self.maze.cell_grid)
 
-        self.inky = Inky(1, self.maze.cell_grid)
+        self.inky = Inky(2, self.maze.cell_grid)
 
         self.surf = self.maze.render_maze()
         self.frame = 0
+        self.erase = pygame.image.load("assets/player/empty_sprite.png")
 
         self.running = True
 
@@ -34,6 +36,14 @@ class GameScene(Scene):
         self.inky.move(
             screen, self.frame, self.maze.v_offset, [self.player, self.blinky]
         )
+        for row in self.maze.cell_grid:
+            for cell in row:
+                if not cell.content:
+                    x, y = cell.cord
+                    screen.blit(self.erase, (x * 32 + 16 + self.maze.v_offset[0], y * 32 + 16 + self.maze.v_offset[1]))
+                    if (x, y) == (self.player.bit_x, self.player.bit_y):
+                        self.player.draw_player(screen, self.frame, self.maze.v_offset)
+
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60

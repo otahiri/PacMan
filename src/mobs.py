@@ -14,6 +14,7 @@ class Direction(Enum):
         WEST: west direction
     """
 
+    NONE = (0, 0, 0)
     NORTH = (0, -1, 0)
     EAST = (1, 0, 1)
     SOUTH = (0, 1, 2)
@@ -56,6 +57,7 @@ class Player(Character):
         cord_x = len(maze) // 2
         cord_y = len(maze[0]) // 2
         self.origin = (cord_x, cord_y)
+        self.maze[cord_y][cord_y].content = None
         self.speed = speed
         self.max_y = len(self.maze) * 32
         self.max_x = len(self.maze[0]) * 32
@@ -63,7 +65,7 @@ class Player(Character):
         self.v_y = cord_y * 32 + 16
         self.bit_y = cord_y
         self.bit_x = cord_x
-        self.new_direction = Direction.NORTH
+        self.new_direction = Direction.NONE
         self.direction = self.new_direction
         base_sprite_one = pygame.image.load("assets/player/pacman0.png")
         base_sprite_two = pygame.image.load("assets/player/pacman1.png")
@@ -86,6 +88,7 @@ class Player(Character):
         self.frame = 0
         self.dead = False
         self.death_time = 0
+        self.score = 0
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
@@ -123,8 +126,13 @@ class Player(Character):
         x, y = self.v_x, self.v_y
         is_centered = x % 32 == 16 and y % 32 == 16
         if is_centered:
-            self.bit_y = y // 32
-            self.bit_x = x // 32
+            new_bit_x = x // 32
+            new_bit_y = y // 32
+            if self.maze[self.bit_y][self.bit_x].content:
+                self.score += self.maze[self.bit_y][self.bit_x].content.score
+                self.maze[self.bit_y][self.bit_x].content = None
+            self.bit_y = new_bit_y
+            self.bit_x = new_bit_x
             dx, dy, shift = self.new_direction.value
             if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
                 self.direction = self.new_direction \
