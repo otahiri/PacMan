@@ -4,11 +4,11 @@ from src import Player, Direction, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene
+from src.render import Renderer
 
 
 class GameScene(Scene):
     def __init__(self, width, height, screen: pygame.Surface) -> None:
-        f = pygame.font.Font(None, 100)
         self.screen = screen
         self.logical_maze = MazeGenerator()
         self.maze = Maze(self.logical_maze, (width, height))
@@ -24,15 +24,24 @@ class GameScene(Scene):
 
         self.running = True
 
-    def render_scene(self, screen) -> None:
-        screen.fill("black")
-        screen.blit(self.surf, self.maze.v_offset)
-        self.player.move(screen, self.frame, self.maze.v_offset)
-        self.blinky.move(screen, self.frame, self.maze.v_offset, [self.player])
-        self.pinky.move(screen, self.frame, self.maze.v_offset, [self.player])
-        self.clyde.move(screen, self.frame, self.maze.v_offset, [self.player])
+    def render_scene(self, renderer: Renderer) -> None:
+        renderer.window.fill("black")
+        renderer.window.blit(self.surf, self.maze.v_offset)
+        self.player.move(renderer.window, self.frame, self.maze.v_offset)
+        self.blinky.move(
+            renderer.window, self.frame, self.maze.v_offset, [self.player]
+        )
+        self.pinky.move(
+            renderer.window, self.frame, self.maze.v_offset, [self.player]
+        )
+        self.clyde.move(
+            renderer.window, self.frame, self.maze.v_offset, [self.player]
+        )
         self.inky.move(
-            screen, self.frame, self.maze.v_offset, [self.player, self.blinky]
+            renderer.window,
+            self.frame,
+            self.maze.v_offset,
+            [self.player, self.blinky],
         )
 
     def handle_events(self, events: list[Event]) -> None | SceneName:

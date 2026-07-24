@@ -1,8 +1,10 @@
 import pygame
-from src.enums import SceneName
+from src.enums import DisplayInfo, SceneName
 from src.models import Scene
+from src.render import Renderer
 from src.scenes.game import GameScene
 from src.scenes.main_menu import MainMenuScene
+from src.scenes.option import OptionsScene
 from src.scenes.score_board import ScoreboardScene
 from src.scenes.score_entry import ScoreEntryScene
 
@@ -10,20 +12,23 @@ from src.scenes.score_entry import ScoreEntryScene
 class Screen:
     def __init__(self) -> None:
         print("initialize Screen")
-        self.height = 1280
-        self.width = 1280
-        self.screen: pygame.Surface = pygame.display.set_mode((self.width, self.height))
-        self.clock = pygame.time.Clock()
+
+        self.renderer: Renderer = Renderer()
+
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(self.width, self.height, self.screen),
+            SceneName.GAME: GameScene(
+                DisplayInfo.SCREEN_WIDTH.value,
+                DisplayInfo.SCREEN_HEIGHT.value,
+                self.renderer.window,
+            ),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
+            SceneName.OPTIONS: OptionsScene(),
         }
         self.current_scene: SceneName = SceneName.MAIN_MENU
 
     def game_loop(self) -> None:
-
         running = True
         while running:
             events = pygame.event.get()
@@ -41,7 +46,8 @@ class Screen:
                 self.current_scene = next_scene
                 scene = self.scenes[next_scene]
 
-            scene.render_scene(self.screen)
+            self.renderer.clear()
+            scene.render_scene(self.renderer)
+            # self.renderer.draw_debug()
 
-            self.clock.tick(60)
-            pygame.display.flip()
+            self.renderer.update_window()

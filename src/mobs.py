@@ -44,7 +44,7 @@ class Player(Character):
         frame: the current frame that passed between 0 and 60
     """
 
-    def __init__(self, speed, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
         """constructor
 
         Args:
@@ -127,8 +127,9 @@ class Player(Character):
             self.bit_x = x // 32
             dx, dy, shift = self.new_direction.value
             if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
-                self.direction = self.new_direction \
-                    if not self.dead else self.direction
+                self.direction = (
+                    self.new_direction if not self.dead else self.direction
+                )
         dx, dy, shift = self.direction.value
         can_move = False
         if is_centered:
@@ -163,13 +164,15 @@ class Player(Character):
         Returns:
             the screen with player loaded on it
         """
-        screen.blit(self.get_sprite(frame),
-                    (self.v_x + v_offset[0], self.v_y + v_offset[1]))
+        screen.blit(
+            self.get_sprite(frame),
+            (self.v_x + v_offset[0], self.v_y + v_offset[1]),
+        )
         return screen
 
 
 class Blinky(Character):
-    def __init__(self, speed, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
         """constructor
 
         Args:
@@ -205,7 +208,7 @@ class Blinky(Character):
         ]
         self.frame = 0
 
-    def set_cords(self):
+    def set_cords(self) -> None:
         x, y = self.origin
         self.v_x = x * 32 + 16
         self.v_y = y * 32 + 16
@@ -216,8 +219,13 @@ class Blinky(Character):
         player = anchors.pop()
         return player.bit_x, player.bit_y
 
-    def move(self, screen: pygame.Surface, frame: int,
-             v_offset: tuple, anchors: list) -> pygame.Surface:
+    def move(
+        self,
+        screen: pygame.Surface,
+        frame: int,
+        v_offset: tuple,
+        anchors: list,
+    ) -> pygame.Surface:
         player = anchors[0]
         x, y = self.v_x, self.v_y
         if (
@@ -265,9 +273,9 @@ class Blinky(Character):
         dx, dy, shift = self.direction.value
         can_move = False
         if is_centered:
-            if ((1 << shift)
-                    & self.maze[self.bit_y][self.bit_x].hex_value) == 0\
-                            and not player.dead:
+            if (
+                (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value
+            ) == 0 and not player.dead:
                 can_move = True
         else:
             can_move = True
@@ -298,8 +306,10 @@ class Blinky(Character):
         Returns:
             the screen with player loaded on it
         """
-        screen.blit(self.get_sprite(frame),
-                    (self.v_x + v_offset[0], self.v_y + v_offset[1]))
+        screen.blit(
+            self.get_sprite(frame),
+            (self.v_x + v_offset[0], self.v_y + v_offset[1]),
+        )
         return screen
 
     def get_sprite(self, frame: int) -> pygame.Surface:
@@ -318,7 +328,7 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
-    def __init__(self, speed, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
         super().__init__(speed, maze)
         self.origin = (0, len(maze[0]) - 1)
         self.set_cords()
@@ -331,7 +341,7 @@ class Pinky(Blinky):
 
 
 class Clyde(Blinky):
-    def __init__(self, speed, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
         super().__init__(speed, maze)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.set_cords()
@@ -345,7 +355,7 @@ class Clyde(Blinky):
 
 
 class Inky(Blinky):
-    def __init__(self, speed, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
         super().__init__(speed, maze)
         self.origin = (len(maze) - 1, 0)
         self.set_cords()
@@ -355,4 +365,7 @@ class Inky(Blinky):
         blinky = anchors[1]
         blinky_x_distance = player.bit_x - blinky.bit_x
         blinky_y_distance = player.bit_y - blinky.bit_y
-        return (player.bit_x + (player.direction.value[0] * 2) + blinky_x_distance, player.bit_y + (player.direction.value[1] * 2) + blinky_y_distance)
+        return (
+            player.bit_x + (player.direction.value[0] * 2) + blinky_x_distance,
+            player.bit_y + (player.direction.value[1] * 2) + blinky_y_distance,
+        )
