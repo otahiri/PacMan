@@ -9,7 +9,7 @@ class MainMenuScene(Scene):
     def __init__(self) -> None:
         print("initialize MainMenuScene")
 
-        self.buttons = []
+        self.buttons: list[Button] = []
 
         x = DisplayInfo.SCREEN_WIDTH.value // 2
         spacing = 120
@@ -30,7 +30,7 @@ class MainMenuScene(Scene):
             else:
                 renderer.render(button.idel, button.pos)
 
-            renderer.render(button.text.surf, button.text.pos)
+            renderer.render(button.text.surf, button.text.get_pos())
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
 

@@ -57,7 +57,7 @@ class Renderer:
         )
         return (idel, hover, new_size)
 
-    def render(self, source, pos):
+    def render(self, source: pygame.Surface, pos: tuple[int, int]):
         self.window.blit(source, pos)
 
     @classmethod
@@ -107,7 +107,7 @@ class Renderer:
         x_shift = 0
 
         for c in text:
-            if c.isalpha() and c != " ":
+            if (c.isalpha() or c.isdigit()) and c != " ":
                 letter_path = path + "/" + c + ".png"
                 letter_surface = pygame.image.load(letter_path)
                 scaled_letter = cls.__scale_surface(

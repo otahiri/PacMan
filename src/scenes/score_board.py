@@ -12,25 +12,32 @@ class ScoreboardScene(Scene):
 
         self.text = Text("score board", (width // 2, height // 4), "white")
         data = {
-            "saad": 123043,
-            "oussama": 116232,
+            "sa3d": "12000",
+            "oussama": "11000",
+            "zakaria": "9000",
+            "rami": "600",
         }
-        self.scores = []
+        self.scores: list[tuple[Text, Text]] = []
         i = 0
+        space = 50
         for name, score in data.items():
             y = height // 2 + i * 100
             self.scores.append(
-                Text(name, (width // 2, y), "white"),
+                (
+                    Text(name, (640 - space, y), "white"),
+                    Text(score, (640 + space, y), "white"),
+                )
             )
             i += 1
 
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(
             self.text.surf,
-            self.text.pos,
+            self.text.get_pos(),
         )
-        for name in self.scores:
-            renderer.render(name.surf, name.pos)
+        for name, score in self.scores:
+            renderer.render(name.surf, name.get_pos("rightcenter"))
+            renderer.render(score.surf, score.get_pos("leftcenter"))
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:

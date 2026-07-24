@@ -34,8 +34,35 @@ class Text:
         self.surf, size = Renderer.get_text(text, 5, color)
         self.width, self.height = size
 
-        x, y = pos
-        self.pos = (x - self.width // 2, y - self.height // 2)
+        self.x, self.y = pos
+
+    def get_pos(self, anchor: str = "center") -> tuple[int, int]:
+        match anchor.lower():
+            # Left anchors
+            case "centerleft" | "leftcenter":
+                return (self.x, self.y - self.height // 2)
+            case "bottomleft" | "buttomleft":  # includes your typo safeguard
+                return (self.x, self.y - self.height)
+
+            # Center anchors
+            case "topcenter" | "centertop":
+                return (self.x - self.width // 2, self.y)
+            case "center":
+                return (self.x - self.width // 2, self.y - self.height // 2)
+            case "bottomcenter" | "centerbottom" | "buttomcenter":
+                return (self.x - self.width // 2, self.y - self.height)
+
+            # Right anchors
+            case "topright":
+                return (self.x - self.width, self.y)
+            case "centerright" | "rightcenter":
+                return (self.x - self.width, self.y - self.height // 2)
+            case "bottomright" | "buttomright":
+                return (self.x - self.width, self.y - self.height)
+
+            # Fallback default
+            case _:
+                return (self.x, self.y)
 
 
 class Scene(ABC):

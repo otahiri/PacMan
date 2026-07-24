@@ -12,7 +12,7 @@ class OptionsScene(Scene):
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(
             self.text.surf,
-            self.text.pos,
+            self.text.get_pos(),
         )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
