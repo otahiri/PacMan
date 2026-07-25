@@ -1,13 +1,7 @@
-from abc import ABC, abstractmethod
+from src.enums import Direction
+from src.models import Character
 from src import Cell
 import pygame
-
-from src.enums import Direction
-
-
-class Character(ABC):
-    @abstractmethod
-    def get_sprite(self, frame: int) -> pygame.Surface: ...
 
 
 class Player(Character):

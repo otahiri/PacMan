@@ -74,3 +74,8 @@ class Scene(ABC):
     def handle_events(
         self, events: list[pygame.Event]
     ) -> None | SceneName: ...
+
+
+class Character(ABC):
+    @abstractmethod
+    def get_sprite(self, frame: int) -> pygame.Surface: ...
