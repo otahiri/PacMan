@@ -4,17 +4,17 @@ from src.enums import Asset, DisplayInfo
 
 class Renderer:
     def __init__(self) -> None:
-        self.window = pygame.display.set_mode(
+        self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
         print("initialize Renderer")
 
     def clear(self):
-        self.window.fill((0, 0, 0))
+        self.__window.fill((0, 0, 0))
 
     def draw_debug(self):
         pygame.draw.line(
-            self.window,
+            self.__window,
             "red",
             (
                 0,
@@ -26,7 +26,7 @@ class Renderer:
             ),
         )
         pygame.draw.line(
-            self.window,
+            self.__window,
             "red",
             (
                 DisplayInfo.SCREEN_WIDTH.value // 2,
@@ -58,7 +58,7 @@ class Renderer:
         return (idel, hover, new_size)
 
     def render(self, source: pygame.Surface, pos: tuple[int, int]):
-        self.window.blit(source, pos)
+        self.__window.blit(source, pos)
 
     @classmethod
     def __scale_surface(

@@ -1,5 +1,5 @@
 import pygame
-from src.enums import DisplayInfo, SceneName
+from src.enums import SceneName
 from src.models import Scene
 from src.render import Renderer
 from src.scenes.game import GameScene

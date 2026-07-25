@@ -23,23 +23,24 @@ class GameScene(Scene):
         self.running = True
 
     def render_scene(self, renderer: Renderer) -> None:
-        renderer.window.fill("black")
-        renderer.window.blit(self.surf, self.maze.v_offset)
-        self.player.move(renderer.window, self.frame, self.maze.v_offset)
-        self.blinky.move(
-            renderer.window, self.frame, self.maze.v_offset, [self.player]
+        renderer.render(self.surf, self.maze.v_offset)
+
+        renderer.render(*self.player.move(self.frame, self.maze.v_offset))
+        renderer.render(
+            *self.blinky.move(self.frame, self.maze.v_offset, [self.player])
         )
-        self.pinky.move(
-            renderer.window, self.frame, self.maze.v_offset, [self.player]
+        renderer.render(
+            *self.pinky.move(self.frame, self.maze.v_offset, [self.player])
         )
-        self.clyde.move(
-            renderer.window, self.frame, self.maze.v_offset, [self.player]
+
+        renderer.render(
+            *self.clyde.move(self.frame, self.maze.v_offset, [self.player])
         )
-        self.inky.move(
-            renderer.window,
-            self.frame,
-            self.maze.v_offset,
-            [self.player, self.blinky],
+
+        renderer.render(
+            *self.inky.move(
+                self.frame, self.maze.v_offset, [self.player, self.blinky]
+            )
         )
 
     def handle_events(self, events: list[Event]) -> None | SceneName:

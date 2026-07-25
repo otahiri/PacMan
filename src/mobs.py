@@ -93,8 +93,8 @@ class Player(Character):
         return animation
 
     def move(
-        self, screen: pygame.Surface, frame: int, v_offset: tuple
-    ) -> pygame.Surface:
+        self, frame: int, v_offset: tuple
+    ) -> tuple[pygame.Surface, tuple[int, int]]:
         """move the player accoding to direction
 
         Args:
@@ -134,26 +134,10 @@ class Player(Character):
             if min_y <= new_y < max_y and min_x <= new_x < max_x:
                 self.v_x = new_x
                 self.v_y = new_y
-        return self.draw_player(screen, frame, v_offset)
-
-    def draw_player(
-        self, screen: pygame.Surface, frame: int, v_offset: tuple
-    ) -> pygame.Surface:
-        """draw the player on screen with a v_offset
-
-        Args:
-            screen: the screen to draw the player on
-            frame: the current frame
-            v_offset: the visual offset to draw the player on
-
-        Returns:
-            the screen with player loaded on it
-        """
-        screen.blit(
+        return (
             self.get_sprite(frame),
             (self.v_x + v_offset[0], self.v_y + v_offset[1]),
         )
-        return screen
 
 
 class Blinky(Character):
@@ -206,11 +190,10 @@ class Blinky(Character):
 
     def move(
         self,
-        screen: pygame.Surface,
         frame: int,
         v_offset: tuple,
         anchors: list,
-    ) -> pygame.Surface:
+    ) -> tuple[pygame.Surface, tuple[int, int]]:
         player = anchors[0]
         x, y = self.v_x, self.v_y
         if (
@@ -276,26 +259,10 @@ class Blinky(Character):
                 self.v_y = new_y
                 self.bit_x = self.v_x // 32
                 self.bit_y = self.v_y // 32
-        return self.draw_ghost(screen, frame, v_offset)
-
-    def draw_ghost(
-        self, screen: pygame.Surface, frame: int, v_offset: tuple
-    ) -> pygame.Surface:
-        """draw the player on screen with a v_offset
-
-        Args:
-            screen: the screen to draw the player on
-            frame: the current frame
-            v_offset: the visual offset to draw the player on
-
-        Returns:
-            the screen with player loaded on it
-        """
-        screen.blit(
+        return (
             self.get_sprite(frame),
             (self.v_x + v_offset[0], self.v_y + v_offset[1]),
         )
-        return screen
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
