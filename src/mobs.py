@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src import Cell
+from src import Cell, Maze
 from enum import Enum
 import pygame
 
@@ -14,6 +14,7 @@ class Direction(Enum):
         WEST: west direction
     """
 
+    NONE = (0, 0, 0)
     NORTH = (0, -1, 0)
     EAST = (1, 0, 1)
     SOUTH = (0, 1, 2)
@@ -44,7 +45,7 @@ class Player(Character):
         frame: the current frame that passed between 0 and 60
     """
 
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed, maze: list[list[Cell]], surf: pygame.Surface) -> None:
         """constructor
 
         Args:
@@ -56,14 +57,12 @@ class Player(Character):
         cord_x = len(maze) // 2
         cord_y = len(maze[0]) // 2
         self.origin = (cord_x, cord_y)
+        self.maze[cord_y][cord_y].content = None
         self.speed = speed
         self.max_y = len(self.maze) * 32
         self.max_x = len(self.maze[0]) * 32
-        self.v_x = cord_x * 32 + 16
-        self.v_y = cord_y * 32 + 16
-        self.bit_y = cord_y
-        self.bit_x = cord_x
-        self.new_direction = Direction.NORTH
+        self.set_cords()
+        self.new_direction = Direction.NONE
         self.direction = self.new_direction
         base_sprite_one = pygame.image.load("assets/player/pacman0.png")
         base_sprite_two = pygame.image.load("assets/player/pacman1.png")
@@ -86,6 +85,8 @@ class Player(Character):
         self.frame = 0
         self.dead = False
         self.death_time = 0
+        self.score = 0
+        self.surf = surf
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
@@ -107,8 +108,17 @@ class Player(Character):
                     self.death_time += 1
         return animation
 
+    def set_cords(self):
+        self.direction = Direction.NONE
+        self.new_direction = Direction.NONE
+        x, y = self.origin
+        self.v_x = x * 32 + 16
+        self.v_y = y * 32 + 16
+        self.bit_y = y
+        self.bit_x = x
+
     def move(
-        self, screen: pygame.Surface, frame: int, v_offset: tuple
+        self, screen: pygame.Surface, frame: int, v_offset: tuple, maze: Maze
     ) -> pygame.Surface:
         """move the player accoding to direction
 
@@ -123,19 +133,23 @@ class Player(Character):
         x, y = self.v_x, self.v_y
         is_centered = x % 32 == 16 and y % 32 == 16
         if is_centered:
-            self.bit_y = y // 32
-            self.bit_x = x // 32
+            new_bit_x = x // 32
+            new_bit_y = y // 32
+            if self.maze[new_bit_y][new_bit_x].content:
+                self.score += self.maze[new_bit_y][new_bit_x].content.score
+                self.maze[new_bit_y][new_bit_x].content = None
+                self.surf = maze.render_maze()
+            self.bit_y = new_bit_y
+            self.bit_x = new_bit_x
             dx, dy, shift = self.new_direction.value
-            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
-                self.direction = (
-                    self.new_direction if not self.dead else self.direction
-                )
+            if (1 << shift) & self.maze[self.bit_y][self.bit_x].bit_value == 0:
+                self.direction = self.new_direction if not self.dead else self.direction
         dx, dy, shift = self.direction.value
         can_move = False
         if is_centered:
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
-            ].hex_value == 0 and not self.dead:
+            ].bit_value == 0 and not self.dead:
                 can_move = True
         else:
             can_move = True
@@ -149,30 +163,14 @@ class Player(Character):
             if min_y <= new_y < max_y and min_x <= new_x < max_x:
                 self.v_x = new_x
                 self.v_y = new_y
-        return self.draw_player(screen, frame, v_offset)
-
-    def draw_player(
-        self, screen: pygame.Surface, frame: int, v_offset: tuple
-    ) -> pygame.Surface:
-        """draw the player on screen with a v_offset
-
-        Args:
-            screen: the screen to draw the player on
-            frame: the current frame
-            v_offset: the visual offset to draw the player on
-
-        Returns:
-            the screen with player loaded on it
-        """
         screen.blit(
-            self.get_sprite(frame),
-            (self.v_x + v_offset[0], self.v_y + v_offset[1]),
+            self.get_sprite(frame), (self.v_x + v_offset[0], self.v_y + v_offset[1])
         )
-        return screen
+        return self.surf
 
 
 class Blinky(Character):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
+    def __init__(self, speed, maze: list[list[Cell]], v_offset: tuple) -> None:
         """constructor
 
         Args:
@@ -208,7 +206,11 @@ class Blinky(Character):
         ]
         self.frame = 0
 
-    def set_cords(self) -> None:
+        self.v_offset = v_offset
+
+    def set_cords(self):
+        self.direction = Direction.NONE
+        self.new_direction = Direction.NONE
         x, y = self.origin
         self.v_x = x * 32 + 16
         self.v_y = y * 32 + 16
@@ -219,24 +221,7 @@ class Blinky(Character):
         player = anchors.pop()
         return player.bit_x, player.bit_y
 
-    def move(
-        self,
-        screen: pygame.Surface,
-        frame: int,
-        v_offset: tuple,
-        anchors: list,
-    ) -> pygame.Surface:
-        player = anchors[0]
-        x, y = self.v_x, self.v_y
-        if (
-            abs(self.v_x - player.v_x) < 16
-            and abs(self.v_y - player.v_y) < 16
-            and not player.dead
-        ):
-            player.dead = True
-            print("dead")
-        is_centered = x % 32 == 16 and y % 32 == 16
-        if is_centered:
+    def choose_direction(self, anchors: list) -> None:
             t_x, t_y = self.choose_target(anchors)
             possible_directions = []
             for direction in Direction:
@@ -251,7 +236,7 @@ class Blinky(Character):
                     and c_x < len(self.maze[0])
                     and (
                         (1 << direction.value[2])
-                        & self.maze[self.bit_y][self.bit_x].hex_value
+                        & self.maze[self.bit_y][self.bit_x].bit_value
                     )
                     == 0
                 ):
@@ -270,47 +255,48 @@ class Blinky(Character):
                 valid_direction.sort(key=lambda x: x[0])
                 self.direction = valid_direction[0][1]
 
+    def apply_move(self, screen: pygame.Surface, frame: int) -> None:
+        dx, dy, shift = self.direction.value
+        x, y = self.v_x, self.v_y
+        min_x = 0
+        min_y = 0
+        max_x = self.max_x
+        max_y = self.max_y
+        new_x = (dx * self.speed) + x
+        new_y = (dy * self.speed) + y
+        if min_y <= new_y < max_y and min_x <= new_x < max_x:
+            self.v_x = new_x
+            self.v_y = new_y
+            self.bit_x = self.v_x // 32
+            self.bit_y = self.v_y // 32
+        screen.blit(self.get_sprite(frame),
+                    (self.v_x + self.v_offset[0], self.v_y + self.v_offset[1]))
+
+    def move(
+        self, screen: pygame.Surface, frame: int, v_offset: tuple, anchors: list
+    ) -> None:
+        player = anchors[0]
+        x, y = self.v_x, self.v_y
+        if (
+            abs(self.v_x - player.v_x) < 16
+            and abs(self.v_y - player.v_y) < 16
+            and not player.dead
+        ):
+            player.dead = True
+        is_centered = x % 32 == 16 and y % 32 == 16
+        if is_centered:
+            self.choose_direction(anchors)
         dx, dy, shift = self.direction.value
         can_move = False
         if is_centered:
             if (
-                (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value
+                (1 << shift) & self.maze[self.bit_y][self.bit_x].bit_value
             ) == 0 and not player.dead:
                 can_move = True
         else:
             can_move = True
         if can_move:
-            min_x = 0
-            min_y = 0
-            max_x = self.max_x
-            max_y = self.max_y
-            new_x = (dx * self.speed) + x
-            new_y = (dy * self.speed) + y
-            if min_y <= new_y < max_y and min_x <= new_x < max_x:
-                self.v_x = new_x
-                self.v_y = new_y
-                self.bit_x = self.v_x // 32
-                self.bit_y = self.v_y // 32
-        return self.draw_ghost(screen, frame, v_offset)
-
-    def draw_ghost(
-        self, screen: pygame.Surface, frame: int, v_offset: tuple
-    ) -> pygame.Surface:
-        """draw the player on screen with a v_offset
-
-        Args:
-            screen: the screen to draw the player on
-            frame: the current frame
-            v_offset: the visual offset to draw the player on
-
-        Returns:
-            the screen with player loaded on it
-        """
-        screen.blit(
-            self.get_sprite(frame),
-            (self.v_x + v_offset[0], self.v_y + v_offset[1]),
-        )
-        return screen
+            self.apply_move(screen, frame)
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
@@ -328,8 +314,8 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
-        super().__init__(speed, maze)
+    def __init__(self, speed, maze: list[list[Cell]], v_offset: tuple) -> None:
+        super().__init__(speed, maze, v_offset)
         self.origin = (0, len(maze[0]) - 1)
         self.set_cords()
 
@@ -341,8 +327,8 @@ class Pinky(Blinky):
 
 
 class Clyde(Blinky):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
-        super().__init__(speed, maze)
+    def __init__(self, speed, maze: list[list[Cell]], v_offset: tuple) -> None:
+        super().__init__(speed, maze, v_offset)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.set_cords()
 
@@ -355,8 +341,8 @@ class Clyde(Blinky):
 
 
 class Inky(Blinky):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
-        super().__init__(speed, maze)
+    def __init__(self, speed, maze: list[list[Cell]], v_offset: tuple) -> None:
+        super().__init__(speed, maze, v_offset)
         self.origin = (len(maze) - 1, 0)
         self.set_cords()
 

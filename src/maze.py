@@ -1,3 +1,4 @@
+from .gums import Gum, SuperGum
 from typing import Any
 import pygame
 from mazegenerator import MazeGenerator
@@ -7,42 +8,44 @@ class Corner:
     """corner object to decide the look of the corner connecting walls
 
     Attributes:
-        hex: hex value for the corner representing the sides it has
+        bit: bit value for the corner representing the sides it has
     """
 
     def __init__(self) -> None:
         """constructor of the Corner class"""
-        self.hex = 0
+        self.bit = 0
 
 
 class Cell:
     """cell class that has all the attributes of the cell
 
     Attributes:
-        hex_value: the hex value of the cell representing which  walls are open
+        bit_value: the bit value of the cell representing which  walls are open
         top_left: top left corner
         top_right: top right corner
         bottom_left: bottom left corner
         bottom_right: bottom right corner
     """
 
-    def __init__(self, hex: int, corners: list[Corner]) -> None:
+    def __init__(self, bit_value: int, corners: list[Corner], content: Any, cord: tuple) -> None:
         """constructor of the Cell class
 
         Args:
-            hex: hex value of the cell
+            bit: bit value of the cell
             corners: list of corners surrounding the cell
         """
-        self.hex_value = hex
+        self.bit_value = bit_value
         self.content: Any = None
         self.top_left = corners[0]
         self.top_right = corners[1]
         self.bottom_left = corners[2]
         self.bottom_right = corners[3]
         self.update_corners()
+        self.content = content
+        self.cord = cord
 
-    def update_corners(self) -> None:
-        """mask the corner hex value according to the hex value of the cell
+    def update_corners(self):
+        """mask the corner bit value according to the bit value of the cell
         top left corner will have an east side if the cell has a north wall
         and a south side if the cell has a west wall
         top right corner will have a west side if the cell has a north wall
@@ -52,14 +55,14 @@ class Cell:
         bottom left corner  will have a north side if the cell has a west
         wall and an east side if the cell has a south wall
         """
-        self.top_left.hex |= (1 & self.hex_value) << 1
-        self.top_left.hex |= (8 & self.hex_value) >> 1
-        self.top_right.hex |= (1 & self.hex_value) << 3
-        self.top_right.hex |= (2 & self.hex_value) << 1
-        self.bottom_right.hex |= (2 & self.hex_value) >> 1
-        self.bottom_right.hex |= (4 & self.hex_value) << 1
-        self.bottom_left.hex |= (4 & self.hex_value) >> 1
-        self.bottom_left.hex |= (8 & self.hex_value) >> 3
+        self.top_left.bit |= (1 & self.bit_value) << 1
+        self.top_left.bit |= (8 & self.bit_value) >> 1
+        self.top_right.bit |= (1 & self.bit_value) << 3
+        self.top_right.bit |= (2 & self.bit_value) << 1
+        self.bottom_right.bit |= (2 & self.bit_value) >> 1
+        self.bottom_right.bit |= (4 & self.bit_value) << 1
+        self.bottom_left.bit |= (4 & self.bit_value) >> 1
+        self.bottom_left.bit |= (8 & self.bit_value) >> 3
 
 
 class Maze:
@@ -114,12 +117,24 @@ class Maze:
                         corner_grid[y][x + 1],
                         corner_grid[y + 1][x],
                         corner_grid[y + 1][x + 1],
-                    ],
+                    ], None,
+                    (x, y)
                 )
                 for x in range(len(self.bit_maze[0]))
             ]
             for y in range(len(self.bit_maze))
         ]
+        self.set_gums()
+
+    def set_gums(self) -> None:
+        max_y = self.maze._height - 1
+        max_x = self.maze._width - 1
+        corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
+        for row in self.cell_grid:
+            for cell in row:
+                if cell.bit_value != 15:
+                    gum = Gum(10, cell.cord) if cell.cord not in corners else SuperGum(100, cell.cord)
+                    cell.content = gum
 
     def render_maze(self) -> pygame.Surface:
         """rendere the maze into a pygame surface
@@ -135,34 +150,33 @@ class Maze:
             for x, cell in enumerate(row):
                 cord_x = x * 32
                 maze_surface.blit(
-                    self.corner_images[cell.top_left.hex], (cord_x, cord_y)
+                    self.corner_images[cell.top_left.bit], (cord_x, cord_y)
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.top_right.hex],
-                    (cord_x + 32, cord_y),
+                    self.corner_images[cell.top_right.bit],
+                    (cord_x + 32, cord_y)
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.bottom_left.hex],
-                    (cord_x, cord_y + 32),
+                    self.corner_images[cell.bottom_left.bit],
+                    (cord_x, cord_y + 32)
                 )
                 maze_surface.blit(
-                    self.corner_images[cell.bottom_right.hex],
+                    self.corner_images[cell.bottom_right.bit],
                     (cord_x + 32, cord_y + 32),
                 )
-                if cell.hex_value & 1:
-                    maze_surface.blit(
-                        self.wall_images[0], (cord_x + 16, cord_y)
-                    )
-                if cell.hex_value & 2:
-                    maze_surface.blit(
-                        self.wall_images[1], (cord_x + 32, cord_y + 16)
-                    )
-                if cell.hex_value & 4:
-                    maze_surface.blit(
-                        self.wall_images[0], (cord_x + 16, cord_y + 32)
-                    )
-                if cell.hex_value & 8:
-                    maze_surface.blit(
-                        self.wall_images[1], (cord_x, cord_y + 16)
-                    )
+                if cell.bit_value & 1:
+                    maze_surface.blit(self.wall_images[0],
+                                      (cord_x + 16, cord_y))
+                if cell.bit_value & 2:
+                    maze_surface.blit(self.wall_images[1],
+                                      (cord_x + 32, cord_y + 16))
+                if cell.bit_value & 4:
+                    maze_surface.blit(self.wall_images[0],
+                                      (cord_x + 16, cord_y + 32))
+                if cell.bit_value & 8:
+                    maze_surface.blit(self.wall_images[1],
+                                      (cord_x, cord_y + 16))
+                if cell.content:
+                    maze_surface.blit(cell.content.sprite, (cord_x + 16, cord_y + 16))
+
         return maze_surface
