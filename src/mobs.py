@@ -142,14 +142,14 @@ class Player(Character):
             self.bit_y = new_bit_y
             self.bit_x = new_bit_x
             dx, dy, shift = self.new_direction.value
-            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
+            if (1 << shift) & self.maze[self.bit_y][self.bit_x].bit_value == 0:
                 self.direction = self.new_direction if not self.dead else self.direction
         dx, dy, shift = self.direction.value
         can_move = False
         if is_centered:
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
-            ].hex_value == 0 and not self.dead:
+            ].bit_value == 0 and not self.dead:
                 can_move = True
         else:
             can_move = True
@@ -236,7 +236,7 @@ class Blinky(Character):
                     and c_x < len(self.maze[0])
                     and (
                         (1 << direction.value[2])
-                        & self.maze[self.bit_y][self.bit_x].hex_value
+                        & self.maze[self.bit_y][self.bit_x].bit_value
                     )
                     == 0
                 ):
@@ -290,7 +290,7 @@ class Blinky(Character):
         can_move = False
         if is_centered:
             if (
-                (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value
+                (1 << shift) & self.maze[self.bit_y][self.bit_x].bit_value
             ) == 0 and not player.dead:
                 can_move = True
         else:
