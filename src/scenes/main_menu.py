@@ -13,7 +13,6 @@ class MainMenuScene(Scene):
         self.button_idx = 0
 
     def render_scene(self, screen) -> None:
-        screen.fill("black")
         for i, button in enumerate(self.buttons):
             if button.rect.collidepoint(pygame.mouse.get_pos()):
                 self.button_idx = i

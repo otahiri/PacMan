@@ -9,7 +9,6 @@ class ScoreEntryScene(Scene):
         self.surf = f.render("Score entry", True, "white")
 
     def render_scene(self, screen) -> None:
-        screen.fill("black")
         screen.blit(self.surf, (0, 0))
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:

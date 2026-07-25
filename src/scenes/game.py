@@ -13,36 +13,38 @@ class GameScene(Scene):
         self.screen = screen
         self.logical_maze = MazeGenerator()
         self.maze = Maze(self.logical_maze, (width, height))
-        self.player = Player(2, self.maze.cell_grid)
-        self.blinky = Blinky(2, self.maze.cell_grid)
-        self.pinky = Pinky(2, self.maze.cell_grid)
-        self.clyde = Clyde(2, self.maze.cell_grid)
-
-        self.inky = Inky(2, self.maze.cell_grid)
-
         self.surf = self.maze.render_maze()
+        self.player = Player(2, self.maze.cell_grid, self.surf)
+        self.blinky = Blinky(1, self.maze.cell_grid, self.maze.v_offset)
+        self.pinky = Pinky(1, self.maze.cell_grid, self.maze.v_offset)
+        self.clyde = Clyde(1, self.maze.cell_grid, self.maze.v_offset)
+
+        self.inky = Inky(1, self.maze.cell_grid, self.maze.v_offset)
+
         self.frame = 0
         self.erase = pygame.image.load("assets/player/empty_sprite.png")
 
         self.running = True
 
     def render_scene(self, screen) -> None:
-        screen.fill("black")
+        if self.player.dead:
+            self.blinky.set_cords()
+            self.inky.set_cords()
+            self.pinky.set_cords()
+            self.clyde.set_cords()
+            self.player.set_cords()
+            self.player.dead = False
+            self.player.direction = Direction.NONE
+            self.player.new_direction = Direction.NONE
+            return
         screen.blit(self.surf, self.maze.v_offset)
-        self.player.move(screen, self.frame, self.maze.v_offset)
+        self.surf = self.player.move(screen, self.frame, self.maze.v_offset, self.maze)
         self.blinky.move(screen, self.frame, self.maze.v_offset, [self.player])
         self.pinky.move(screen, self.frame, self.maze.v_offset, [self.player])
         self.clyde.move(screen, self.frame, self.maze.v_offset, [self.player])
         self.inky.move(
             screen, self.frame, self.maze.v_offset, [self.player, self.blinky]
         )
-        for row in self.maze.cell_grid:
-            for cell in row:
-                if not cell.content:
-                    x, y = cell.cord
-                    screen.blit(self.erase, (x * 32 + 16 + self.maze.v_offset[0], y * 32 + 16 + self.maze.v_offset[1]))
-                    if (x, y) == (self.player.bit_x, self.player.bit_y):
-                        self.player.draw_player(screen, self.frame, self.maze.v_offset)
 
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
