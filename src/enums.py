@@ -21,3 +21,19 @@ class Asset(Enum):
 class DisplayInfo(Enum):
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 1280
+
+
+class Direction(Enum):
+    """represent each direction the player can face
+
+    Attributes:
+        NORTH: north direction
+        EAST: east direction
+        SOUTH: south direction
+        WEST: west direction
+    """
+
+    NORTH = (0, -1, 0)
+    EAST = (1, 0, 1)
+    SOUTH = (0, 1, 2)
+    WEST = (-1, 0, 3)

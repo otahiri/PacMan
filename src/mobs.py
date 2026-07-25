@@ -1,23 +1,8 @@
 from abc import ABC, abstractmethod
 from src import Cell
-from enum import Enum
 import pygame
 
-
-class Direction(Enum):
-    """represent each direction the player can face
-
-    Attributes:
-        NORTH: north direction
-        EAST: east direction
-        SOUTH: south direction
-        WEST: west direction
-    """
-
-    NORTH = (0, -1, 0)
-    EAST = (1, 0, 1)
-    SOUTH = (0, 1, 2)
-    WEST = (-1, 0, 3)
+from src.enums import Direction
 
 
 class Character(ABC):

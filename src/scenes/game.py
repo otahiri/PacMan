@@ -8,15 +8,13 @@ from src.render import Renderer
 
 
 class GameScene(Scene):
-    def __init__(self, width, height, screen: pygame.Surface) -> None:
-        self.screen = screen
+    def __init__(self) -> None:
         self.logical_maze = MazeGenerator()
-        self.maze = Maze(self.logical_maze, (width, height))
+        self.maze = Maze(self.logical_maze)
         self.player = Player(2, self.maze.cell_grid)
         self.blinky = Blinky(1, self.maze.cell_grid)
         self.pinky = Pinky(1, self.maze.cell_grid)
         self.clyde = Clyde(1, self.maze.cell_grid)
-
         self.inky = Inky(1, self.maze.cell_grid)
 
         self.surf = self.maze.render_maze()

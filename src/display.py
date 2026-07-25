@@ -17,16 +17,12 @@ class Screen:
 
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(
-                DisplayInfo.SCREEN_WIDTH.value,
-                DisplayInfo.SCREEN_HEIGHT.value,
-                self.renderer.window,
-            ),
+            SceneName.GAME: GameScene(),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
             SceneName.OPTIONS: OptionsScene(),
         }
-        self.current_scene: SceneName = SceneName.SCOREBOARD
+        self.current_scene: SceneName = SceneName.GAME
 
     def game_loop(self) -> None:
         running = True
