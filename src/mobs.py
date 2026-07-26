@@ -1,4 +1,3 @@
-from pygame.display import update
 from src.enums import Direction
 from src.models import Character
 from src import Cell
@@ -37,17 +36,15 @@ class Player(Character):
             maze: the cell grid
         """
         self.maze = maze
-        cord_x = len(maze) // 2
-        cord_y = len(maze[0]) // 2
-        self.origin = (cord_x, cord_y)
+        self.scaled_v_step_y = 32 * scale[1]
+        self.scaled_v_step_x = 32 * scale[0]
+        self.scaled_half_v_step_y = 16 * scale[1]
+        self.scaled_half_v_step_x = 16 * scale[0]
         self.speed = speed
         self.scale = scale
-        self.max_y = len(self.maze) * 32 * self.scale[1]
-        self.max_x = len(self.maze[0]) * 32 * self.scale[0]
-        self.v_x = cord_x * 32 * self.scale[0] + 16 * self.scale[0]
-        self.v_y = cord_y * 32 * self.scale[1] + 16 * self.scale[1]
-        self.bit_y = cord_y
-        self.bit_x = cord_x
+        self.max_y = len(self.maze) * self.scaled_v_step_y
+        self.max_x = len(self.maze[0]) * self.scaled_v_step_x
+        self.set_cords()
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
@@ -81,6 +78,15 @@ class Player(Character):
         self.dead = False
         self.death_time = 0
 
+    def set_cords(self) -> None:
+        cord_x = len(self.maze) // 2
+        cord_y = len(self.maze[0]) // 2
+        self.origin = (cord_x, cord_y)
+        self.v_x = cord_x * self.scaled_v_step_x + self.scaled_half_v_step_x
+        self.v_y = cord_y * self.scaled_v_step_y + self.scaled_half_v_step_y
+        self.bit_y = cord_y
+        self.bit_x = cord_x
+
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
 
@@ -101,9 +107,9 @@ class Player(Character):
                     self.death_time += 1
         return animation
 
-    def set_new_direction(self):
-        self.bit_y = self.v_y // (32 * self.scale[1])
-        self.bit_x = self.v_x // (32 * self.scale[0])
+    def choose_direction(self):
+        self.bit_y = self.v_y // (self.scaled_v_step_y)
+        self.bit_x = self.v_x // (self.scaled_v_step_x)
         dx, dy, shift = self.new_direction.value
         if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
             self.direction = (
@@ -148,12 +154,19 @@ class Player(Character):
         Returns:
             a surface with the player drawn on it
         """
-        is_centered = self.v_x % (32 * self.scale[0]) == 16 * self.scale[0] and self.v_y % (32 * self.scale[1]) == 16 * self.scale[1]
+        if self.dead:
+            return (
+                self.get_sprite(frame),
+                (self.v_x + v_offset[0], self.v_y + v_offset[1]),
+            )
+        is_centered = (
+            self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
+            and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
+        )
         if is_centered:
-            self.set_new_direction()
+            self.choose_direction()
         dx, dy, shift = self.direction.value
-        can_move = self.check_movability(is_centered)
-        if can_move:
+        if self.check_movability(is_centered):
             self.update_visual_cord()
         return (
             self.get_sprite(frame),
@@ -179,12 +192,17 @@ class Blinky(Character):
         self.origin = (0, 0)
         self.maze = maze
         self.speed = speed
+        self.scaled_v_step_y = 32 * scale[1]
+        self.scaled_v_step_x = 32 * scale[0]
+        self.scaled_half_v_step_y = 16 * scale[1]
+        self.scaled_half_v_step_x = 16 * scale[0]
         self.max_y = len(self.maze) * 32 * scale[1]
         self.max_x = len(self.maze[0]) * 32 * scale[0]
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.scale = scale
         self.set_cords()
+        self.player = anchors[0]
         base_sprite_one = Renderer.scale_surface(
             pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
         )
@@ -216,14 +234,13 @@ class Blinky(Character):
 
     def set_cords(self) -> None:
         x, y = self.origin
-        self.v_x = x * 32 * self.scale[0] + 16 * self.scale[0]
-        self.v_y = y * 32 * self.scale[1] + 16 * self.scale[1]
+        self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
+        self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
         self.bit_y = y
         self.bit_x = x
 
     def choose_target(self) -> tuple:
-        player = self.anchors[0]
-        return player.bit_x, player.bit_y
+        return self.player.bit_x, self.player.bit_y
 
     def choose_direction(self):
         t_x, t_y = self.choose_target()
@@ -270,8 +287,21 @@ class Blinky(Character):
         if min_y <= new_y < max_y and min_x <= new_x < max_x:
             self.v_x = new_x
             self.v_y = new_y
-            self.bit_x = self.v_x // (32 * self.scale[0])
-            self.bit_y = self.v_y // (32 * self.scale[1])
+            self.bit_x = self.v_x // (self.scaled_v_step_x)
+            self.bit_y = self.v_y // (self.scaled_v_step_y)
+
+    def check_movability(self, is_centered: bool) -> bool:
+        can_move = False
+        dx, dy, shift = self.direction.value
+        if is_centered:
+            if (1 << shift) & self.maze[self.bit_y][
+                self.bit_x
+            ].hex_value == 0 and not self.player.dead:
+                can_move = True
+        else:
+            can_move = True
+
+        return can_move
 
     def move(
         self,
@@ -280,27 +310,19 @@ class Blinky(Character):
     ) -> tuple[pygame.Surface, tuple[int, int]]:
         player = self.anchors[0]
         if (
-            abs(self.v_x - player.v_x) < 16 * self.scale[0]
-            and abs(self.v_y - player.v_y) < 16 * self.scale[1]
+            abs(self.v_x - player.v_x) < self.scaled_half_v_step_x
+            and abs(self.v_y - player.v_y) < self.scaled_half_v_step_y
             and not player.dead
         ):
             player.dead = True
-            print("dead")
-        is_centered = self.v_x % (32 * self.scale[0]) == 16 * self.scale[0] and self.v_y % (32 * self.scale[1]) == 16 * self.scale[1]
-        print(is_centered)
+        is_centered = (
+            self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
+            and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
+        )
         if is_centered:
             self.choose_direction()
-
         dx, dy, shift = self.direction.value
-        can_move = False
-        if is_centered:
-            if (
-                (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value
-            ) == 0 and not player.dead:
-                can_move = True
-        else:
-            can_move = True
-        if can_move:
+        if self.check_movability(is_centered):
             self.update_visual_cord()
         return (
             self.get_sprite(frame),

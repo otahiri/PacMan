@@ -91,7 +91,7 @@ class Maze:
         self.max_y = maze._height * 32 * scale[1]
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.max_x) // 2,
-            (DisplayInfo.SCREEN_HEIGHT.value - self.max_x) // 2,
+            (DisplayInfo.SCREEN_HEIGHT.value - self.max_y) // 2,
         )
         self.corner_images: dict = {}
         self.maze = maze
