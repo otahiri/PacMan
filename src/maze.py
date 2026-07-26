@@ -87,8 +87,12 @@ class Maze:
             screen_size: the current screen size
         """
         asset_path = "assets/walls/"
-        self.max_x = maze._width * 32 * scale[0]
-        self.max_y = maze._height * 32 * scale[1]
+        self.scaled_v_step_y = 32 * scale[1]
+        self.scaled_v_step_x = 32 * scale[0]
+        self.scaled_half_v_step_y = 16 * scale[1]
+        self.scaled_half_v_step_x = 16 * scale[0]
+        self.max_x = maze._width * self.scaled_v_step_x
+        self.max_y = maze._height * self.scaled_v_step_y
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.max_y) // 2,
@@ -138,42 +142,59 @@ class Maze:
         Returns:
             surface with maze rendered on it
         """
-        height = (self.maze._height * 32 * scale[1]) + 32 * scale[1]
-        width = (self.maze._width * 32 * scale[0]) + 32 * scale[0]
+        height = (
+            self.maze._height * self.scaled_v_step_y
+        ) + self.scaled_v_step_y
+        width = (
+            self.maze._width * self.scaled_v_step_x
+        ) + self.scaled_v_step_x
         maze_surface = pygame.Surface((width, height))
         for y, row in enumerate(self.cell_grid):
-            cord_y = y * 32 * scale[1]
+            cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):
-                cord_x = x * 32 * scale[0]
+                cord_x = x * self.scaled_v_step_x
                 maze_surface.blit(
                     self.corner_images[cell.top_left.hex], (cord_x, cord_y)
                 )
                 maze_surface.blit(
                     self.corner_images[cell.top_right.hex],
-                    (cord_x + 32 * scale[0], cord_y),
+                    (cord_x + self.scaled_v_step_x, cord_y),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_left.hex],
-                    (cord_x, cord_y + 32 * scale[1]),
+                    (cord_x, cord_y + self.scaled_v_step_y),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_right.hex],
-                    (cord_x + 32 * scale[0], cord_y + 32 * scale[1]),
+                    (
+                        cord_x + self.scaled_v_step_x,
+                        cord_y + self.scaled_v_step_y,
+                    ),
                 )
                 if cell.hex_value & 1:
                     maze_surface.blit(
-                        self.wall_images[0], (cord_x + 16 * scale[0], cord_y)
+                        self.wall_images[0],
+                        (cord_x + self.scaled_half_v_step_x, cord_y),
                     )
                 if cell.hex_value & 2:
                     maze_surface.blit(
-                        self.wall_images[1], (cord_x + 32 * scale[0], cord_y + 16 * scale[1])
+                        self.wall_images[1],
+                        (
+                            cord_x + self.scaled_v_step_x,
+                            cord_y + self.scaled_half_v_step_y,
+                        ),
                     )
                 if cell.hex_value & 4:
                     maze_surface.blit(
-                        self.wall_images[0], (cord_x + 16 * scale[0], cord_y + 32 * scale[1])
+                        self.wall_images[0],
+                        (
+                            cord_x + self.scaled_half_v_step_x,
+                            cord_y + self.scaled_v_step_y,
+                        ),
                     )
                 if cell.hex_value & 8:
                     maze_surface.blit(
-                        self.wall_images[1], (cord_x, cord_y + 16 * scale[0])
+                        self.wall_images[1],
+                        (cord_x, cord_y + self.scaled_half_v_step_x),
                     )
         return maze_surface

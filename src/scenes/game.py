@@ -9,8 +9,8 @@ from src.render import Renderer
 
 class GameScene(Scene):
     def __init__(self) -> None:
-        scale = (DisplayInfo.SCREEN_WIDTH.value // 600, DisplayInfo.SCREEN_WIDTH.value // 600)
         self.logical_maze = MazeGenerator()
+        scale = (DisplayInfo.SCREEN_WIDTH.value // (self.logical_maze._height * 32 + 16), DisplayInfo.SCREEN_WIDTH.value // (self.logical_maze._width * 32 + 16))
         self.maze = Maze(self.logical_maze, scale)
         self.player = Player(1, scale, self.maze.cell_grid)
         self.blinky = Blinky(1, scale, self.maze.cell_grid, [self.player])
