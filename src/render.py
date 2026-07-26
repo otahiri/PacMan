@@ -40,19 +40,19 @@ class Renderer:
 
     @classmethod
     def get_button(
-        cls, scale: int
+        cls, scale: tuple[int, int]
     ) -> tuple[pygame.Surface, pygame.Surface, tuple[int, int]]:
 
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
         new_size = (
-            Asset.BUTTON_WIDTH.value * scale,
-            Asset.BUTTON_HEIGHT.value * scale,
+            Asset.BUTTON_WIDTH.value * scale[0],
+            Asset.BUTTON_HEIGHT.value * scale[0],
         )
 
-        idel = cls.__scale_surface(
+        idel = cls.scale_surface(
             pygame.image.load("assets/button/idel.png"), size, scale
         )
-        hover = cls.__scale_surface(
+        hover = cls.scale_surface(
             pygame.image.load("assets/button/hover.png"), size, scale
         )
         return (idel, hover, new_size)
@@ -61,16 +61,16 @@ class Renderer:
         self.__window.blit(source, pos)
 
     @classmethod
-    def __scale_surface(
+    def scale_surface(
         cls,
         src_image: pygame.Surface,
         size: tuple[int, int],
-        scale: int,
+        scale: tuple[int, int],
         color: str | None = None,
     ) -> pygame.Surface:
         orig_w, orig_h = size
-        new_w = orig_w * scale
-        new_h = orig_h * scale
+        new_w = orig_w * scale[0]
+        new_h = orig_h * scale[1]
 
         scaled_surface = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
 
@@ -92,15 +92,15 @@ class Renderer:
 
     @classmethod
     def get_text(
-        cls, text: str, scale: int, color: str
+        cls, text: str, scale: tuple[int, int], color: str
     ) -> tuple[pygame.Surface, tuple[int, int]]:
 
         path = Asset.LETTER_PATH.value
         width = Asset.LETTER_WIDTH.value
         height = Asset.LETTER_HEIGHT.value
-        surface_height = height * scale
+        surface_height = height * scale[1]
         spacing_width = Asset.LETTER_SPACING.value * (len(text) - 1)
-        surface_width = (width * scale) * len(text) + spacing_width
+        surface_width = (width * scale[0]) * len(text) + spacing_width
         new_surface = pygame.Surface(
             (surface_width, surface_height), pygame.SRCALPHA
         )
@@ -110,16 +110,16 @@ class Renderer:
             if (c.isalpha() or c.isdigit()) and c != " ":
                 letter_path = path + "/" + c + ".png"
                 letter_surface = pygame.image.load(letter_path)
-                scaled_letter = cls.__scale_surface(
+                scaled_letter = cls.scale_surface(
                     letter_surface, (width, height), scale, color
                 )
 
-                for y in range(height * scale):
-                    for x in range(width * scale):
+                for y in range(height * scale[1]):
+                    for x in range(width * scale[0]):
                         pixel_color = scaled_letter.get_at((x, y))
                         if pixel_color.a > 0:
                             new_surface.set_at((x_shift + x, y), pixel_color)
 
-            x_shift += width * scale + Asset.LETTER_SPACING.value
+            x_shift += width * scale[0] + Asset.LETTER_SPACING.value
 
         return (new_surface, (surface_width, surface_height))

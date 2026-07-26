@@ -6,7 +6,7 @@ from src.render import Renderer
 
 class Button:
 
-    def __init__(self, name: str, pos: tuple[int, int], scale: int) -> None:
+    def __init__(self, name: str, pos: tuple[int, int], scale: tuple[int, int]) -> None:
         self.name = name
         x, y = pos
 
@@ -31,7 +31,7 @@ class Text:
     def __init__(self, text: str, pos: tuple[int, int], color: str) -> None:
 
         self.text = text
-        self.surf, size = Renderer.get_text(text, 5, color)
+        self.surf, size = Renderer.get_text(text, (5, 5), color)
         self.width, self.height = size
 
         self.x, self.y = pos
@@ -77,5 +77,8 @@ class Scene(ABC):
 
 
 class Character(ABC):
+    @abstractmethod
+    def  __init__(self) -> None:
+        ...
     @abstractmethod
     def get_sprite(self, frame: int) -> pygame.Surface: ...

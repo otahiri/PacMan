@@ -1,7 +1,10 @@
+from pygame.display import update
 from src.enums import Direction
 from src.models import Character
 from src import Cell
 import pygame
+
+from src.render import Renderer
 
 
 class Player(Character):
@@ -23,7 +26,9 @@ class Player(Character):
         frame: the current frame that passed between 0 and 60
     """
 
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
+    def __init__(
+        self, speed: int, scale: tuple[int, int], maze: list[list[Cell]]
+    ) -> None:
         """constructor
 
         Args:
@@ -36,17 +41,27 @@ class Player(Character):
         cord_y = len(maze[0]) // 2
         self.origin = (cord_x, cord_y)
         self.speed = speed
-        self.max_y = len(self.maze) * 32
-        self.max_x = len(self.maze[0]) * 32
-        self.v_x = cord_x * 32 + 16
-        self.v_y = cord_y * 32 + 16
+        self.scale = scale
+        self.max_y = len(self.maze) * 32 * self.scale[1]
+        self.max_x = len(self.maze[0]) * 32 * self.scale[0]
+        self.v_x = cord_x * 32 * self.scale[0] + 16 * self.scale[0]
+        self.v_y = cord_y * 32 * self.scale[1] + 16 * self.scale[1]
         self.bit_y = cord_y
         self.bit_x = cord_x
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
-        base_sprite_one = pygame.image.load("assets/player/pacman0.png")
-        base_sprite_two = pygame.image.load("assets/player/pacman1.png")
-        self.empty_sprite = pygame.image.load("assets/player/empty_sprite.png")
+        # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
+        base_sprite_one = Renderer.scale_surface(
+            pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
+        )
+        base_sprite_two = Renderer.scale_surface(
+            pygame.image.load("assets/player/pacman1.png"), (15, 15), scale
+        )
+        self.empty_sprite = Renderer.scale_surface(
+            pygame.image.load("assets/player/empty_sprite.png"),
+            (15, 15),
+            scale,
+        )
         self.sprites = [
             [
                 pygame.transform.rotate(base_sprite_one, 90),
@@ -86,6 +101,40 @@ class Player(Character):
                     self.death_time += 1
         return animation
 
+    def set_new_direction(self):
+        self.bit_y = self.v_y // (32 * self.scale[1])
+        self.bit_x = self.v_x // (32 * self.scale[0])
+        dx, dy, shift = self.new_direction.value
+        if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
+            self.direction = (
+                self.new_direction if not self.dead else self.direction
+            )
+
+    def check_movability(self, is_centered: bool) -> bool:
+        can_move = False
+        dx, dy, shift = self.direction.value
+        if is_centered:
+            if (1 << shift) & self.maze[self.bit_y][
+                self.bit_x
+            ].hex_value == 0 and not self.dead:
+                can_move = True
+        else:
+            can_move = True
+
+        return can_move
+
+    def update_visual_cord(self):
+        dx, dy, shift = self.direction.value
+        min_x = 0
+        min_y = 0
+        max_x = self.max_x
+        max_y = self.max_y
+        new_x = ((dx * self.speed) * self.scale[0]) + self.v_x
+        new_y = ((dy * self.speed) * self.scale[1]) + self.v_y
+        if min_y <= new_y < max_y and min_x <= new_x < max_x:
+            self.v_x = new_x
+            self.v_y = new_y
+
     def move(
         self, frame: int, v_offset: tuple
     ) -> tuple[pygame.Surface, tuple[int, int]]:
@@ -99,35 +148,13 @@ class Player(Character):
         Returns:
             a surface with the player drawn on it
         """
-        x, y = self.v_x, self.v_y
-        is_centered = x % 32 == 16 and y % 32 == 16
+        is_centered = self.v_x % (32 * self.scale[0]) == 16 * self.scale[0] and self.v_y % (32 * self.scale[1]) == 16 * self.scale[1]
         if is_centered:
-            self.bit_y = y // 32
-            self.bit_x = x // 32
-            dx, dy, shift = self.new_direction.value
-            if (1 << shift) & self.maze[self.bit_y][self.bit_x].hex_value == 0:
-                self.direction = (
-                    self.new_direction if not self.dead else self.direction
-                )
+            self.set_new_direction()
         dx, dy, shift = self.direction.value
-        can_move = False
-        if is_centered:
-            if (1 << shift) & self.maze[self.bit_y][
-                self.bit_x
-            ].hex_value == 0 and not self.dead:
-                can_move = True
-        else:
-            can_move = True
+        can_move = self.check_movability(is_centered)
         if can_move:
-            min_x = 0
-            min_y = 0
-            max_x = self.max_x
-            max_y = self.max_y
-            new_x = (dx * self.speed) + x
-            new_y = (dy * self.speed) + y
-            if min_y <= new_y < max_y and min_x <= new_x < max_x:
-                self.v_x = new_x
-                self.v_y = new_y
+            self.update_visual_cord()
         return (
             self.get_sprite(frame),
             (self.v_x + v_offset[0], self.v_y + v_offset[1]),
@@ -135,7 +162,13 @@ class Player(Character):
 
 
 class Blinky(Character):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
+    def __init__(
+        self,
+        speed: int,
+        scale: tuple[int, int],
+        maze: list[list[Cell]],
+        anchors: list = [],
+    ) -> None:
         """constructor
 
         Args:
@@ -145,15 +178,24 @@ class Blinky(Character):
         """
         self.origin = (0, 0)
         self.maze = maze
-        self.set_cords()
         self.speed = speed
-        self.max_y = len(self.maze) * 32
-        self.max_x = len(self.maze[0]) * 32
+        self.max_y = len(self.maze) * 32 * scale[1]
+        self.max_x = len(self.maze[0]) * 32 * scale[0]
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
-        base_sprite_one = pygame.image.load("assets/player/pacman0.png")
-        base_sprite_two = pygame.image.load("assets/player/pacman1.png")
-        self.empty_sprite = pygame.image.load("assets/player/empty_sprite.png")
+        self.scale = scale
+        self.set_cords()
+        base_sprite_one = Renderer.scale_surface(
+            pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
+        )
+        base_sprite_two = Renderer.scale_surface(
+            pygame.image.load("assets/player/pacman1.png"), (15, 15), scale
+        )
+        self.empty_sprite = Renderer.scale_surface(
+            pygame.image.load("assets/player/empty_sprite.png"),
+            (15, 15),
+            scale,
+        )
         self.sprites = [
             [
                 pygame.transform.rotate(base_sprite_one, 90),
@@ -170,67 +212,84 @@ class Blinky(Character):
             ],
         ]
         self.frame = 0
+        self.anchors: list = anchors
 
     def set_cords(self) -> None:
         x, y = self.origin
-        self.v_x = x * 32 + 16
-        self.v_y = y * 32 + 16
+        self.v_x = x * 32 * self.scale[0] + 16 * self.scale[0]
+        self.v_y = y * 32 * self.scale[1] + 16 * self.scale[1]
         self.bit_y = y
         self.bit_x = x
 
-    def choose_target(self, anchors: list) -> tuple:
-        player = anchors.pop()
+    def choose_target(self) -> tuple:
+        player = self.anchors[0]
         return player.bit_x, player.bit_y
+
+    def choose_direction(self):
+        t_x, t_y = self.choose_target()
+        possible_directions = []
+        for direction in Direction:
+            c_y = self.bit_y + direction.value[1]
+            c_x = self.bit_x + direction.value[0]
+            is_reverse = (
+                self.direction.value[0] == -direction.value[0]
+                and self.direction.value[1] == -direction.value[1]
+            )
+            if (
+                c_y < len(self.maze)
+                and c_x < len(self.maze[0])
+                and (
+                    (1 << direction.value[2])
+                    & self.maze[self.bit_y][self.bit_x].hex_value
+                )
+                == 0
+            ):
+                possible_directions.append(
+                    (
+                        ((t_x - c_x) ** 2 + (t_y - c_y) ** 2),
+                        direction,
+                        is_reverse,
+                    )
+                )
+
+        if possible_directions:
+            valid_direction = [d for d in possible_directions if not d[2]]
+            if not valid_direction:
+                valid_direction = possible_directions
+            valid_direction.sort(key=lambda x: x[0])
+            self.direction = valid_direction[0][1]
+
+    def update_visual_cord(self):
+        dx, dy, shift = self.direction.value
+        min_x = 0
+        min_y = 0
+        max_x = self.max_x
+        max_y = self.max_y
+        new_x = ((dx * self.speed) * self.scale[0]) + self.v_x
+        new_y = ((dy * self.speed) * self.scale[1]) + self.v_y
+        if min_y <= new_y < max_y and min_x <= new_x < max_x:
+            self.v_x = new_x
+            self.v_y = new_y
+            self.bit_x = self.v_x // (32 * self.scale[0])
+            self.bit_y = self.v_y // (32 * self.scale[1])
 
     def move(
         self,
         frame: int,
         v_offset: tuple,
-        anchors: list,
     ) -> tuple[pygame.Surface, tuple[int, int]]:
-        player = anchors[0]
-        x, y = self.v_x, self.v_y
+        player = self.anchors[0]
         if (
-            abs(self.v_x - player.v_x) < 16
-            and abs(self.v_y - player.v_y) < 16
+            abs(self.v_x - player.v_x) < 16 * self.scale[0]
+            and abs(self.v_y - player.v_y) < 16 * self.scale[1]
             and not player.dead
         ):
             player.dead = True
             print("dead")
-        is_centered = x % 32 == 16 and y % 32 == 16
+        is_centered = self.v_x % (32 * self.scale[0]) == 16 * self.scale[0] and self.v_y % (32 * self.scale[1]) == 16 * self.scale[1]
+        print(is_centered)
         if is_centered:
-            t_x, t_y = self.choose_target(anchors)
-            possible_directions = []
-            for direction in Direction:
-                c_y = self.bit_y + direction.value[1]
-                c_x = self.bit_x + direction.value[0]
-                is_reverse = (
-                    self.direction.value[0] == -direction.value[0]
-                    and self.direction.value[1] == -direction.value[1]
-                )
-                if (
-                    c_y < len(self.maze)
-                    and c_x < len(self.maze[0])
-                    and (
-                        (1 << direction.value[2])
-                        & self.maze[self.bit_y][self.bit_x].hex_value
-                    )
-                    == 0
-                ):
-                    possible_directions.append(
-                        (
-                            ((t_x - c_x) ** 2 + (t_y - c_y) ** 2),
-                            direction,
-                            is_reverse,
-                        )
-                    )
-
-            if possible_directions:
-                valid_direction = [d for d in possible_directions if not d[2]]
-                if not valid_direction:
-                    valid_direction = possible_directions
-                valid_direction.sort(key=lambda x: x[0])
-                self.direction = valid_direction[0][1]
+            self.choose_direction()
 
         dx, dy, shift = self.direction.value
         can_move = False
@@ -242,17 +301,7 @@ class Blinky(Character):
         else:
             can_move = True
         if can_move:
-            min_x = 0
-            min_y = 0
-            max_x = self.max_x
-            max_y = self.max_y
-            new_x = (dx * self.speed) + x
-            new_y = (dy * self.speed) + y
-            if min_y <= new_y < max_y and min_x <= new_x < max_x:
-                self.v_x = new_x
-                self.v_y = new_y
-                self.bit_x = self.v_x // 32
-                self.bit_y = self.v_y // 32
+            self.update_visual_cord()
         return (
             self.get_sprite(frame),
             (self.v_x + v_offset[0], self.v_y + v_offset[1]),
@@ -274,26 +323,38 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
-        super().__init__(speed, maze)
+    def __init__(
+        self,
+        speed: int,
+        scale: tuple[int, int],
+        maze: list[list[Cell]],
+        anchors: list,
+    ) -> None:
+        super().__init__(speed, scale, maze, anchors)
         self.origin = (0, len(maze[0]) - 1)
         self.set_cords()
 
-    def choose_target(self, anchors: list) -> tuple:
-        player = anchors.pop()
+    def choose_target(self) -> tuple:
+        player = self.anchors[0]
         x = player.bit_x + (player.direction.value[0] * 4)
         y = player.bit_y + (player.direction.value[1] * 4)
         return x, y
 
 
 class Clyde(Blinky):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
-        super().__init__(speed, maze)
+    def __init__(
+        self,
+        speed: int,
+        scale: tuple[int, int],
+        maze: list[list[Cell]],
+        anchors: list,
+    ) -> None:
+        super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.set_cords()
 
-    def choose_target(self, anchors: list) -> tuple:
-        player = anchors.pop(0)
+    def choose_target(self) -> tuple:
+        player = self.anchors[0]
         if abs(self.bit_x - player.bit_x) + abs(self.bit_y - player.bit_y) > 8:
             return (player.bit_x, player.bit_y)
         else:
@@ -301,14 +362,20 @@ class Clyde(Blinky):
 
 
 class Inky(Blinky):
-    def __init__(self, speed: int, maze: list[list[Cell]]) -> None:
-        super().__init__(speed, maze)
+    def __init__(
+        self,
+        speed: int,
+        scale: tuple[int, int],
+        maze: list[list[Cell]],
+        anchors: list,
+    ) -> None:
+        super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, 0)
         self.set_cords()
 
-    def choose_target(self, anchors: list) -> tuple:
-        player = anchors[0]
-        blinky = anchors[1]
+    def choose_target(self) -> tuple:
+        player = self.anchors[0]
+        blinky = self.anchors[1]
         blinky_x_distance = player.bit_x - blinky.bit_x
         blinky_y_distance = player.bit_y - blinky.bit_y
         return (

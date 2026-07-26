@@ -1,6 +1,7 @@
 from typing import Any
 import pygame
 from mazegenerator import MazeGenerator
+from src.render import Renderer
 
 from src.enums import DisplayInfo
 
@@ -78,7 +79,7 @@ class Maze:
         cell_grid: grid containing all cells
     """
 
-    def __init__(self, maze: MazeGenerator) -> None:
+    def __init__(self, maze: MazeGenerator, scale: tuple[int, int]) -> None:
         """maze constructor
 
         Args:
@@ -86,8 +87,8 @@ class Maze:
             screen_size: the current screen size
         """
         asset_path = "assets/walls/"
-        self.max_x = maze._width * 32
-        self.max_y = maze._height * 32
+        self.max_x = maze._width * 32 * scale[0]
+        self.max_y = maze._height * 32 * scale[1]
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.max_x) // 2,
@@ -96,12 +97,20 @@ class Maze:
         self.maze = maze
         self.bit_maze = maze.maze
         for i in range(16):
-            self.corner_images[i] = pygame.image.load(
-                f"{asset_path}{i}.png"
-            ).convert_alpha()
+            self.corner_images[i] = Renderer.scale_surface(
+                pygame.image.load(f"{asset_path}{i}.png"), (16, 16), scale
+            )
         self.wall_images = [
-            pygame.image.load(f"{asset_path}horizontanl_wall.png"),
-            pygame.image.load(f"{asset_path}vertical_wall.png"),
+            Renderer.scale_surface(
+                pygame.image.load(f"{asset_path}horizontanl_wall.png"),
+                (16, 16),
+                scale,
+            ),
+            Renderer.scale_surface(
+                pygame.image.load(f"{asset_path}vertical_wall.png"),
+                (16, 16),
+                scale,
+            ),
         ]
         corner_grid = [
             [Corner() for _ in range(len(self.bit_maze) + 1)]
@@ -123,48 +132,48 @@ class Maze:
             for y in range(len(self.bit_maze))
         ]
 
-    def render_maze(self) -> pygame.Surface:
-        """rendere the maze into a pygame surface
+    def render_maze(self, scale: tuple[int, int]) -> pygame.Surface:
+        """render the maze into a pygame surface
 
         Returns:
             surface with maze rendered on it
         """
-        height = (self.maze._height * 32) + 32
-        width = (self.maze._width * 32) + 32
+        height = (self.maze._height * 32 * scale[1]) + 32 * scale[1]
+        width = (self.maze._width * 32 * scale[0]) + 32 * scale[0]
         maze_surface = pygame.Surface((width, height))
         for y, row in enumerate(self.cell_grid):
-            cord_y = y * 32
+            cord_y = y * 32 * scale[1]
             for x, cell in enumerate(row):
-                cord_x = x * 32
+                cord_x = x * 32 * scale[0]
                 maze_surface.blit(
                     self.corner_images[cell.top_left.hex], (cord_x, cord_y)
                 )
                 maze_surface.blit(
                     self.corner_images[cell.top_right.hex],
-                    (cord_x + 32, cord_y),
+                    (cord_x + 32 * scale[0], cord_y),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_left.hex],
-                    (cord_x, cord_y + 32),
+                    (cord_x, cord_y + 32 * scale[1]),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_right.hex],
-                    (cord_x + 32, cord_y + 32),
+                    (cord_x + 32 * scale[0], cord_y + 32 * scale[1]),
                 )
                 if cell.hex_value & 1:
                     maze_surface.blit(
-                        self.wall_images[0], (cord_x + 16, cord_y)
+                        self.wall_images[0], (cord_x + 16 * scale[0], cord_y)
                     )
                 if cell.hex_value & 2:
                     maze_surface.blit(
-                        self.wall_images[1], (cord_x + 32, cord_y + 16)
+                        self.wall_images[1], (cord_x + 32 * scale[0], cord_y + 16 * scale[1])
                     )
                 if cell.hex_value & 4:
                     maze_surface.blit(
-                        self.wall_images[0], (cord_x + 16, cord_y + 32)
+                        self.wall_images[0], (cord_x + 16 * scale[0], cord_y + 32 * scale[1])
                     )
                 if cell.hex_value & 8:
                     maze_surface.blit(
-                        self.wall_images[1], (cord_x, cord_y + 16)
+                        self.wall_images[1], (cord_x, cord_y + 16 * scale[0])
                     )
         return maze_surface
