@@ -22,7 +22,7 @@ class Screen:
             SceneName.SCOREBOARD: ScoreboardScene(),
             SceneName.OPTIONS: OptionsScene(),
         }
-        self.current_scene: SceneName = SceneName.GAME
+        self.current_scene: SceneName = SceneName.SCOREBOARD
 
     def game_loop(self) -> None:
         running = True
@@ -35,7 +35,13 @@ class Screen:
                     if event.key == pygame.K_q:
                         running = False
                 elif event.type == pygame.VIDEORESIZE:
-                    self.renderer.set_new_resolution(event.w, event.h)
+                    # self.renderer.set_new_resolution(event.w, event.h)
+                    self.renderer.screen_w, self.renderer.screen_h = (
+                        event.w,
+                        event.h,
+                    )
+                    # print(event.w, event.h)
+                    # print(self.renderer.get_resolution())
 
             scene = self.scenes[self.current_scene]
             next_scene = scene.handle_events(events)
@@ -46,6 +52,6 @@ class Screen:
 
             self.renderer.clear()
             scene.render_scene(self.renderer)
-            # self.renderer.draw_debug()
+            self.renderer.draw_debug()
 
             self.renderer.update_window()

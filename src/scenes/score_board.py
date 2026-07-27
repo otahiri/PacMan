@@ -7,38 +7,41 @@ from src.render import Renderer
 class ScoreboardScene(Scene):
     def __init__(self) -> None:
         print("initialize ScoreboardScene")
-        # width = DisplayInfo.SCREEN_WIDTH.value
-        # height = DisplayInfo.SCREEN_HEIGHT.value
 
-        # self.text = Text("score board", (width // 2, height // 4), "white")
-        # data = {
-        #     "sa3d": "12000",
-        #     "oussama": "11000",
-        #     "zakaria": "9000",
-        #     "rami": "600",
-        # }
-        # self.scores: list[tuple[Text, Text]] = []
-        # i = 0
-        # space = 50
-        # for name, score in data.items():
-        #     y = height // 2 + i * 100
-        #     self.scores.append(
-        #         (
-        #             Text(name, (640 - space, y), "white"),
-        #             Text(score, (640 + space, y), "white"),
-        #         )
-        #     )
-        #     i += 1
+        self.text = Text("score board", "white")
+        data = {
+            "sa3d": "12000",
+            "oussama": "11000",
+            "zakaria": "9000",
+            "rami": "600",
+        }
+        self.scores: list[tuple[Text, Text]] = []
+        for name, score in data.items():
+            self.scores.append((Text(name, "white"), Text(score, "white")))
 
     def render_scene(self, renderer: Renderer) -> None:
-        # renderer.render(
-        #     self.text.surf,
-        #     self.text.get_pos(),
-        # )
-        # for name, score in self.scores:
-        #     renderer.render(name.surf, name.get_pos("rightcenter"))
-        #     renderer.render(score.surf, score.get_pos("leftcenter"))
-        pass
+        renderer.render(
+            self.text.surf,
+            (renderer.screen_w // 2, renderer.screen_h // 4),
+            self.text.size,
+        )
+        i = 0
+        spacing = 50
+        for name, score in self.scores:
+            y = renderer.screen_h // 2 + i * 100
+            renderer.render(
+                name.surf,
+                (renderer.screen_w // 2 - spacing, y),
+                name.size,
+                "rightcenter",
+            )
+            renderer.render(
+                score.surf,
+                (renderer.screen_w // 2 + spacing, y),
+                score.size,
+                "leftcenter",
+            )
+            i += 1
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:

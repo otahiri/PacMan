@@ -10,8 +10,8 @@ class Renderer:
         )
         print("initialize Renderer")
 
-        self.old_screen_w = screen_w
-        self.old_screen_h = screen_h
+        # self.old_screen_w = screen_w
+        # self.old_screen_h = screen_h
 
         self.screen_w = screen_w
         self.screen_h = screen_h
@@ -19,10 +19,13 @@ class Renderer:
     def clear(self):
         self.__window.fill((0, 0, 0))
 
-    def is_window_changed(self):
-        h_changed = self.old_screen_h != self.screen_h
-        w_changed = self.old_screen_w != self.screen_w
-        return h_changed or w_changed
+    # def is_window_changed(self):
+    #     h_changed = self.old_screen_h != self.screen_h
+    #     w_changed = self.old_screen_w != self.screen_w
+    #     return h_changed or w_changed
+
+    def get_resolution(self):
+        return self.screen_w, self.screen_h
 
     def set_new_resolution(self, w: int, h: int):
         self.screen_w, self.screen_h = w, h
@@ -43,13 +46,13 @@ class Renderer:
 
     @classmethod
     def get_button(
-        cls, scale: tuple[int, int]
+        cls, scale: int
     ) -> tuple[pygame.Surface, pygame.Surface, tuple[int, int]]:
 
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
         new_size = (
-            Asset.BUTTON_WIDTH.value * scale[0],
-            Asset.BUTTON_HEIGHT.value * scale[0],
+            Asset.BUTTON_WIDTH.value * scale,
+            Asset.BUTTON_HEIGHT.value * scale,
         )
 
         idel = cls.scale_surface(
@@ -71,6 +74,8 @@ class Renderer:
         width, height = size
         match anchor.lower():
             # Left anchors
+            case "topleft" | "lefttop":
+                return (x, y)
             case "centerleft" | "leftcenter":
                 return (x, y - height // 2)
             case "bottomleft" | "buttomleft":  # includes your typo safeguard
@@ -93,7 +98,7 @@ class Renderer:
                 return (x - width, y - height)
 
             case _:
-                return (x, y)
+                raise ValueError(f"anchor value unknown {anchor}")
 
     def render(
         self,
@@ -110,12 +115,12 @@ class Renderer:
         cls,
         src_image: pygame.Surface,
         size: tuple[int, int],
-        scale: tuple[int, int],
+        scale: int,
         color: str | None = None,
     ) -> pygame.Surface:
         orig_w, orig_h = size
-        new_w = orig_w * scale[0]
-        new_h = orig_h * scale[1]
+        new_w = orig_w * scale
+        new_h = orig_h * scale
 
         scaled_surface = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
 
@@ -133,20 +138,20 @@ class Renderer:
         return scaled_surface
 
     def update_window(self):
-        self.screen_h, self.screen_w = self.old_screen_w, self.old_screen_h
+        # self.screen_w, self.screen_h = self.old_screen_w, self.old_screen_h
         pygame.display.flip()
 
     @classmethod
     def get_text(
-        cls, text: str, scale: tuple[int, int], color: str
+        cls, text: str, scale: int, color: str
     ) -> tuple[pygame.Surface, tuple[int, int]]:
 
         path = Asset.LETTER_PATH.value
         width = Asset.LETTER_WIDTH.value
         height = Asset.LETTER_HEIGHT.value
-        surface_height = height * scale[1]
+        surface_height = height * scale
         spacing_width = Asset.LETTER_SPACING.value * (len(text) - 1)
-        surface_width = (width * scale[0]) * len(text) + spacing_width
+        surface_width = (width * scale) * len(text) + spacing_width
         new_surface = pygame.Surface(
             (surface_width, surface_height), pygame.SRCALPHA
         )
@@ -160,12 +165,12 @@ class Renderer:
                     letter_surface, (width, height), scale, color
                 )
 
-                for y in range(height * scale[1]):
-                    for x in range(width * scale[0]):
+                for y in range(height * scale):
+                    for x in range(width * scale):
                         pixel_color = scaled_letter.get_at((x, y))
                         if pixel_color.a > 0:
                             new_surface.set_at((x_shift + x, y), pixel_color)
 
-            x_shift += width * scale[0] + Asset.LETTER_SPACING.value
+            x_shift += width * scale + Asset.LETTER_SPACING.value
 
         return (new_surface, (surface_width, surface_height))

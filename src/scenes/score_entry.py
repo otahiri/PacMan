@@ -10,11 +10,14 @@ class ScoreEntryScene(Scene):
         self.text = Text("score entry", "white")
 
     def render_scene(self, renderer: Renderer) -> None:
+
         renderer.render(
             self.text.surf,
-            (renderer.screen_w, renderer.screen_h),
+            (
+                renderer.screen_w // 2,
+                renderer.screen_h // 2,
+            ),
             self.text.size,
-            # self.text.get_pos(),
         )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:

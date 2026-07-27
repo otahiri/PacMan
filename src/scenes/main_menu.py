@@ -13,17 +13,17 @@ class MainMenuScene(Scene):
 
         for i, lable in enumerate(["play", "scores", "option", "exit"]):
 
-            self.buttons.append(Button(lable, (10, 10)))
+            self.buttons.append(Button(lable, 10))
 
         self.button_idx = 0
 
     def render_scene(self, renderer: Renderer) -> None:
         spacing = 120
 
-        x = renderer.screen_h // 2
+        x = renderer.screen_w // 2
         for i, button in enumerate(self.buttons):
 
-            y = renderer.screen_w // 2 + i * spacing
+            y = renderer.screen_h // 2 + i * spacing
 
             if self.button_idx == i:
                 renderer.render(button.hover, (x, y), button.size)

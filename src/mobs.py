@@ -26,7 +26,7 @@ class Player(Character):
     """
 
     def __init__(
-        self, speed: int, scale: tuple[int, int], maze: list[list[Cell]]
+        self, speed: int, scale: int, maze: list[list[Cell]]
     ) -> None:
         """constructor
 
@@ -36,10 +36,10 @@ class Player(Character):
             maze: the cell grid
         """
         self.maze = maze
-        self.scaled_v_step_y = 32 * scale[1]
-        self.scaled_v_step_x = 32 * scale[0]
-        self.scaled_half_v_step_y = 16 * scale[1]
-        self.scaled_half_v_step_x = 16 * scale[0]
+        self.scaled_v_step_y = 32 * scale
+        self.scaled_v_step_x = 32 * scale
+        self.scaled_half_v_step_y = 16 * scale
+        self.scaled_half_v_step_x = 16 * scale
         self.speed = speed
         self.scale = scale
         self.max_y = len(self.maze) * self.scaled_v_step_y
@@ -131,19 +131,15 @@ class Player(Character):
 
     def update_visual_cord(self):
         dx, dy, shift = self.direction.value
-        min_x = 0
-        min_y = 0
         max_x = self.max_x
         max_y = self.max_y
-        new_x = ((dx * self.speed) * self.scale[0]) + self.v_x
-        new_y = ((dy * self.speed) * self.scale[1]) + self.v_y
-        if min_y <= new_y < max_y and min_x <= new_x < max_x:
+        new_x = ((dx * self.speed) * self.scale) + self.v_x
+        new_y = ((dy * self.speed) * self.scale) + self.v_y
+        if 0 <= new_y < max_y and 0 <= new_x < max_x:
             self.v_x = new_x
             self.v_y = new_y
 
-    def move(
-        self, frame: int, v_offset: tuple
-    ) -> tuple[pygame.Surface, tuple[int, int]]:
+    def move(self, frame: int) -> pygame.Surface:
         """move the player accoding to direction
 
         Args:
@@ -155,10 +151,7 @@ class Player(Character):
             a surface with the player drawn on it
         """
         if self.dead:
-            return (
-                self.get_sprite(frame),
-                (self.v_x + v_offset[0], self.v_y + v_offset[1]),
-            )
+            return self.get_sprite(frame)
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
@@ -168,17 +161,14 @@ class Player(Character):
         dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
-        return (
-            self.get_sprite(frame),
-            (self.v_x + v_offset[0], self.v_y + v_offset[1]),
-        )
+        return self.get_sprite(frame)
 
 
 class Blinky(Character):
     def __init__(
         self,
         speed: int,
-        scale: tuple[int, int],
+        scale: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
@@ -192,12 +182,12 @@ class Blinky(Character):
         self.origin = (0, 0)
         self.maze = maze
         self.speed = speed
-        self.scaled_v_step_y = 32 * scale[1]
-        self.scaled_v_step_x = 32 * scale[0]
-        self.scaled_half_v_step_y = 16 * scale[1]
-        self.scaled_half_v_step_x = 16 * scale[0]
-        self.max_y = len(self.maze) * 32 * scale[1]
-        self.max_x = len(self.maze[0]) * 32 * scale[0]
+        self.scaled_v_step_y = 32 * scale
+        self.scaled_v_step_x = 32 * scale
+        self.scaled_half_v_step_y = 16 * scale
+        self.scaled_half_v_step_x = 16 * scale
+        self.max_y = len(self.maze) * 32 * scale
+        self.max_x = len(self.maze[0]) * 32 * scale
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.scale = scale
@@ -282,8 +272,8 @@ class Blinky(Character):
         min_y = 0
         max_x = self.max_x
         max_y = self.max_y
-        new_x = ((dx * self.speed) * self.scale[0]) + self.v_x
-        new_y = ((dy * self.speed) * self.scale[1]) + self.v_y
+        new_x = ((dx * self.speed) * self.scale) + self.v_x
+        new_y = ((dy * self.speed) * self.scale) + self.v_y
         if min_y <= new_y < max_y and min_x <= new_x < max_x:
             self.v_x = new_x
             self.v_y = new_y
@@ -303,11 +293,7 @@ class Blinky(Character):
 
         return can_move
 
-    def move(
-        self,
-        frame: int,
-        v_offset: tuple,
-    ) -> tuple[pygame.Surface, tuple[int, int]]:
+    def move(self, frame: int) -> pygame.Surface:
         player = self.anchors[0]
         if (
             abs(self.v_x - player.v_x) < self.scaled_half_v_step_x
@@ -324,10 +310,7 @@ class Blinky(Character):
         dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
-        return (
-            self.get_sprite(frame),
-            (self.v_x + v_offset[0], self.v_y + v_offset[1]),
-        )
+        return self.get_sprite(frame)
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
@@ -348,7 +331,7 @@ class Pinky(Blinky):
     def __init__(
         self,
         speed: int,
-        scale: tuple[int, int],
+        scale: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
@@ -367,7 +350,7 @@ class Clyde(Blinky):
     def __init__(
         self,
         speed: int,
-        scale: tuple[int, int],
+        scale: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
@@ -387,7 +370,7 @@ class Inky(Blinky):
     def __init__(
         self,
         speed: int,
-        scale: tuple[int, int],
+        scale: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
