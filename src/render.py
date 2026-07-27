@@ -1,5 +1,7 @@
 import pygame
+import numpy
 from src.enums import Asset, DisplayInfo
+from webcolors import name_to_hex
 
 
 class Renderer:
@@ -11,6 +13,44 @@ class Renderer:
 
     def clear(self):
         self.__window.fill((0, 0, 0))
+
+    @staticmethod
+    def custom_blit(
+        dest: pygame.Surface,
+        src: pygame.Surface,
+        pos: tuple,
+    ) -> None:
+        dest_px = pygame.surfarray.pixels2d(dest)
+        dest_dim = dest_px.shape
+        src_px = pygame.surfarray.pixels2d(src)
+        src_dim = src_px.shape
+        start_x = max(0, pos[0])
+        start_y = max(0, pos[1])
+        end_x = min(pos[0] + src_dim[0], dest_dim[0])
+        end_y = min(pos[1] + src_dim[1], dest_dim[1])
+        src_start_x = start_x - pos[0]
+        src_start_y = start_y - pos[1]
+        src_end_x = src_start_x + (end_x - start_x)
+        src_end_y = src_start_y + (end_y - start_y)
+
+        if start_x < end_x and start_y < end_y:
+            view_src = src_px[src_start_x:src_end_x, src_start_y:src_end_y]
+            view_dest = dest_px[start_x:end_x, start_y:end_y]
+            mask = view_src != 0
+            view_dest[mask] = view_src[mask]
+
+        del dest_px
+        del src_px
+
+    @staticmethod
+    def fill(dest: pygame.Surface, color: str):
+        color_hex = name_to_hex(color)[1:]
+        dest_px = pygame.surfarray.pixels2d(dest)
+        colored_rect = numpy.full_like(dest_px, color_hex)
+        mask = dest_px != 0
+        dest_px[mask] = colored_rect[mask]
+        del colored_rect
+        del dest_px
 
     def draw_debug(self):
         pygame.draw.line(

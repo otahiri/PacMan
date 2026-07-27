@@ -146,18 +146,23 @@ class Maze:
             cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):
                 cord_x = x * self.scaled_v_step_x
-                maze_surface.blit(
-                    self.corner_images[cell.top_left.hex], (cord_x, cord_y)
+                Renderer.custom_blit(
+                    maze_surface,
+                    self.corner_images[cell.top_left.hex],
+                    (cord_x, cord_y),
                 )
-                maze_surface.blit(
+                Renderer.custom_blit(
+                    maze_surface,
                     self.corner_images[cell.top_right.hex],
                     (cord_x + self.scaled_v_step_x, cord_y),
                 )
-                maze_surface.blit(
+                Renderer.custom_blit(
+                    maze_surface,
                     self.corner_images[cell.bottom_left.hex],
                     (cord_x, cord_y + self.scaled_v_step_y),
                 )
-                maze_surface.blit(
+                Renderer.custom_blit(
+                    maze_surface,
                     self.corner_images[cell.bottom_right.hex],
                     (
                         cord_x + self.scaled_v_step_x,
@@ -165,12 +170,14 @@ class Maze:
                     ),
                 )
                 if cell.hex_value & 1:
-                    maze_surface.blit(
+                    Renderer.custom_blit(
+                        maze_surface,
                         self.wall_images[0],
                         (cord_x + self.scaled_half_v_step_x, cord_y),
                     )
                 if cell.hex_value & 2:
-                    maze_surface.blit(
+                    Renderer.custom_blit(
+                        maze_surface,
                         self.wall_images[1],
                         (
                             cord_x + self.scaled_v_step_x,
@@ -178,7 +185,8 @@ class Maze:
                         ),
                     )
                 if cell.hex_value & 4:
-                    maze_surface.blit(
+                    Renderer.custom_blit(
+                        maze_surface,
                         self.wall_images[0],
                         (
                             cord_x + self.scaled_half_v_step_x,
@@ -186,7 +194,8 @@ class Maze:
                         ),
                     )
                 if cell.hex_value & 8:
-                    maze_surface.blit(
+                    Renderer.custom_blit(
+                        maze_surface,
                         self.wall_images[1],
                         (cord_x, cord_y + self.scaled_half_v_step_x),
                     )

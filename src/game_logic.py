@@ -1,7 +1,11 @@
+import numpy
+from src.render import Renderer
+
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import Direction, DisplayInfo
 from mazegenerator import MazeGenerator
 import pygame
+from webcolors import name_to_hex
 
 
 class GameLogic:
@@ -22,7 +26,6 @@ class GameLogic:
         self.inky = Inky(
             1, scale, self.maze.cell_grid, [self.player, self.blinky]
         )
-        self.maze_surf = self.maze.render_maze(scale).convert_alpha()
         self.working_surf = pygame.Surface(
             (
                 self.maze.max_x + 16 * self.scale,
@@ -30,23 +33,20 @@ class GameLogic:
             )
         )
 
+
     def maze_engine(self, frame: int, new_move: Direction) -> pygame.Surface:
         self.player.new_direction = new_move
-        self.working_surf.fill("black")
-        self.working_surf.blit(self.maze_surf, (0, 0))
-        self.working_surf.blit(
-            self.player.move(frame), (self.player.v_x, self.player.v_y)
+        Renderer.fill(self.working_surf, "black")
+        Renderer.custom_blit(
+            self.working_surf, self.maze.render_maze(self.scale), (0, 0)
         )
-        self.working_surf.blit(
-            self.blinky.move(frame), (self.blinky.v_x, self.blinky.v_y)
+        Renderer.custom_blit(
+            self.working_surf,
+            self.player.move(frame),
+            (self.player.v_x, self.player.v_y),
         )
-        self.working_surf.blit(
-            self.pinky.move(frame), (self.pinky.v_x, self.pinky.v_y)
-        )
-        self.working_surf.blit(
-            self.clyde.move(frame), (self.clyde.v_x, self.clyde.v_y)
-        )
-        self.working_surf.blit(
-            self.inky.move(frame), (self.inky.v_x, self.inky.v_y)
-        )
+        Renderer.custom_blit(self.working_surf, self.blinky.move(frame), (self.blinky.v_x, self.blinky.v_y))
+        Renderer.custom_blit(self.working_surf, self.pinky.move(frame), (self.pinky.v_x, self.pinky.v_y))
+        Renderer.custom_blit(self.working_surf, self.clyde.move(frame), (self.clyde.v_x, self.clyde.v_y))
+        Renderer.custom_blit(self.working_surf, self.inky.move(frame), (self.inky.v_x, self.inky.v_y))
         return self.working_surf
