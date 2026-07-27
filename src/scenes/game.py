@@ -11,7 +11,11 @@ from src.game_logic import GameLogic
 class GameScene(Scene):
     def __init__(self) -> None:
 
-        scale = ((DisplayInfo.SCREEN_WIDTH.value // 800 )+ (DisplayInfo.SCREEN_WIDTH.value // 800)) // 2
+        scale = (
+            (DisplayInfo.SCREEN_WIDTH.value // 800)
+            + (DisplayInfo.SCREEN_HEIGHT.value // 800)
+        ) // 2
+        print(scale)
         self.logical_maze = MazeGenerator()
         self.frame = 0
         self.game_logic = GameLogic(scale)
