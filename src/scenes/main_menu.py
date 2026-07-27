@@ -1,5 +1,5 @@
 import pygame
-from src.enums import DisplayInfo, SceneName
+from src.enums import SceneName
 from src.models import Scene
 from src.models import Button
 from src.render import Renderer
@@ -11,26 +11,27 @@ class MainMenuScene(Scene):
 
         self.buttons: list[Button] = []
 
-        x = DisplayInfo.SCREEN_WIDTH.value // 2
-        spacing = 120
-        scale = (DisplayInfo.SCREEN_WIDTH.value // 400, DisplayInfo.SCREEN_WIDTH.value // 400)
-
         for i, lable in enumerate(["play", "scores", "option", "exit"]):
 
-            y = DisplayInfo.SCREEN_HEIGHT.value // 2 + spacing * i
-            self.buttons.append(Button(lable, (x, y), scale))
+            self.buttons.append(Button(lable, (10, 10)))
 
         self.button_idx = 0
 
     def render_scene(self, renderer: Renderer) -> None:
+        spacing = 120
+
+        x = renderer.screen_h // 2
         for i, button in enumerate(self.buttons):
 
-            if self.button_idx == i:
-                renderer.render(button.hover, button.pos)
-            else:
-                renderer.render(button.idel, button.pos)
+            y = renderer.screen_w // 2 + i * spacing
 
-            renderer.render(button.text.surf, button.text.get_pos())
+            if self.button_idx == i:
+                renderer.render(button.hover, (x, y), button.size)
+
+            else:
+                renderer.render(button.idel, (x, y), button.size)
+
+            renderer.render(button.text.surf, (x, y), button.text.size)
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
 
@@ -51,11 +52,11 @@ class MainMenuScene(Scene):
                     case pygame.K_RETURN:
                         return self.__go_to_scene()
 
-            elif event.type == pygame.MOUSEMOTION:
+            # elif event.type == pygame.MOUSEMOTION:
 
-                for i, button in enumerate(self.buttons):
-                    if button.is_collide(pygame.mouse.get_pos()):
-                        self.button_idx = i
+            #     for i, button in enumerate(self.buttons):
+            #         if button.is_collide(pygame.mouse.get_pos()):
+            #             self.button_idx = i
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:

@@ -1,41 +1,44 @@
 import pygame
-from src.enums import Asset, DisplayInfo
+from src.enums import Asset
 
 
 class Renderer:
-    def __init__(self) -> None:
+    def __init__(self, screen_w: int, screen_h: int) -> None:
         self.__window = pygame.display.set_mode(
-            (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
+            (screen_w, screen_h),
+            pygame.RESIZABLE,
         )
         print("initialize Renderer")
 
+        self.old_screen_w = screen_w
+        self.old_screen_h = screen_h
+
+        self.screen_w = screen_w
+        self.screen_h = screen_h
+
     def clear(self):
         self.__window.fill((0, 0, 0))
+
+    def is_window_changed(self):
+        h_changed = self.old_screen_h != self.screen_h
+        w_changed = self.old_screen_w != self.screen_w
+        return h_changed or w_changed
+
+    def set_new_resolution(self, w: int, h: int):
+        self.screen_w, self.screen_h = w, h
 
     def draw_debug(self):
         pygame.draw.line(
             self.__window,
             "red",
-            (
-                0,
-                DisplayInfo.SCREEN_HEIGHT.value // 2,
-            ),
-            (
-                DisplayInfo.SCREEN_WIDTH.value,
-                DisplayInfo.SCREEN_HEIGHT.value // 2,
-            ),
+            (0, self.screen_h // 2),
+            (self.screen_w, self.screen_h // 2),
         )
         pygame.draw.line(
             self.__window,
             "red",
-            (
-                DisplayInfo.SCREEN_WIDTH.value // 2,
-                0,
-            ),
-            (
-                DisplayInfo.SCREEN_WIDTH.value // 2,
-                DisplayInfo.SCREEN_HEIGHT.value,
-            ),
+            (self.screen_w // 2, 0),
+            (self.screen_w // 2, self.screen_h),
         )
 
     @classmethod
@@ -57,7 +60,49 @@ class Renderer:
         )
         return (idel, hover, new_size)
 
-    def render(self, source: pygame.Surface, pos: tuple[int, int]):
+    def get_pos(
+        self,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        anchor: str,
+    ) -> tuple[int, int]:
+
+        x, y = pos
+        width, height = size
+        match anchor.lower():
+            # Left anchors
+            case "centerleft" | "leftcenter":
+                return (x, y - height // 2)
+            case "bottomleft" | "buttomleft":  # includes your typo safeguard
+                return (x, y - height)
+
+            # Center anchors
+            case "topcenter" | "centertop":
+                return (x - width // 2, y)
+            case "center":
+                return (x - width // 2, y - height // 2)
+            case "bottomcenter" | "centerbottom" | "buttomcenter":
+                return (x - width // 2, y - height)
+
+            # Right anchors
+            case "topright":
+                return (x - width, y)
+            case "centerright" | "rightcenter":
+                return (x - width, y - height // 2)
+            case "bottomright" | "buttomright":
+                return (x - width, y - height)
+
+            case _:
+                return (x, y)
+
+    def render(
+        self,
+        source: pygame.Surface,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        anchor: str = "center",
+    ):
+        pos = self.get_pos(pos, size, anchor)
         self.__window.blit(source, pos)
 
     @classmethod
@@ -88,6 +133,7 @@ class Renderer:
         return scaled_surface
 
     def update_window(self):
+        self.screen_h, self.screen_w = self.old_screen_w, self.old_screen_h
         pygame.display.flip()
 
     @classmethod

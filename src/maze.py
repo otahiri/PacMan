@@ -3,8 +3,6 @@ import pygame
 from mazegenerator import MazeGenerator
 from src.render import Renderer
 
-from src.enums import DisplayInfo
-
 
 class Corner:
     """corner object to decide the look of the corner connecting walls
@@ -79,7 +77,13 @@ class Maze:
         cell_grid: grid containing all cells
     """
 
-    def __init__(self, maze: MazeGenerator, scale: tuple[int, int]) -> None:
+    def __init__(
+        self,
+        screen_w: int,
+        screen_h: int,
+        maze: MazeGenerator,
+        scale: tuple[int, int],
+    ) -> None:
         """maze constructor
 
         Args:
@@ -91,11 +95,13 @@ class Maze:
         self.scaled_v_step_x = 32 * scale[0]
         self.scaled_half_v_step_y = 16 * scale[1]
         self.scaled_half_v_step_x = 16 * scale[0]
+
         self.max_x = maze._width * self.scaled_v_step_x
         self.max_y = maze._height * self.scaled_v_step_y
+
         self.v_offset = (
-            (DisplayInfo.SCREEN_WIDTH.value - self.max_x) // 2,
-            (DisplayInfo.SCREEN_HEIGHT.value - self.max_y) // 2,
+            (screen_w - self.max_x) // 2,
+            (screen_h - self.max_y) // 2,
         )
         self.corner_images: dict = {}
         self.maze = maze

@@ -13,11 +13,11 @@ class Screen:
     def __init__(self) -> None:
         print("initialize Screen")
 
-        self.renderer: Renderer = Renderer()
+        self.renderer: Renderer = Renderer(1280, 1280)
 
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(),
+            SceneName.GAME: GameScene(1280, 1280),
             SceneName.SCORE_ENTRY: ScoreEntryScene(),
             SceneName.SCOREBOARD: ScoreboardScene(),
             SceneName.OPTIONS: OptionsScene(),
@@ -34,6 +34,8 @@ class Screen:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         running = False
+                elif event.type == pygame.VIDEORESIZE:
+                    self.renderer.set_new_resolution(event.w, event.h)
 
             scene = self.scenes[self.current_scene]
             next_scene = scene.handle_events(events)

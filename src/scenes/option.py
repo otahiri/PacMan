@@ -7,13 +7,14 @@ from src.render import Renderer
 class OptionsScene(Scene):
     def __init__(self) -> None:
         print("initialize OptionsScene")
-        self.text = Text("options", (640, 640), "white")
+        # self.text = Text("options", (640, 640), "white")
 
     def render_scene(self, renderer: Renderer) -> None:
-        renderer.render(
-            self.text.surf,
-            self.text.get_pos(),
-        )
+        # renderer.render(
+        #     self.text.surf,
+        #     self.text.get_pos(),
+        # )
+        pass
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:

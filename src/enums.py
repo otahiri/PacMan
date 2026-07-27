@@ -18,11 +18,6 @@ class Asset(Enum):
     BUTTON_HEIGHT = 11
 
 
-class DisplayInfo(Enum):
-    SCREEN_WIDTH = 500
-    SCREEN_HEIGHT = 500
-
-
 class Direction(Enum):
     """represent each direction the player can face
 

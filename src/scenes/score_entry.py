@@ -7,12 +7,14 @@ from src.render import Renderer
 class ScoreEntryScene(Scene):
     def __init__(self) -> None:
         print("initialize ScoreEntryScene")
-        self.text = Text("score entry", (640, 640), "white")
+        self.text = Text("score entry", "white")
 
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(
             self.text.surf,
-            self.text.get_pos(),
+            (renderer.screen_w, renderer.screen_h),
+            self.text.size,
+            # self.text.get_pos(),
         )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
