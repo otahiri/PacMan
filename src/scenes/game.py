@@ -5,42 +5,24 @@ from src.enums import SceneName, DisplayInfo
 from mazegenerator import MazeGenerator
 from src.models import Scene
 from src.render import Renderer
+from src.game_logic import GameLogic
 
 
 class GameScene(Scene):
     def __init__(self) -> None:
-        self.logical_maze = MazeGenerator()
-        scale = (DisplayInfo.SCREEN_WIDTH.value // (self.logical_maze._height * 32 + 16), DisplayInfo.SCREEN_WIDTH.value // (self.logical_maze._width * 32 + 16))
-        self.maze = Maze(self.logical_maze, scale)
-        self.player = Player(1, scale, self.maze.cell_grid)
-        self.blinky = Blinky(1, scale, self.maze.cell_grid, [self.player])
-        self.pinky = Pinky(1, scale, self.maze.cell_grid, [self.player])
-        self.clyde = Clyde(1, scale, self.maze.cell_grid, [self.player])
-        self.inky = Inky(1, scale, self.maze.cell_grid, [self.player, self.blinky])
 
-        self.surf = self.maze.render_maze(scale)
+        scale = ((DisplayInfo.SCREEN_WIDTH.value // 800 )+ (DisplayInfo.SCREEN_WIDTH.value // 800)) // 2
+        self.logical_maze = MazeGenerator()
         self.frame = 0
+        self.game_logic = GameLogic(scale)
+        self.new_move = Direction.NONE
 
         self.running = True
 
     def render_scene(self, renderer: Renderer) -> None:
-        renderer.render(self.surf, self.maze.v_offset)
-
-        renderer.render(*self.player.move(self.frame, self.maze.v_offset))
         renderer.render(
-            *self.blinky.move(self.frame, self.maze.v_offset)
-        )
-        renderer.render(
-            *self.pinky.move(self.frame, self.maze.v_offset)
-        )
-
-        renderer.render(
-            *self.clyde.move(self.frame, self.maze.v_offset)
-        )
-
-        renderer.render(
-            *self.inky.move(
-                self.frame, self.maze.v_offset)
+            self.game_logic.maze_engine(self.frame, self.new_move),
+            self.game_logic.v_offset,
         )
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
@@ -50,13 +32,13 @@ class GameScene(Scene):
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key in [pygame.K_w, pygame.K_UP]:
-                    self.player.new_direction = Direction.NORTH
+                    self.new_move = Direction.NORTH
                 elif event.key in [pygame.K_s, pygame.K_DOWN]:
-                    self.player.new_direction = Direction.SOUTH
+                    self.new_move = Direction.SOUTH
                 elif event.key in [pygame.K_d, pygame.K_RIGHT]:
-                    self.player.new_direction = Direction.EAST
+                    self.new_move = Direction.EAST
                 elif event.key in [pygame.K_a, pygame.K_LEFT]:
-                    self.player.new_direction = Direction.WEST
+                    self.new_move = Direction.WEST
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 return SceneName.SCORE_ENTRY
             elif event.type == pygame.KEYDOWN:

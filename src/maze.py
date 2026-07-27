@@ -3,8 +3,6 @@ import pygame
 from mazegenerator import MazeGenerator
 from src.render import Renderer
 
-from src.enums import DisplayInfo
-
 
 class Corner:
     """corner object to decide the look of the corner connecting walls
@@ -71,7 +69,6 @@ class Maze:
     Attributes:
         max_x: the max x value of the maze
         max_y: the max y value of the maze
-        v_offset: the visual offset to draw the maze to be in the center
         corner_images: every possible corner image
         maze: the object from the MazeGenerator model
         bit_maze: the bit maze from the maze
@@ -79,7 +76,7 @@ class Maze:
         cell_grid: grid containing all cells
     """
 
-    def __init__(self, maze: MazeGenerator, scale: tuple[int, int]) -> None:
+    def __init__(self, maze: MazeGenerator, scale: int) -> None:
         """maze constructor
 
         Args:
@@ -87,16 +84,12 @@ class Maze:
             screen_size: the current screen size
         """
         asset_path = "assets/walls/"
-        self.scaled_v_step_y = 32 * scale[1]
-        self.scaled_v_step_x = 32 * scale[0]
-        self.scaled_half_v_step_y = 16 * scale[1]
-        self.scaled_half_v_step_x = 16 * scale[0]
+        self.scaled_v_step_y = 32 * scale
+        self.scaled_v_step_x = 32 * scale
+        self.scaled_half_v_step_y = 16 * scale
+        self.scaled_half_v_step_x = 16 * scale
         self.max_x = maze._width * self.scaled_v_step_x
         self.max_y = maze._height * self.scaled_v_step_y
-        self.v_offset = (
-            (DisplayInfo.SCREEN_WIDTH.value - self.max_x) // 2,
-            (DisplayInfo.SCREEN_HEIGHT.value - self.max_y) // 2,
-        )
         self.corner_images: dict = {}
         self.maze = maze
         self.bit_maze = maze.maze
@@ -136,7 +129,7 @@ class Maze:
             for y in range(len(self.bit_maze))
         ]
 
-    def render_maze(self, scale: tuple[int, int]) -> pygame.Surface:
+    def render_maze(self, scale: int) -> pygame.Surface:
         """render the maze into a pygame surface
 
         Returns:

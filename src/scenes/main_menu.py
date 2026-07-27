@@ -13,7 +13,7 @@ class MainMenuScene(Scene):
 
         x = DisplayInfo.SCREEN_WIDTH.value // 2
         spacing = 120
-        scale = (DisplayInfo.SCREEN_WIDTH.value // 400, DisplayInfo.SCREEN_WIDTH.value // 400)
+        scale = DisplayInfo.SCREEN_WIDTH.value // 400 + DisplayInfo.SCREEN_WIDTH.value // 400 // 2
 
         for i, lable in enumerate(["play", "scores", "option", "exit"]):
 

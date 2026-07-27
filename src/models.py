@@ -7,7 +7,7 @@ from src.maze import Cell
 
 class Button:
 
-    def __init__(self, name: str, pos: tuple[int, int], scale: tuple[int, int]) -> None:
+    def __init__(self, name: str, pos: tuple[int, int], scale: int) -> None:
         self.name = name
         x, y = pos
 
@@ -32,7 +32,7 @@ class Text:
     def __init__(self, text: str, pos: tuple[int, int], color: str) -> None:
 
         self.text = text
-        self.surf, size = Renderer.get_text(text, (5, 5), color)
+        self.surf, size = Renderer.get_text(text, 5, color)
         self.width, self.height = size
 
         self.x, self.y = pos
@@ -82,7 +82,7 @@ class Character(ABC):
     def __init__(
         self,
         speed: int,
-        scale: tuple[int, int],
+        scale: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
@@ -94,9 +94,8 @@ class Character(ABC):
     @abstractmethod
     def move(
         self,
-        frame: int,
-        v_offset: tuple,
-    ) -> tuple[pygame.Surface, tuple[int, int]]: ...
+        frame: int
+    ) -> pygame.Surface: ...
 
     @abstractmethod
     def update_visual_cord(self): ...

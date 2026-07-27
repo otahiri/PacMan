@@ -19,8 +19,8 @@ class Asset(Enum):
 
 
 class DisplayInfo(Enum):
-    SCREEN_WIDTH = 500
-    SCREEN_HEIGHT = 500
+    SCREEN_WIDTH = 1600
+    SCREEN_HEIGHT = 1600
 
 
 class Direction(Enum):
@@ -33,6 +33,7 @@ class Direction(Enum):
         WEST: west direction
     """
 
+    NONE = (0, 0, 0)
     NORTH = (0, -1, 0)
     EAST = (1, 0, 1)
     SOUTH = (0, 1, 2)
