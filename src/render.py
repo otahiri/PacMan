@@ -28,16 +28,11 @@ class Renderer:
         start_y = max(0, pos[1])
         end_x = min(pos[0] + src_dim[0], dest_dim[0])
         end_y = min(pos[1] + src_dim[1], dest_dim[1])
-        src_start_x = start_x - pos[0]
-        src_start_y = start_y - pos[1]
-        src_end_x = src_start_x + (end_x - start_x)
-        src_end_y = src_start_y + (end_y - start_y)
 
         if start_x < end_x and start_y < end_y:
-            view_src = src_px[src_start_x:src_end_x, src_start_y:src_end_y]
             view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = view_src != 0
-            view_dest[mask] = view_src[mask]
+            mask = src_px != 0
+            view_dest[mask] = src_px[mask]
 
         del dest_px
         del src_px
