@@ -78,6 +78,7 @@ class Player(Character):
         self.dead = False
         self.death_time = 0
         self.score = 0
+        self.prev_sprite = self.get_sprite(0)
 
     def set_cords(self) -> None:
         cord_x = len(self.maze) // 2
@@ -162,7 +163,9 @@ class Player(Character):
         dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
-        return self.get_sprite(frame)
+        sprite = self.get_sprite(frame)
+        self.prev_sprite = sprite
+        return sprite
 
 
 class Blinky(Character):
@@ -222,6 +225,7 @@ class Blinky(Character):
         ]
         self.frame = 0
         self.anchors: list = anchors
+        self.prev_sprite = self.get_sprite(0)
 
     def set_cords(self):
         self.direction = Direction.NONE
@@ -313,7 +317,9 @@ class Blinky(Character):
         dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
-        return self.get_sprite(frame)
+        sprite = self.get_sprite(frame)
+        self.prev_sprite = sprite
+        return sprite
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
