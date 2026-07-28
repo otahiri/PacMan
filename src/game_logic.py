@@ -34,9 +34,11 @@ class GameLogic:
         Renderer.custom_blit(
             self.working_surf, self.maze.render_maze(self.scale), (0, 0)
         )
+        self.maze.load_gums(self.working_surf)
 
     def maze_engine(self, frame: int, new_move: Direction) -> pygame.Surface:
         self.player.new_direction = new_move
+        self.maze.load_gums(self.working_surf)
         self.change_frame(self.working_surf, self.player, frame)
         self.change_frame(self.working_surf, self.blinky, frame)
         self.change_frame(self.working_surf, self.inky, frame)
