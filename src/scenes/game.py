@@ -1,10 +1,9 @@
 import pygame
 from pygame.event import Event
-from src import Player, Direction, Maze, Blinky, Pinky, Clyde, Inky, display
-from src.enums import SceneName, DisplayInfo
+from src import Direction
+from src.enums import DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
-from src.maze import Cell
-from src.models import Scene
+from src.models import Scene, Text
 from src.render import Renderer
 from src.game_logic import GameLogic
 
@@ -17,7 +16,13 @@ class GameScene(Scene):
         self.frame = 0
         self.game_logic = GameLogic(scale)
         self.new_move = Direction.NONE
-
+        self.score = 112254
+        self.text_gui = []
+        for i, label in enumerate(["score", f"{self.score}"]):
+            y = 75 * i
+            self.text_gui.append(
+                Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
+            )
         self.running = True
 
     def render_scene(self, renderer: Renderer) -> None:
@@ -25,6 +30,8 @@ class GameScene(Scene):
             self.game_logic.maze_engine(self.frame, self.new_move),
             self.game_logic.v_offset,
         )
+        for text in self.text_gui:
+            renderer.render(text.surf, text.get_pos("topcenter"))
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
