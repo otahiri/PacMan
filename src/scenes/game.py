@@ -1,7 +1,7 @@
 import pygame
 from pygame.event import Event
 from src import Direction
-from src.enums import DisplayInfo, SceneName
+from src.enums import Asset, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene, Text
 from src.render import Renderer
@@ -23,6 +23,13 @@ class GameScene(Scene):
             self.text_gui.append(
                 Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
             )
+        self.harts = 3
+        self.hart_surf = Renderer.scale_surface(
+            pygame.image.load("assets/hart.png"),
+            (Asset.HART_WIDTH.value, Asset.HART_HEIGHT.value),
+            5,
+        )
+
         self.running = True
 
     def render_scene(self, renderer: Renderer) -> None:
@@ -32,6 +39,14 @@ class GameScene(Scene):
         )
         for text in self.text_gui:
             renderer.render(text.surf, text.get_pos("topcenter"))
+        for i in range(self.harts):
+            renderer.render(
+                self.hart_surf,
+                (
+                    (Asset.HART_WIDTH.value + 2) * 5 * i,
+                    DisplayInfo.SCREEN_HEIGHT.value - (Asset.HART_HEIGHT.value * 5 + 5),
+                ),
+            )
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
