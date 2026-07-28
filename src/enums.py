@@ -19,8 +19,8 @@ class Asset(Enum):
 
 
 class DisplayInfo(Enum):
-    SCREEN_WIDTH = 1600
-    SCREEN_HEIGHT = 800
+    SCREEN_WIDTH = 1280
+    SCREEN_HEIGHT = 1280
 
 
 class Direction(Enum):
