@@ -1,14 +1,10 @@
 from typing import Union
-
 import numpy
 from src.render import Renderer
-
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
-from src.models import Character
 from src.enums import Direction, DisplayInfo
 from mazegenerator import MazeGenerator
 import pygame
-from webcolors import name_to_hex
 
 
 class GameLogic:
@@ -75,7 +71,12 @@ class GameLogic:
         del dest_px
         del frame_px
 
-    def change_frame(self, dest: pygame.Surface, character: Union[Player, Blinky], frame: int):
+    def change_frame(
+        self,
+        dest: pygame.Surface,
+        character: Union[Player, Blinky],
+        frame: int,
+    ):
         self.erase_frame(dest, character)
         Renderer.custom_blit(
             self.working_surf,

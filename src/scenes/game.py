@@ -1,9 +1,8 @@
 import pygame
 from pygame.event import Event
-from src import Player, Direction, Maze, Blinky, Pinky, Clyde, Inky, display
+from src import Direction
 from src.enums import SceneName, DisplayInfo
 from mazegenerator import MazeGenerator
-from src.maze import Cell
 from src.models import Scene
 from src.render import Renderer
 from src.game_logic import GameLogic
@@ -29,7 +28,6 @@ class GameScene(Scene):
             self.game_logic.maze_engine(self.frame, self.new_move),
             self.game_logic.v_offset,
         )
-
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
         self.frame = (self.frame + 1) % 60
