@@ -2,6 +2,7 @@ import pygame
 from abc import ABC, abstractmethod
 from src.enums import SceneName
 from src.render import Renderer
+from src.maze import Cell
 
 
 class Button:
@@ -74,3 +75,33 @@ class Scene(ABC):
     def handle_events(
         self, events: list[pygame.Event]
     ) -> None | SceneName: ...
+
+
+class Character(ABC):
+    @abstractmethod
+    def __init__(
+        self,
+        speed: int,
+        scale: int,
+        maze: list[list[Cell]],
+        anchors: list = [],
+    ) -> None:
+        ...
+
+    @abstractmethod
+    def get_sprite(self, frame: int) -> pygame.Surface: ...
+
+    @abstractmethod
+    def move(
+        self,
+        frame: int
+    ) -> pygame.Surface: ...
+
+    @abstractmethod
+    def update_visual_cord(self): ...
+
+    @abstractmethod
+    def choose_direction(self): ...
+
+    @abstractmethod
+    def set_cords(self) -> None: ...
