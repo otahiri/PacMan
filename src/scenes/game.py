@@ -26,6 +26,9 @@ class GameScene(Scene):
         )
 
     def handle_events(self, events: list[Event]) -> None | SceneName:
+        if self.game_logic.game_over:
+            return SceneName.SCORE_ENTRY
+
         self.frame = (self.frame + 1) % 60
         for event in events:
             if event.type == pygame.QUIT:

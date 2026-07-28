@@ -36,6 +36,7 @@ class Player(Character):
             maze: the cell grid
         """
         self.maze = maze
+        self.lifes = 3
         self.scaled_v_step_y = 32 * scale
         self.scaled_v_step_x = 32 * scale
         self.scaled_half_v_step_y = 16 * scale
@@ -312,6 +313,7 @@ class Blinky(Character):
             and not player.dead
         ):
             player.dead = True
+            player.lifes -= 1
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y

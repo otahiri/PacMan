@@ -14,6 +14,7 @@ class GameLogic:
     ) -> None:
         self.scale = scale
         self.maze = Maze(MazeGenerator(), scale)
+        self.game_over = False
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
@@ -44,6 +45,24 @@ class GameLogic:
         self.change_frame(self.working_surf, self.inky, frame)
         self.change_frame(self.working_surf, self.pinky, frame)
         self.change_frame(self.working_surf, self.clyde, frame)
+        if self.player.dead:
+            if self.player.lifes >= 0:
+                mobs: list[Union[Player, Blinky]] = [
+                    self.player,
+                    self.blinky,
+                    self.inky,
+                    self.pinky,
+                    self.clyde,
+                ]
+                for mob in mobs:
+                    mob.bit_x, mob.bit_y = mob.origin
+                    self.erase_frame(self.working_surf, mob)
+                    mob.set_cords()
+                    self.change_frame(self.working_surf, mob, frame)
+                self.player.dead = False
+                self.player.lifes -= 1
+            else:
+                self.game_over = True
         return self.working_surf
 
     def erase_frame(
