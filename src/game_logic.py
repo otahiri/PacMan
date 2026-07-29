@@ -15,6 +15,7 @@ class GameLogic:
         self.scale = scale
         self.maze = Maze(MazeGenerator(), scale)
         self.game_over = False
+        self.hearts = 3
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
@@ -48,7 +49,7 @@ class GameLogic:
             self.change_frame(self.working_surf, self.clyde, frame)
         else:
             self.player.toggle_death()
-            if self.player.lifes >= 0:
+            if self.hearts >= 0:
                 mobs: list[Union[Player, Blinky]] = [
                     self.player,
                     self.blinky,
@@ -62,7 +63,7 @@ class GameLogic:
                     mob.set_cords()
                     self.change_frame(self.working_surf, mob, frame)
                 self.player.dead = False
-                self.player.lifes -= 1
+                self.hearts -= 1
             else:
                 self.game_over = True
         return self.working_surf

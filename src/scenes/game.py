@@ -23,10 +23,9 @@ class GameScene(Scene):
             self.text_gui.append(
                 Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
             )
-        self.harts = 3
-        self.hart_surf = Renderer.scale_surface(
+        self.heart_surf = Renderer.scale_surface(
             pygame.image.load("assets/hart.png"),
-            (Asset.HART_WIDTH.value, Asset.HART_HEIGHT.value),
+            (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
             5,
         )
 
@@ -39,12 +38,12 @@ class GameScene(Scene):
         )
         for text in self.text_gui:
             renderer.render(text.surf, text.get_pos("topcenter"))
-        for i in range(self.harts):
+        for i in range(self.game_logic.hearts):
             renderer.render(
-                self.hart_surf,
+                self.heart_surf,
                 (
-                    (Asset.HART_WIDTH.value + 2) * 5 * i,
-                    DisplayInfo.SCREEN_HEIGHT.value - (Asset.HART_HEIGHT.value * 5 + 5),
+                    (Asset.HEART_WIDTH.value + 2) * 5 * i,
+                    DisplayInfo.SCREEN_HEIGHT.value - (Asset.HEART_HEIGHT.value * 5 + 5),
                 ),
             )
 
