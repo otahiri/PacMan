@@ -135,21 +135,22 @@ class Maze:
             ]
             for y in range(len(self.bit_maze))
         ]
-        self.set_gums()
+        self.set_gums(scale)
 
-    def set_gums(self) -> None:
+    def set_gums(self, scale) -> None:
+        gum = Renderer.scale_surface(pygame.image.load("assets/gum.png"), (16, 16), scale)
+        super_gum = Renderer.scale_surface(pygame.image.load("assets/super_gum.png"), (16,16), scale)
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
         for row in self.cell_grid:
             for cell in row:
                 if cell.bit_value != 15:
-                    gum = (
-                        Gum(10, cell.cord)
+                    cell.content = (
+                        Gum(10, cell.cord, gum)
                         if cell.cord not in corners
-                        else SuperGum(100, cell.cord)
+                        else SuperGum(100, cell.cord, super_gum)
                     )
-                    cell.content = gum
 
     def render_maze(self, scale: int) -> pygame.Surface:
         """render the maze into a pygame surface

@@ -15,7 +15,6 @@ class GameScene(Scene):
         self.logical_maze = MazeGenerator()
         self.frame = 0
         self.game_logic = GameLogic(scale)
-        self.new_move = Direction.NONE
         self.score = 112254
         self.text_gui = []
         for i, label in enumerate(["score", f"{self.score}"]):
@@ -33,7 +32,7 @@ class GameScene(Scene):
 
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(
-            self.game_logic.maze_engine(self.frame, self.new_move),
+            self.game_logic.maze_engine(self.frame),
             self.game_logic.v_offset,
         )
         for text in self.text_gui:
@@ -59,13 +58,13 @@ class GameScene(Scene):
                 if event.key == pygame.K_RETURN:
                     return SceneName.SCORE_ENTRY
                 elif event.key in [pygame.K_w, pygame.K_UP]:
-                    self.new_move = Direction.NORTH
+                    self.game_logic.new_move = Direction.NORTH
                 elif event.key in [pygame.K_s, pygame.K_DOWN]:
-                    self.new_move = Direction.SOUTH
+                    self.game_logic.new_move = Direction.SOUTH
                 elif event.key in [pygame.K_d, pygame.K_RIGHT]:
-                    self.new_move = Direction.EAST
+                    self.game_logic.new_move = Direction.EAST
                 elif event.key in [pygame.K_a, pygame.K_LEFT]:
-                    self.new_move = Direction.WEST
+                    self.game_logic.new_move = Direction.WEST
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 return SceneName.SCORE_ENTRY

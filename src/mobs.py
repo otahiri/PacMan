@@ -49,32 +49,7 @@ class Player(Character):
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
-        base_sprite_one = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
-        )
-        base_sprite_two = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman1.png"), (15, 15), scale
-        )
-        self.empty_sprite = Renderer.scale_surface(
-            pygame.image.load("assets/player/empty_sprite.png"),
-            (15, 15),
-            scale,
-        )
-        self.sprites = [
-            [
-                pygame.transform.rotate(base_sprite_one, 90),
-                pygame.transform.rotate(base_sprite_two, 90),
-            ],
-            [base_sprite_one, base_sprite_two],
-            [
-                pygame.transform.rotate(base_sprite_one, -90),
-                pygame.transform.rotate(base_sprite_two, -90),
-            ],
-            [
-                pygame.transform.rotate(base_sprite_one, -180),
-                pygame.transform.rotate(base_sprite_two, -180),
-            ],
-        ]
+        self.sprites = [[Renderer.scale_surface(pygame.image.load(f"assets/player/{d.name.lower()}/{i}.png"), (16, 16), scale) for i in range(3)] for d in Direction if d is not Direction.NONE]
         self.frame = 0
         self.dead = False
         self.death_time = 0
@@ -102,11 +77,11 @@ class Player(Character):
         animation = self.sprites[self.direction.value[2]][self.frame]
         if not self.dead:
             if frame % 10 == 0:
-                self.frame = int(not self.frame)
+                    self.frame = (self.frame + 1) % 3
         else:
             if frame % 10 == 0:
                 if self.death_time < 10:
-                    self.frame = int(not self.frame)
+                    self.frame = (self.frame + 1) % 3
                     self.death_time += 1
         return animation
 
@@ -172,10 +147,6 @@ class Player(Character):
         self.prev_sprite = sprite
         return sprite
 
-    def toggle_death(self):
-        self.direction = Direction.NONE
-        self.new_direction = Direction.NONE
-
 
 class Blinky(Character):
     def __init__(
@@ -204,34 +175,9 @@ class Blinky(Character):
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.scale = scale
+        self.sprites = [[Renderer.scale_surface(pygame.image.load(f"assets/mobs/{d.name.lower()}/{i}.png"), (16, 16), scale) for i in range(3)] for d in Direction if d is not Direction.NONE]
         self.set_cords()
         self.player = anchors[0]
-        base_sprite_one = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
-        )
-        base_sprite_two = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman1.png"), (15, 15), scale
-        )
-        self.empty_sprite = Renderer.scale_surface(
-            pygame.image.load("assets/player/empty_sprite.png"),
-            (15, 15),
-            scale,
-        )
-        self.sprites = [
-            [
-                pygame.transform.rotate(base_sprite_one, 90),
-                pygame.transform.rotate(base_sprite_two, 90),
-            ],
-            [base_sprite_one, base_sprite_two],
-            [
-                pygame.transform.rotate(base_sprite_one, -90),
-                pygame.transform.rotate(base_sprite_two, -90),
-            ],
-            [
-                pygame.transform.rotate(base_sprite_one, -180),
-                pygame.transform.rotate(base_sprite_two, -180),
-            ],
-        ]
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
