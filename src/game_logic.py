@@ -38,14 +38,16 @@ class GameLogic:
         self.maze.load_gums(self.working_surf)
 
     def maze_engine(self, frame: int, new_move: Direction) -> pygame.Surface:
-        self.player.new_direction = new_move
-        self.maze.load_gums(self.working_surf)
-        self.change_frame(self.working_surf, self.player, frame)
-        self.change_frame(self.working_surf, self.blinky, frame)
-        self.change_frame(self.working_surf, self.inky, frame)
-        self.change_frame(self.working_surf, self.pinky, frame)
-        self.change_frame(self.working_surf, self.clyde, frame)
-        if self.player.dead:
+        if not self.player.dead:
+            self.player.new_direction = new_move
+            self.maze.load_gums(self.working_surf)
+            self.change_frame(self.working_surf, self.player, frame)
+            self.change_frame(self.working_surf, self.blinky, frame)
+            self.change_frame(self.working_surf, self.inky, frame)
+            self.change_frame(self.working_surf, self.pinky, frame)
+            self.change_frame(self.working_surf, self.clyde, frame)
+        else:
+            self.player.toggle_death()
             if self.player.lifes >= 0:
                 mobs: list[Union[Player, Blinky]] = [
                     self.player,
@@ -85,7 +87,7 @@ class GameLogic:
             and 0 <= end_y < max_y
         ):
             view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = frame_px != 0
+            mask = frame_px == frame_px
             view_src = numpy.full_like(frame_px, 0)
             view_dest[mask] = view_src[mask]
 

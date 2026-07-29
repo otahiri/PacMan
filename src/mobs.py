@@ -172,6 +172,10 @@ class Player(Character):
         self.prev_sprite = sprite
         return sprite
 
+    def toggle_death(self):
+        self.direction = Direction.NONE
+        self.new_direction = Direction.NONE
+
 
 class Blinky(Character):
     def __init__(
@@ -302,7 +306,6 @@ class Blinky(Character):
                 can_move = True
         else:
             can_move = True
-
         return can_move
 
     def move(self, frame: int) -> pygame.Surface:
@@ -313,7 +316,6 @@ class Blinky(Character):
             and not player.dead
         ):
             player.dead = True
-            player.lifes -= 1
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
