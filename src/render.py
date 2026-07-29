@@ -92,7 +92,49 @@ class Renderer:
         )
         return (idel, hover, new_size)
 
-    def render(self, source: pygame.Surface, pos: tuple[int, int]):
+    @classmethod
+    def get_pos(
+        cls,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        anchor: str = "center",
+    ) -> tuple[int, int]:
+
+        x, y = pos
+        width, height = size
+        match anchor.lower():
+            # Left anchors
+            case "topleft" | "lefttop":
+                return (x, y)
+            case "centerleft" | "leftcenter":
+                return (x, y - height // 2)
+            case "bottomleft" | "buttomleft":  # includes your typo safeguard
+                return (x, y - height)
+
+            # Center anchors
+            case "topcenter" | "centertop":
+                return (x - width // 2, y)
+            case "center":
+                return (x - width // 2, y - height // 2)
+            case "bottomcenter" | "centerbottom" | "buttomcenter":
+                return (x - width // 2, y - height)
+
+            # Right anchors
+            case "topright":
+                return (x - width, y)
+            case "centerright" | "rightcenter":
+                return (x - width, y - height // 2)
+            case "bottomright" | "buttomright":
+                return (x - width, y - height)
+
+            case _:
+                raise ValueError(f"anchor value unknown {anchor}")
+
+    def render(
+        self,
+        source: pygame.Surface,
+        pos: tuple[int, int],
+    ):
         self.__window.blit(source, pos)
 
     @classmethod
