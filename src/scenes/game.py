@@ -1,4 +1,5 @@
 import pygame
+import time
 from pygame.event import Event
 from src import Direction
 from src.enums import Asset, DisplayInfo, SceneName
@@ -29,10 +30,15 @@ class GameScene(Scene):
             (Asset.HART_WIDTH.value, Asset.HART_HEIGHT.value),
             5,
         )
+        self.last_time = time.perf_counter()
 
         self.running = True
 
     def render_scene(self, renderer: Renderer) -> None:
+        current_time = time.perf_counter()
+        delta = current_time - self.last_time
+        self.last_time = current_time
+
         renderer.render(
             self.game_logic.maze_engine(self.frame, self.new_move),
             self.game_logic.v_offset,
@@ -44,7 +50,8 @@ class GameScene(Scene):
                 self.hart_surf,
                 (
                     (Asset.HART_WIDTH.value + 2) * 5 * i,
-                    DisplayInfo.SCREEN_HEIGHT.value - (Asset.HART_HEIGHT.value * 5 + 5),
+                    DisplayInfo.SCREEN_HEIGHT.value
+                    - (Asset.HART_HEIGHT.value * 5 + 5),
                 ),
             )
 
