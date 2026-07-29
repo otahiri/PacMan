@@ -36,6 +36,7 @@ class Player(Character):
             maze: the cell grid
         """
         self.maze = maze
+        self.lifes = 3
         self.scaled_v_step_y = 32 * scale
         self.scaled_v_step_x = 32 * scale
         self.scaled_half_v_step_y = 16 * scale
@@ -122,6 +123,10 @@ class Player(Character):
         can_move = False
         dx, dy, shift = self.direction.value
         if is_centered:
+            if self.maze[self.bit_y][self.bit_x].content:
+                self.score += self.maze[self.bit_y][self.bit_x].content.score
+                self.maze[self.bit_y][self.bit_x].content = None
+                print(self.score)
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
             ].bit_value == 0 and not self.dead:
@@ -166,6 +171,10 @@ class Player(Character):
         sprite = self.get_sprite(frame)
         self.prev_sprite = sprite
         return sprite
+
+    def toggle_death(self):
+        self.direction = Direction.NONE
+        self.new_direction = Direction.NONE
 
 
 class Blinky(Character):
@@ -297,7 +306,6 @@ class Blinky(Character):
                 can_move = True
         else:
             can_move = True
-
         return can_move
 
     def move(self, frame: int) -> pygame.Surface:

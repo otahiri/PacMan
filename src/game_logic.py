@@ -14,6 +14,7 @@ class GameLogic:
     ) -> None:
         self.scale = scale
         self.maze = Maze(MazeGenerator(), scale)
+        self.game_over = False
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
@@ -34,14 +35,36 @@ class GameLogic:
         Renderer.custom_blit(
             self.working_surf, self.maze.render_maze(self.scale), (0, 0)
         )
+        self.maze.load_gums(self.working_surf)
 
     def maze_engine(self, frame: int, new_move: Direction) -> pygame.Surface:
-        self.player.new_direction = new_move
-        self.change_frame(self.working_surf, self.player, frame)
-        self.change_frame(self.working_surf, self.blinky, frame)
-        self.change_frame(self.working_surf, self.inky, frame)
-        self.change_frame(self.working_surf, self.pinky, frame)
-        self.change_frame(self.working_surf, self.clyde, frame)
+        if not self.player.dead:
+            self.player.new_direction = new_move
+            self.maze.load_gums(self.working_surf)
+            self.change_frame(self.working_surf, self.player, frame)
+            self.change_frame(self.working_surf, self.blinky, frame)
+            self.change_frame(self.working_surf, self.inky, frame)
+            self.change_frame(self.working_surf, self.pinky, frame)
+            self.change_frame(self.working_surf, self.clyde, frame)
+        else:
+            self.player.toggle_death()
+            if self.player.lifes >= 0:
+                mobs: list[Union[Player, Blinky]] = [
+                    self.player,
+                    self.blinky,
+                    self.inky,
+                    self.pinky,
+                    self.clyde,
+                ]
+                for mob in mobs:
+                    mob.bit_x, mob.bit_y = mob.origin
+                    self.erase_frame(self.working_surf, mob)
+                    mob.set_cords()
+                    self.change_frame(self.working_surf, mob, frame)
+                self.player.dead = False
+                self.player.lifes -= 1
+            else:
+                self.game_over = True
         return self.working_surf
 
     def erase_frame(
@@ -64,7 +87,7 @@ class GameLogic:
             and 0 <= end_y < max_y
         ):
             view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = frame_px != 0
+            mask = frame_px == frame_px
             view_src = numpy.full_like(frame_px, 0)
             view_dest[mask] = view_src[mask]
 
