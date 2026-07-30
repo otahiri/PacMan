@@ -125,9 +125,6 @@ class Player(Character):
         can_move = False
         dx, dy, shift = self.direction.value
         if is_centered:
-            if self.maze[self.bit_y][self.bit_x].content:
-                self.score += self.maze[self.bit_y][self.bit_x].content.score
-                self.maze[self.bit_y][self.bit_x].content = None
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
             ].bit_value == 0 and not self.dead:

@@ -1,5 +1,5 @@
 from .gums import Gum, SuperGum
-from typing import Any
+from typing import Any, Union
 import pygame
 from mazegenerator import MazeGenerator
 from src.render import Renderer
@@ -136,6 +136,12 @@ class Maze:
             for y in range(len(self.bit_maze))
         ]
         self.set_gums(scale)
+
+    def get_gum(self, x: int, y: int) -> Union[Gum, SuperGum]:
+        return self.cell_grid[y][x].content
+
+    def set_gum(self, x: int, y: int) -> None:
+        self.cell_grid[y][x].content = None
 
     def set_gums(self, scale) -> None:
         gum = Renderer.scale_surface(pygame.image.load("assets/gum.png"), (16, 16), scale)

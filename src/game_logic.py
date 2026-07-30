@@ -39,9 +39,29 @@ class GameLogic:
         self.maze.load_gums(self.working_surf)
         self.new_move = Direction.NONE
 
+    def handle_collision(self) -> None:
+        mobs = [self.blinky, self.pinky, self.inky, self.clyde]
+        p_x, p_y = self.player.bit_x, self.player.bit_y
+        for mob in mobs:
+            if (
+                abs(mob.v_x - self.player.v_x) < (8 * self.scale)
+                and abs(mob.v_y - self.player.v_y) < (8 * self.scale)
+                and not self.player.dead
+            ):
+                self.player.dead = True
+                self.player.state = PlayerState.DEAD
+                return
+        gum = self.maze.get_gum(p_x, p_y)
+        if gum:
+            if gum.is_super:
+                print("super")
+            self.player.score += gum.score
+            self.maze.set_gum(p_x, p_y)
+
     def maze_engine(self, frame: int) -> pygame.Surface:
         if not self.player.dead:
             self.alive_logic(frame)
+            self.handle_collision()
         else:
             self.death_logic(frame)
         return self.working_surf
