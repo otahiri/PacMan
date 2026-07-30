@@ -1,4 +1,4 @@
-from src.enums import Direction, PlayerState
+from src.enums import Direction, PlayerState, GhostState
 from src.models import Character
 from src import Cell
 import pygame
@@ -49,33 +49,33 @@ class Player(Character):
         self.state = PlayerState.ALIVE
         # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
         self.sprites = [
-                [
-                    Renderer.scale_surface(
-                        pygame.image.load(
-                            f"assets/player/alive/{d.name.lower()}/{i}.png"
-                        ),
-                        (16, 16),
-                        scale,
-                    )
-                    for i in range(3)
-                ]
-                for d in Direction
-                if d is not Direction.NONE
+            [
+                Renderer.scale_surface(
+                    pygame.image.load(
+                        f"assets/player/alive/{d.name.lower()}/{i}.png"
+                    ),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(3)
             ]
+            for d in Direction
+            if d is not Direction.NONE
+        ]
         self.death_animation = [
-                [
-                    Renderer.scale_surface(
-                        pygame.image.load(
-                            f"assets/player/dead/{d.name.lower()}/{i}.png"
-                        ),
-                        (16, 16),
-                        scale,
-                    )
-                    for i in range(9)
-                ]
-                for d in Direction
-                if d is not Direction.NONE
+            [
+                Renderer.scale_surface(
+                    pygame.image.load(
+                        f"assets/player/dead/{d.name.lower()}/{i}.png"
+                    ),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(9)
             ]
+            for d in Direction
+            if d is not Direction.NONE
+        ]
         self.frame = 0
         self.death_frame = 0
         self.dead = False
@@ -105,8 +105,9 @@ class Player(Character):
             if frame % 10 == 0:
                 self.frame = (self.frame + 1) % 3
         else:
-            print(self.death_frame)
-            animation = self.death_animation[self.direction.value[2]][self.death_frame]
+            animation = self.death_animation[self.direction.value[2]][
+                self.death_frame
+            ]
             if frame % 10 == 0:
                 self.death_frame += 1
         return animation
@@ -127,7 +128,6 @@ class Player(Character):
             if self.maze[self.bit_y][self.bit_x].content:
                 self.score += self.maze[self.bit_y][self.bit_x].content.score
                 self.maze[self.bit_y][self.bit_x].content = None
-                print(self.score)
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
             ].bit_value == 0 and not self.dead:
@@ -190,6 +190,7 @@ class Blinky(Character):
             maze: the cell grid
         """
         self.origin = (0, 0)
+        self.state = GhostState.CHASE
         self.maze = maze
         self.speed = speed
         self.scaled_v_step_y = 32 * scale
@@ -208,10 +209,18 @@ class Blinky(Character):
                     (16, 16),
                     scale,
                 )
-                for i in range(3)
+                for i in range(4)
             ]
             for d in Direction
             if d is not Direction.NONE
+        ]
+        self.frightened_sprites = [
+            Renderer.scale_surface(
+                pygame.image.load(f"assets/mobs/frightened/{i}.png"),
+                (16, 16),
+                scale,
+            )
+            for i in range(4)
         ]
         self.set_cords()
         self.player = anchors[0]
@@ -236,6 +245,8 @@ class Blinky(Character):
         t_x, t_y = self.choose_target()
         possible_directions = []
         for direction in Direction:
+            if direction.name == "NONE":
+                continue
             c_y = self.bit_y + direction.value[1]
             c_x = self.bit_x + direction.value[0]
             is_reverse = (
@@ -327,7 +338,7 @@ class Blinky(Character):
         """
         animation = self.sprites[self.direction.value[2]][self.frame]
         if frame % 10 == 0:
-            self.frame = int(not self.frame)
+            self.frame = (self.frame + 1) % 4
         return animation
 
 

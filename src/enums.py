@@ -14,6 +14,12 @@ class PlayerState(Enum):
     DEAD = auto()
 
 
+class GhostState(Enum):
+    CHASE = auto()
+    SCATTER = auto()
+    FRIGHTENED = auto()
+
+
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
     LETTER_WIDTH = 8
