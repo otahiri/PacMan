@@ -17,7 +17,7 @@ class GameScene(Scene):
         self.game_logic = GameLogic(scale)
         self.new_move = Direction.NONE
         self.score = 112254
-        self.text_gui = []
+        self.text_gui: list[Text] = []
         for i, label in enumerate(["score", f"{self.score}"]):
             y = 75 * i
             self.text_gui.append(
@@ -37,14 +37,17 @@ class GameScene(Scene):
             self.game_logic.maze_engine(self.frame, self.new_move),
             self.game_logic.v_offset,
         )
+
         for text in self.text_gui:
-            renderer.render(text.surf, text.get_pos("topcenter"))
+            renderer.render(text.surf, Renderer.get_pos(text.pos, text.size))
+
         for i in range(self.harts):
             renderer.render(
                 self.hart_surf,
                 (
                     (Asset.HART_WIDTH.value + 2) * 5 * i,
-                    DisplayInfo.SCREEN_HEIGHT.value - (Asset.HART_HEIGHT.value * 5 + 5),
+                    DisplayInfo.SCREEN_HEIGHT.value
+                    - (Asset.HART_HEIGHT.value * 5 + 5),
                 ),
             )
 

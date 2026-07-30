@@ -6,6 +6,7 @@ from webcolors import name_to_hex
 
 class Renderer:
     def __init__(self) -> None:
+
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
@@ -108,7 +109,7 @@ class Renderer:
                 return (x, y)
             case "centerleft" | "leftcenter":
                 return (x, y - height // 2)
-            case "bottomleft" | "buttomleft":  # includes your typo safeguard
+            case "bottomleft" | "leftbottom":  # includes your typo safeguard
                 return (x, y - height)
 
             # Center anchors
@@ -116,7 +117,7 @@ class Renderer:
                 return (x - width // 2, y)
             case "center":
                 return (x - width // 2, y - height // 2)
-            case "bottomcenter" | "centerbottom" | "buttomcenter":
+            case "bottomcenter" | "centerbottom" | "bottomcenter":
                 return (x - width // 2, y - height)
 
             # Right anchors
@@ -124,7 +125,7 @@ class Renderer:
                 return (x - width, y)
             case "centerright" | "rightcenter":
                 return (x - width, y - height // 2)
-            case "bottomright" | "buttomright":
+            case "bottomright" | "rightbottom":
                 return (x - width, y - height)
 
             case _:
@@ -190,7 +191,6 @@ class Renderer:
                 scaled_letter = cls.scale_surface(
                     letter_surface, (width, height), scale, color
                 )
-
                 for y in range(height * scale):
                     for x in range(width * scale):
                         pixel_color = scaled_letter.get_at((x, y))
