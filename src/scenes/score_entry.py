@@ -60,7 +60,7 @@ class ScoreEntryScene(Scene):
                 place_y += 1
                 if line_count == 2:
                     x += (letter_width + spacing_width) * 2
-
+                    place_x = 2
             surf = Renderer.scale_surface(
                 pygame.image.load(f"{Asset.LETTER_PATH.value}/{chr(c)}.png"),
                 (Asset.LETTER_WIDTH.value, Asset.LETTER_HEIGHT.value),
@@ -105,12 +105,72 @@ class ScoreEntryScene(Scene):
     def __move_cursor(self, direction: str):
         match direction:
             case "right":
+                if self.cursor_place[0] == 7 and self.cursor_place[1] == 2:
+                    self.cursor_place = [0, 0]
+                    return
+
+                if self.cursor_place[0] == 9:
+
+                    if self.cursor_place[1] == 1:
+                        self.cursor_place[0] = 2
+
+                    else:
+                        self.cursor_place[0] = 0
+
+                    if self.cursor_place[1] == 2:
+                        self.cursor_place[1] = 0
+
+                    else:
+                        self.cursor_place[1] += 1
+                    return
                 self.cursor_place[0] += 1
+
             case "left":
+                if self.cursor_place[0] == 2 and self.cursor_place[1] == 2:
+                    self.cursor_place = [9, 1]
+                    return
+                if self.cursor_place[0] == 0 and self.cursor_place[1] == 0:
+                    self.cursor_place = [7, 2]
+                    return
+
+                if self.cursor_place[0] == 0:
+
+                    self.cursor_place[0] = 9
+                    self.cursor_place[1] -= 1
+                    return
+
                 self.cursor_place[0] -= 1
+
             case "up":
+                if self.cursor_place[1] == 0:
+                    if self.cursor_place[0] <= 2:
+                        self.cursor_place = [2, 2]
+                        return
+                    elif self.cursor_place[0] >= 7:
+                        self.cursor_place = [7, 2]
+                        return
+                    else:
+                        self.cursor_place[1] = 2
+                        return
+
                 self.cursor_place[1] -= 1
+
             case "down":
+                if self.cursor_place[1] == 2:
+                    self.cursor_place[1] = 0
+                    return
+
+                if self.cursor_place[1] == 1:
+                    if self.cursor_place[0] <= 2:
+                        self.cursor_place = [2, 2]
+                        return
+                    elif self.cursor_place[0] >= 7:
+                        self.cursor_place = [7, 2]
+                        return
+                    else:
+                        self.cursor_place[1] = 2
+                        return
+
                 self.cursor_place[1] += 1
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
