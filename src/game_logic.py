@@ -15,6 +15,7 @@ class GameLogic:
         self.scale = scale
         self.maze = Maze(MazeGenerator(), scale)
         self.game_over = False
+        self.score = 0
         self.hearts = 3
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
@@ -55,8 +56,11 @@ class GameLogic:
         if gum:
             if gum.is_super:
                 print("super")
-            self.player.score += gum.score
+            self.score += gum.score
             self.maze.set_gum(p_x, p_y)
+
+    def get_score(self) -> int:
+        return self.score
 
     def maze_engine(self, frame: int) -> pygame.Surface:
         if not self.player.dead:

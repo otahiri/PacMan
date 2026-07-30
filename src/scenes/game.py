@@ -15,9 +15,8 @@ class GameScene(Scene):
         self.logical_maze = MazeGenerator()
         self.frame = 0
         self.game_logic = GameLogic(scale)
-        self.score = 112254
         self.text_gui = []
-        for i, label in enumerate(["score", f"{self.score}"]):
+        for i, label in enumerate(["score", f"{self.game_logic.score}"]):
             y = 75 * i
             self.text_gui.append(
                 Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
@@ -42,7 +41,8 @@ class GameScene(Scene):
                 self.heart_surf,
                 (
                     (Asset.HEART_WIDTH.value + 2) * 5 * i,
-                    DisplayInfo.SCREEN_HEIGHT.value - (Asset.HEART_HEIGHT.value * 5 + 5),
+                    DisplayInfo.SCREEN_HEIGHT.value
+                    - (Asset.HEART_HEIGHT.value * 5 + 5),
                 ),
             )
 
