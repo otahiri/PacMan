@@ -2,7 +2,7 @@ from typing import Union
 import numpy
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
-from src.enums import Direction, DisplayInfo
+from src.enums import Direction, DisplayInfo, PlayerState
 from mazegenerator import MazeGenerator
 import pygame
 
@@ -41,33 +41,46 @@ class GameLogic:
 
     def maze_engine(self, frame: int) -> pygame.Surface:
         if not self.player.dead:
-            self.player.new_direction = self.new_move
-            self.maze.load_gums(self.working_surf)
-            self.change_frame(self.working_surf, self.player, frame)
-            self.change_frame(self.working_surf, self.blinky, frame)
-            self.change_frame(self.working_surf, self.inky, frame)
-            self.change_frame(self.working_surf, self.pinky, frame)
-            self.change_frame(self.working_surf, self.clyde, frame)
+            self.alive_logic(frame)
         else:
-            self.new_move = Direction.NONE
-            if self.hearts >= 0:
-                mobs: list[Union[Player, Blinky]] = [
-                    self.player,
-                    self.blinky,
-                    self.inky,
-                    self.pinky,
-                    self.clyde,
-                ]
-                for mob in mobs:
-                    mob.bit_x, mob.bit_y = mob.origin
-                    self.erase_frame(self.working_surf, mob)
-                    mob.set_cords()
-                    self.change_frame(self.working_surf, mob, frame)
-                self.player.dead = False
-                self.hearts -= 1
-            else:
-                self.game_over = True
+            self.death_logic(frame)
         return self.working_surf
+
+    def alive_logic(self, frame: int) -> None:
+        self.player.new_direction = self.new_move
+        self.maze.load_gums(self.working_surf)
+        self.change_frame(self.working_surf, self.player, frame)
+        self.change_frame(self.working_surf, self.blinky, frame)
+        self.change_frame(self.working_surf, self.inky, frame)
+        self.change_frame(self.working_surf, self.pinky, frame)
+        self.change_frame(self.working_surf, self.clyde, frame)
+
+    def death_logic(self, frame: int) -> None:
+        self.new_move = Direction.NONE
+        self.change_frame(self.working_surf, self.player, frame)
+        self.change_frame(self.working_surf, self.blinky, frame)
+        self.change_frame(self.working_surf, self.inky, frame)
+        self.change_frame(self.working_surf, self.pinky, frame)
+        self.change_frame(self.working_surf, self.clyde, frame)
+        if self.player.death_frame >= 8:
+            mobs: list[Union[Player, Blinky]] = [
+                self.player,
+                self.blinky,
+                self.inky,
+                self.pinky,
+                self.clyde,
+            ]
+            for mob in mobs:
+                mob.bit_x, mob.bit_y = mob.origin
+                self.erase_frame(self.working_surf, mob)
+                mob.set_cords()
+                self.change_frame(self.working_surf, mob, frame)
+            self.player.dead = False
+            self.hearts -= 1
+            self.player.death_frame = 0
+            self.player.state = PlayerState.ALIVE
+        if self.hearts <= 0:
+            self.game_over = True
 
     def erase_frame(
         self, dest: pygame.Surface, character: Union[Player, Blinky]

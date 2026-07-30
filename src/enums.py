@@ -9,6 +9,11 @@ class SceneName(Enum):
     OPTIONS = auto()
 
 
+class PlayerState(Enum):
+    ALIVE = auto()
+    DEAD = auto()
+
+
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
     LETTER_WIDTH = 8

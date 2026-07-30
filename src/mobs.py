@@ -1,4 +1,4 @@
-from src.enums import Direction
+from src.enums import Direction, PlayerState
 from src.models import Character
 from src import Cell
 import pygame
@@ -25,9 +25,7 @@ class Player(Character):
         frame: the current frame that passed between 0 and 60
     """
 
-    def __init__(
-        self, speed: int, scale: int, maze: list[list[Cell]]
-    ) -> None:
+    def __init__(self, speed: int, scale: int, maze: list[list[Cell]]) -> None:
         """constructor
 
         Args:
@@ -48,11 +46,39 @@ class Player(Character):
         self.set_cords()
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
+        self.state = PlayerState.ALIVE
         # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
-        self.sprites = [[Renderer.scale_surface(pygame.image.load(f"assets/player/{d.name.lower()}/{i}.png"), (16, 16), scale) for i in range(3)] for d in Direction if d is not Direction.NONE]
+        self.sprites = [
+                [
+                    Renderer.scale_surface(
+                        pygame.image.load(
+                            f"assets/player/alive/{d.name.lower()}/{i}.png"
+                        ),
+                        (16, 16),
+                        scale,
+                    )
+                    for i in range(3)
+                ]
+                for d in Direction
+                if d is not Direction.NONE
+            ]
+        self.death_animation = [
+                [
+                    Renderer.scale_surface(
+                        pygame.image.load(
+                            f"assets/player/dead/{d.name.lower()}/{i}.png"
+                        ),
+                        (16, 16),
+                        scale,
+                    )
+                    for i in range(9)
+                ]
+                for d in Direction
+                if d is not Direction.NONE
+            ]
         self.frame = 0
+        self.death_frame = 0
         self.dead = False
-        self.death_time = 0
         self.score = 0
         self.prev_sprite = self.get_sprite(0)
 
@@ -74,15 +100,15 @@ class Player(Character):
         Returns:
             surface with player sprite loaded
         """
-        animation = self.sprites[self.direction.value[2]][self.frame]
         if not self.dead:
+            animation = self.sprites[self.direction.value[2]][self.frame]
             if frame % 10 == 0:
-                    self.frame = (self.frame + 1) % 3
+                self.frame = (self.frame + 1) % 3
         else:
+            print(self.death_frame)
+            animation = self.death_animation[self.direction.value[2]][self.death_frame]
             if frame % 10 == 0:
-                if self.death_time < 10:
-                    self.frame = (self.frame + 1) % 3
-                    self.death_time += 1
+                self.death_frame += 1
         return animation
 
     def choose_direction(self):
@@ -175,12 +201,24 @@ class Blinky(Character):
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.scale = scale
-        self.sprites = [[Renderer.scale_surface(pygame.image.load(f"assets/mobs/{d.name.lower()}/{i}.png"), (16, 16), scale) for i in range(3)] for d in Direction if d is not Direction.NONE]
+        self.sprites = [
+            [
+                Renderer.scale_surface(
+                    pygame.image.load(f"assets/mobs/{d.name.lower()}/{i}.png"),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(3)
+            ]
+            for d in Direction
+            if d is not Direction.NONE
+        ]
         self.set_cords()
         self.player = anchors[0]
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
+        self.can_move = True
 
     def set_cords(self):
         self.direction = Direction.NONE
@@ -255,6 +293,8 @@ class Blinky(Character):
         return can_move
 
     def move(self, frame: int) -> pygame.Surface:
+        if self.player.dead:
+            return self.prev_sprite
         player = self.anchors[0]
         if (
             abs(self.v_x - player.v_x) < self.scaled_half_v_step_x
@@ -262,6 +302,7 @@ class Blinky(Character):
             and not player.dead
         ):
             player.dead = True
+            player.state = PlayerState.DEAD
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
