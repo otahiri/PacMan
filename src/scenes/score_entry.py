@@ -15,7 +15,6 @@ class ScoreEntryScene(Scene):
         self.text = Text("score entry", (width // 2, height // 4), "white")
         self.keyboard = self.__get_keyboard_letters()
         self.cursor = Cursor()
-        self.cursor_place = [0, 0]
 
     def __get_keyboard_letters(
         self,
@@ -89,13 +88,17 @@ class ScoreEntryScene(Scene):
         )
 
         for letter in self.keyboard:
+            # renderer.render(
+            #     letter.hover_surf,
+            #     Renderer.get_pos(letter.pos, (letter.w, letter.h)),
+            # )
             renderer.render(
                 letter.surf, Renderer.get_pos(letter.pos, letter.size)
             )
 
             if (
-                self.cursor_place[0] == letter.place[0]
-                and self.cursor_place[1] == letter.place[1]
+                self.cursor.x == letter.place[0]
+                and self.cursor.y == letter.place[1]
             ):
                 renderer.render(
                     self.cursor.surf,
@@ -103,75 +106,40 @@ class ScoreEntryScene(Scene):
                 )
 
     def __move_cursor(self, direction: str):
-        match direction:
-            case "right":
-                if self.cursor_place[0] == 7 and self.cursor_place[1] == 2:
-                    self.cursor_place = [0, 0]
-                    return
+        match (self.cursor.x, self.cursor.y, direction):
 
-                if self.cursor_place[0] == 9:
+            case (7, 2, "right"):
+                self.cursor.x, self.cursor.y = (0, 0)
+            case (9, 1, "right"):
+                self.cursor.x, self.cursor.y = (2, 2)
+            case (9, 0, "right"):
+                self.cursor.x, self.cursor.y = (0, 1)
 
-                    if self.cursor_place[1] == 1:
-                        self.cursor_place[0] = 2
+            case (0, 1, "left"):
+                self.cursor.x, self.cursor.y = (9, 0)
+            case (2, 2, "left"):
+                self.cursor.x, self.cursor.y = (9, 1)
+            case (0, 0, "left"):
+                self.cursor.x, self.cursor.y = (7, 2)
 
-                    else:
-                        self.cursor_place[0] = 0
+            case (_, 0, "up") | (_, 1, "down"):
+                if self.cursor.x >= 7:
+                    self.cursor.x = 7
+                elif self.cursor.x <= 2:
+                    self.cursor.x = 2
+                self.cursor.y = 2
 
-                    if self.cursor_place[1] == 2:
-                        self.cursor_place[1] = 0
+            case (_, 2, "down"):
+                self.cursor.y = 0
 
-                    else:
-                        self.cursor_place[1] += 1
-                    return
-                self.cursor_place[0] += 1
-
-            case "left":
-                if self.cursor_place[0] == 2 and self.cursor_place[1] == 2:
-                    self.cursor_place = [9, 1]
-                    return
-                if self.cursor_place[0] == 0 and self.cursor_place[1] == 0:
-                    self.cursor_place = [7, 2]
-                    return
-
-                if self.cursor_place[0] == 0:
-
-                    self.cursor_place[0] = 9
-                    self.cursor_place[1] -= 1
-                    return
-
-                self.cursor_place[0] -= 1
-
-            case "up":
-                if self.cursor_place[1] == 0:
-                    if self.cursor_place[0] <= 2:
-                        self.cursor_place = [2, 2]
-                        return
-                    elif self.cursor_place[0] >= 7:
-                        self.cursor_place = [7, 2]
-                        return
-                    else:
-                        self.cursor_place[1] = 2
-                        return
-
-                self.cursor_place[1] -= 1
-
-            case "down":
-                if self.cursor_place[1] == 2:
-                    self.cursor_place[1] = 0
-                    return
-
-                if self.cursor_place[1] == 1:
-                    if self.cursor_place[0] <= 2:
-                        self.cursor_place = [2, 2]
-                        return
-                    elif self.cursor_place[0] >= 7:
-                        self.cursor_place = [7, 2]
-                        return
-                    else:
-                        self.cursor_place[1] = 2
-                        return
-
-                self.cursor_place[1] += 1
+            case (_, _, "right"):
+                self.cursor.x += 1
+            case (_, _, "left"):
+                self.cursor.x -= 1
+            case (_, _, "up"):
+                self.cursor.y -= 1
+            case (_, _, "down"):
+                self.cursor.y += 1
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:
@@ -191,3 +159,7 @@ class ScoreEntryScene(Scene):
                     self.__move_cursor("up")
                 elif event.key == pygame.K_DOWN:
                     self.__move_cursor("down")
+            elif event.type == pygame.MOUSEMOTION:
+                for button in self.keyboard:
+                    if button.is_collide(pygame.mouse.get_pos()):
+                        self.cursor.x, self.cursor.y = button.place
