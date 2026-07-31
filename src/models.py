@@ -52,19 +52,22 @@ class LetterButton:
         self.pos = pos
         self.size = size
         self.place = place
+
         # self.hover_width, self.hover_height = size
         # self.hover_width *= 2
         # self.hover_height *= 2
-
         # self.hover_surf = pygame.Surface((self.hover_width, self.hover_height))
         # self.hover_surf.fill("red")
 
     def is_collide(self, pos: tuple[int, int]):
+
         width, height = self.size
+
         width *= 2
         height *= 2
         my_x, my_y = Renderer.get_pos(self.pos, (width, height))
-
+        if self.letter == "E":
+            width *= 3
         target_x, target_y = pos
         is_inside_x = my_x <= target_x <= (my_x + width)
         is_inside_y = my_y <= target_y <= (my_y + height)
@@ -81,10 +84,21 @@ class Cursor:
             (Asset.CURSOR_WIDTH.value, Asset.CURSOR_HEIGHT.value),
             scale,
         )
+        self.wide_surf = Renderer.scale_surface(
+            pygame.image.load(f"{Asset.CURSOR_WIDE_PATH.value}.png"),
+            (Asset.CURSOR_WIDE_WIDTH.value, Asset.CURSOR_WIDE_HEIGHT.value),
+            scale,
+        )
 
         width = Asset.CURSOR_WIDTH.value * scale
         height = Asset.CURSOR_WIDTH.value * scale
         self.size = (width, height)
+
+        wide_width = Asset.CURSOR_WIDE_WIDTH.value * scale
+        wide_height = Asset.CURSOR_WIDE_HEIGHT.value * scale
+        self.wide_size = (wide_width, wide_height)
+
+        self.is_wide = False
         self.x = 0
         self.y = 0
 

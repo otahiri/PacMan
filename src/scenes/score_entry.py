@@ -25,7 +25,7 @@ class ScoreEntryScene(Scene):
         scale = 5
 
         letters_x = 10
-        letters_y = 3
+        letters_y = 5
 
         spacing_width = spacing * scale
         spacing_height = spacing * scale
@@ -47,27 +47,30 @@ class ScoreEntryScene(Scene):
         place_x = 0
         place_y = 0
 
-        line_count = 0
-
-        for c in range(97, 123):
+        for c in "abcdefghijklmnopqrstuvwxyz0123456789 E":
             if i % 10 == 0 and i != 0:
-                line_count += 1
                 y += spacing_height + letter_height
                 i = 0
                 x = DisplayInfo.SCREEN_WIDTH.value // 2 - keyboard_width // 2
                 place_x = 0
                 place_y += 1
-                if line_count == 2:
-                    x += (letter_width + spacing_width) * 2
-                    place_x = 2
-            surf = Renderer.scale_surface(
-                pygame.image.load(f"{Asset.LETTER_PATH.value}/{chr(c)}.png"),
-                (Asset.LETTER_WIDTH.value, Asset.LETTER_HEIGHT.value),
-                scale,
-            )
+
+            letter_path = f"{Asset.LETTER_PATH.value}/{c}.png"
+
+            if c == " ":
+                letter_path = f"{Asset.LETTER_PATH.value}/space.png"
+
+            if c == "E":
+                surf = Text("enter", (x, y), "white").surf
+            else:
+                surf = Renderer.scale_surface(
+                    pygame.image.load(letter_path),
+                    (Asset.LETTER_WIDTH.value, Asset.LETTER_HEIGHT.value),
+                    scale,
+                )
             letter = LetterButton(
                 surf,
-                chr(c),
+                c,
                 (x, y),
                 (letter_width, letter_height),
                 (place_x, place_y),
@@ -82,6 +85,7 @@ class ScoreEntryScene(Scene):
         return keyboard
 
     def render_scene(self, renderer: Renderer) -> None:
+
         renderer.render(
             self.text.surf,
             Renderer.get_pos(self.text.pos, self.text.size),
@@ -90,7 +94,9 @@ class ScoreEntryScene(Scene):
         for letter in self.keyboard:
             # renderer.render(
             #     letter.hover_surf,
-            #     Renderer.get_pos(letter.pos, (letter.w, letter.h)),
+            #     Renderer.get_pos(
+            #         letter.pos, (letter.hover_width, letter.hover_height)
+            #     ),
             # )
             renderer.render(
                 letter.surf, Renderer.get_pos(letter.pos, letter.size)
@@ -100,37 +106,38 @@ class ScoreEntryScene(Scene):
                 self.cursor.x == letter.place[0]
                 and self.cursor.y == letter.place[1]
             ):
-                renderer.render(
-                    self.cursor.surf,
-                    Renderer.get_pos(letter.pos, (self.cursor.size)),
-                )
+                if self.cursor.is_wide:
+                    x, y = Renderer.get_pos(
+                        letter.pos, (self.cursor.wide_size), "leftcenter"
+                    )
+                    x -= letter.size[0]
+                    renderer.render(self.cursor.wide_surf, (x, y))
+                else:
+                    renderer.render(
+                        self.cursor.surf,
+                        Renderer.get_pos(letter.pos, (self.cursor.size)),
+                    )
 
     def __move_cursor(self, direction: str):
-        match (self.cursor.x, self.cursor.y, direction):
+        x = self.cursor.x
+        y = self.cursor.y
 
-            case (7, 2, "right"):
-                self.cursor.x, self.cursor.y = (0, 0)
-            case (9, 1, "right"):
-                self.cursor.x, self.cursor.y = (2, 2)
-            case (9, 0, "right"):
-                self.cursor.x, self.cursor.y = (0, 1)
+        match (x, y, direction):
 
-            case (0, 1, "left"):
-                self.cursor.x, self.cursor.y = (9, 0)
-            case (2, 2, "left"):
-                self.cursor.x, self.cursor.y = (9, 1)
-            case (0, 0, "left"):
-                self.cursor.x, self.cursor.y = (7, 2)
+            case (7, 3, "up"):
+                self.cursor.x, self.cursor.y = (9, 2)
 
-            case (_, 0, "up") | (_, 1, "down"):
-                if self.cursor.x >= 7:
-                    self.cursor.x = 7
-                elif self.cursor.x <= 2:
-                    self.cursor.x = 2
-                self.cursor.y = 2
+            case (_, 3, "down"):
+                self.cursor.x, self.cursor.y = (9, 0) if x == 7 else (x, 0)
 
-            case (_, 2, "down"):
-                self.cursor.y = 0
+            case (_, 2, "down") | (_, 0, "up"):
+                self.cursor.x, self.cursor.y = (7, 3) if x >= 7 else (x, 3)
+
+            case (9, _, "right") | (7, 3, "right"):
+                self.cursor.x = 0
+
+            case (0, _, "left"):
+                self.cursor.x = 7 if y == 3 else 9
 
             case (_, _, "right"):
                 self.cursor.x += 1
@@ -140,6 +147,8 @@ class ScoreEntryScene(Scene):
                 self.cursor.y -= 1
             case (_, _, "down"):
                 self.cursor.y += 1
+
+        self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:
@@ -163,3 +172,6 @@ class ScoreEntryScene(Scene):
                 for button in self.keyboard:
                     if button.is_collide(pygame.mouse.get_pos()):
                         self.cursor.x, self.cursor.y = button.place
+                        self.cursor.is_wide = (
+                            self.cursor.y == 3 and self.cursor.x >= 7
+                        )

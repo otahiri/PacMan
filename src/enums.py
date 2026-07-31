@@ -12,6 +12,7 @@ class SceneName(Enum):
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
     CURSOR_PATH = "assets/cursor"
+    CURSOR_WIDE_PATH = "assets/cursor_wide"
 
     LETTER_WIDTH = 8
     LETTER_HEIGHT = 8
@@ -26,6 +27,9 @@ class Asset(Enum):
 
     CURSOR_WIDTH = 8
     CURSOR_HEIGHT = 8
+
+    CURSOR_WIDE_WIDTH = 24
+    CURSOR_WIDE_HEIGHT = 8
 
 
 class DisplayInfo(Enum):
