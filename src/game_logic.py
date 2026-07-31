@@ -15,6 +15,10 @@ class GameLogic:
         self.scale = scale
         self.maze = Maze(MazeGenerator(), scale)
         self.game_over = False
+        self.frame = 0
+        self.accumulator = 0.0
+        self.time_stamp = 0.0
+        self.MS_PER_GRAME = 0.016
         self.score = 0
         self.hearts = 3
         self.v_offset = (
@@ -62,12 +66,18 @@ class GameLogic:
     def get_score(self) -> int:
         return self.score
 
-    def maze_engine(self, frame: int) -> pygame.Surface:
-        if not self.player.dead:
-            self.alive_logic(frame)
-            self.handle_collision()
-        else:
-            self.death_logic(frame)
+    def maze_engine(self, delta: float) -> pygame.Surface:
+        self.time_stamp += delta
+        self.accumulator += delta
+        while self.accumulator > self.MS_PER_GRAME:
+            self.frame += 1
+            if not self.player.dead:
+                self.alive_logic(self.frame)
+                self.handle_collision()
+            else:
+                self.death_logic(self.frame)
+            self.accumulator -= self.MS_PER_GRAME
+
         return self.working_surf
 
     def alive_logic(self, frame: int) -> None:

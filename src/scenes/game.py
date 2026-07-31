@@ -14,7 +14,6 @@ class GameScene(Scene):
 
         scale = 2
         self.logical_maze = MazeGenerator()
-        self.frame = 0
         self.game_logic = GameLogic(scale)
         self.text_gui = []
         for i, label in enumerate(["score", f"{self.game_logic.score}"]):
@@ -37,7 +36,7 @@ class GameScene(Scene):
         self.last_time = current_time
 
         renderer.render(
-            self.game_logic.maze_engine(self.frame),
+            self.game_logic.maze_engine(delta),
             self.game_logic.v_offset,
         )
         for text in self.text_gui:
@@ -56,7 +55,6 @@ class GameScene(Scene):
         if self.game_logic.game_over:
             return SceneName.SCORE_ENTRY
 
-        self.frame = (self.frame + 1) % 60
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
