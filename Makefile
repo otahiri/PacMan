@@ -1,7 +1,7 @@
 all: run
 
 run: 
-	uv run python3 -m src
+	uv run python3 -m src config.json
 
 debug:
 	uv run python3 -m pdb src/__main__.py
