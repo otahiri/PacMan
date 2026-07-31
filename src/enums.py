@@ -9,6 +9,17 @@ class SceneName(Enum):
     OPTIONS = auto()
 
 
+class PlayerState(Enum):
+    ALIVE = auto()
+    DEAD = auto()
+
+
+class GhostState(Enum):
+    CHASE = auto()
+    SCATTER = auto()
+    FRIGHTENED = auto()
+
+
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
     LETTER_WIDTH = 8
@@ -16,8 +27,8 @@ class Asset(Enum):
     LETTER_SPACING = 5
     BUTTON_WIDTH = 32
     BUTTON_HEIGHT = 11
-    HART_WIDTH = 16
-    HART_HEIGHT = 13
+    HEART_WIDTH = 16
+    HEART_HEIGHT = 13
 
 
 class DisplayInfo(Enum):

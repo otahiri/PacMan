@@ -1,4 +1,4 @@
-from src.enums import Direction
+from src.enums import Direction, PlayerState, GhostState
 from src.models import Character
 from src import Cell
 import pygame
@@ -25,9 +25,7 @@ class Player(Character):
         frame: the current frame that passed between 0 and 60
     """
 
-    def __init__(
-        self, speed: int, scale: int, maze: list[list[Cell]]
-    ) -> None:
+    def __init__(self, speed: int, scale: int, maze: list[list[Cell]]) -> None:
         """constructor
 
         Args:
@@ -36,6 +34,7 @@ class Player(Character):
             maze: the cell grid
         """
         self.maze = maze
+        self.lifes = 3
         self.scaled_v_step_y = 32 * scale
         self.scaled_v_step_x = 32 * scale
         self.scaled_half_v_step_y = 16 * scale
@@ -47,36 +46,39 @@ class Player(Character):
         self.set_cords()
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
+        self.state = PlayerState.ALIVE
         # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
-        base_sprite_one = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
-        )
-        base_sprite_two = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman1.png"), (15, 15), scale
-        )
-        self.empty_sprite = Renderer.scale_surface(
-            pygame.image.load("assets/player/empty_sprite.png"),
-            (15, 15),
-            scale,
-        )
         self.sprites = [
             [
-                pygame.transform.rotate(base_sprite_one, 90),
-                pygame.transform.rotate(base_sprite_two, 90),
-            ],
-            [base_sprite_one, base_sprite_two],
+                Renderer.scale_surface(
+                    pygame.image.load(
+                        f"assets/player/alive/{d.name.lower()}/{i}.png"
+                    ),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(3)
+            ]
+            for d in Direction
+            if d is not Direction.NONE
+        ]
+        self.death_animation = [
             [
-                pygame.transform.rotate(base_sprite_one, -90),
-                pygame.transform.rotate(base_sprite_two, -90),
-            ],
-            [
-                pygame.transform.rotate(base_sprite_one, -180),
-                pygame.transform.rotate(base_sprite_two, -180),
-            ],
+                Renderer.scale_surface(
+                    pygame.image.load(
+                        f"assets/player/dead/{d.name.lower()}/{i}.png"
+                    ),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(9)
+            ]
+            for d in Direction
+            if d is not Direction.NONE
         ]
         self.frame = 0
+        self.death_frame = 0
         self.dead = False
-        self.death_time = 0
         self.score = 0
         self.prev_sprite = self.get_sprite(0)
 
@@ -98,15 +100,16 @@ class Player(Character):
         Returns:
             surface with player sprite loaded
         """
-        animation = self.sprites[self.direction.value[2]][self.frame]
         if not self.dead:
+            animation = self.sprites[self.direction.value[2]][self.frame]
             if frame % 10 == 0:
-                self.frame = int(not self.frame)
+                self.frame = (self.frame + 1) % 3
         else:
+            animation = self.death_animation[self.direction.value[2]][
+                self.death_frame
+            ]
             if frame % 10 == 0:
-                if self.death_time < 10:
-                    self.frame = int(not self.frame)
-                    self.death_time += 1
+                self.death_frame += 1
         return animation
 
     def choose_direction(self):
@@ -184,6 +187,7 @@ class Blinky(Character):
             maze: the cell grid
         """
         self.origin = (0, 0)
+        self.state = GhostState.CHASE
         self.maze = maze
         self.speed = speed
         self.scaled_v_step_y = 32 * scale
@@ -195,37 +199,32 @@ class Blinky(Character):
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.scale = scale
-        self.set_cords()
-        self.player = anchors[0]
-        base_sprite_one = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman0.png"), (15, 15), scale
-        )
-        base_sprite_two = Renderer.scale_surface(
-            pygame.image.load("assets/player/pacman1.png"), (15, 15), scale
-        )
-        self.empty_sprite = Renderer.scale_surface(
-            pygame.image.load("assets/player/empty_sprite.png"),
-            (15, 15),
-            scale,
-        )
         self.sprites = [
             [
-                pygame.transform.rotate(base_sprite_one, 90),
-                pygame.transform.rotate(base_sprite_two, 90),
-            ],
-            [base_sprite_one, base_sprite_two],
-            [
-                pygame.transform.rotate(base_sprite_one, -90),
-                pygame.transform.rotate(base_sprite_two, -90),
-            ],
-            [
-                pygame.transform.rotate(base_sprite_one, -180),
-                pygame.transform.rotate(base_sprite_two, -180),
-            ],
+                Renderer.scale_surface(
+                    pygame.image.load(f"assets/mobs/{d.name.lower()}/{i}.png"),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(4)
+            ]
+            for d in Direction
+            if d is not Direction.NONE
         ]
+        self.frightened_sprites = [
+            Renderer.scale_surface(
+                pygame.image.load(f"assets/mobs/frightened/{i}.png"),
+                (16, 16),
+                scale,
+            )
+            for i in range(4)
+        ]
+        self.set_cords()
+        self.player = anchors[0]
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
+        self.can_move = True
 
     def set_cords(self):
         self.direction = Direction.NONE
@@ -243,6 +242,8 @@ class Blinky(Character):
         t_x, t_y = self.choose_target()
         possible_directions = []
         for direction in Direction:
+            if direction.name == "NONE":
+                continue
             c_y = self.bit_y + direction.value[1]
             c_x = self.bit_x + direction.value[0]
             is_reverse = (
@@ -297,10 +298,11 @@ class Blinky(Character):
                 can_move = True
         else:
             can_move = True
-
         return can_move
 
     def move(self, frame: int) -> pygame.Surface:
+        if self.player.dead:
+            return self.prev_sprite
         player = self.anchors[0]
         if (
             abs(self.v_x - player.v_x) < self.scaled_half_v_step_x
@@ -308,6 +310,7 @@ class Blinky(Character):
             and not player.dead
         ):
             player.dead = True
+            player.state = PlayerState.DEAD
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
@@ -332,7 +335,7 @@ class Blinky(Character):
         """
         animation = self.sprites[self.direction.value[2]][self.frame]
         if frame % 10 == 0:
-            self.frame = int(not self.frame)
+            self.frame = (self.frame + 1) % 4
         return animation
 
 

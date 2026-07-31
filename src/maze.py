@@ -1,5 +1,5 @@
 from .gums import Gum, SuperGum
-from typing import Any
+from typing import Any, Union
 import pygame
 from mazegenerator import MazeGenerator
 from src.render import Renderer
@@ -28,7 +28,9 @@ class Cell:
         bottom_right: bottom right corner
     """
 
-    def __init__(self, bit_value: int, corners: list[Corner], content: Any, cord: tuple) -> None:
+    def __init__(
+        self, bit_value: int, corners: list[Corner], content: Any, cord: tuple
+    ) -> None:
         """constructor of the Cell class
 
         Args:
@@ -125,24 +127,36 @@ class Maze:
                         corner_grid[y][x + 1],
                         corner_grid[y + 1][x],
                         corner_grid[y + 1][x + 1],
-                    ], None,
-                    (x, y)
+                    ],
+                    None,
+                    (x, y),
                 )
                 for x in range(len(self.bit_maze[0]))
             ]
             for y in range(len(self.bit_maze))
         ]
-        self.set_gums()
+        self.set_gums(scale)
 
-    def set_gums(self) -> None:
+    def get_gum(self, x: int, y: int) -> Union[Gum, SuperGum]:
+        return self.cell_grid[y][x].content
+
+    def set_gum(self, x: int, y: int) -> None:
+        self.cell_grid[y][x].content = None
+
+    def set_gums(self, scale) -> None:
+        gum = Renderer.scale_surface(pygame.image.load("assets/gum.png"), (16, 16), scale)
+        super_gum = Renderer.scale_surface(pygame.image.load("assets/super_gum.png"), (16,16), scale)
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
         for row in self.cell_grid:
             for cell in row:
                 if cell.bit_value != 15:
-                    gum = Gum(10, cell.cord) if cell.cord not in corners else SuperGum(100, cell.cord)
-                    cell.content = gum
+                    cell.content = (
+                        Gum(10, cell.cord, gum)
+                        if cell.cord not in corners
+                        else SuperGum(100, cell.cord, super_gum)
+                    )
 
     def render_maze(self, scale: int) -> pygame.Surface:
         """render the maze into a pygame surface
@@ -215,3 +229,18 @@ class Maze:
                         (cord_x, cord_y + self.scaled_half_v_step_x),
                     )
         return maze_surface
+
+    def load_gums(self, maze_surface) -> None:
+        for y, row in enumerate(self.cell_grid):
+            cord_y = y * self.scaled_v_step_y
+            for x, cell in enumerate(row):
+                cord_x = x * self.scaled_v_step_x
+                if cell.content:
+                    Renderer.custom_blit(
+                        maze_surface,
+                        cell.content.sprite,
+                        (
+                            cord_x + self.scaled_half_v_step_x,
+                            cord_y + self.scaled_half_v_step_y,
+                        ),
+                    )
