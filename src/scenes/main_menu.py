@@ -30,7 +30,10 @@ class MainMenuScene(Scene):
             else:
                 renderer.render(button.idel, button.pos)
 
-            renderer.render(button.text.surf, button.text.get_pos())
+            renderer.render(
+                button.text.surf,
+                Renderer.get_pos(button.text.pos, button.text.size),
+            )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
 

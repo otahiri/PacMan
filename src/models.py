@@ -1,6 +1,6 @@
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import SceneName
+from src.enums import Asset, DisplayInfo, SceneName
 from src.render import Renderer
 from src.maze import Cell
 
@@ -32,38 +32,95 @@ class Text:
     def __init__(self, text: str, pos: tuple[int, int], color: str) -> None:
 
         self.text = text
-        self.surf, size = Renderer.get_text(text, 5, color)
-        self.width, self.height = size
+        self.surf, self.size = Renderer.get_text(text, 5, color)
+        self.pos = pos
 
-        self.x, self.y = pos
 
-    def get_pos(self, anchor: str = "center") -> tuple[int, int]:
-        match anchor.lower():
-            # Left anchors
-            case "centerleft" | "leftcenter":
-                return (self.x, self.y - self.height // 2)
-            case "bottomleft" | "buttomleft":  # includes your typo safeguard
-                return (self.x, self.y - self.height)
+class LetterButton:
 
-            # Center anchors
-            case "topcenter" | "centertop":
-                return (self.x - self.width // 2, self.y)
-            case "center":
-                return (self.x - self.width // 2, self.y - self.height // 2)
-            case "bottomcenter" | "centerbottom" | "buttomcenter":
-                return (self.x - self.width // 2, self.y - self.height)
+    def __init__(
+        self,
+        surf: pygame.Surface,
+        letter: str,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        place: tuple[int, int],
+    ) -> None:
+        self.surf = surf
+        self.letter = letter
+        self.pos = pos
+        self.size = size
+        self.place = place
 
-            # Right anchors
-            case "topright":
-                return (self.x - self.width, self.y)
-            case "centerright" | "rightcenter":
-                return (self.x - self.width, self.y - self.height // 2)
-            case "bottomright" | "buttomright":
-                return (self.x - self.width, self.y - self.height)
+    def is_collide(self, pos: tuple[int, int]):
 
-            # Fallback default
-            case _:
-                return (self.x, self.y)
+        width, height = self.size
+
+        width *= 2
+        height *= 2
+        my_x, my_y = Renderer.get_pos(self.pos, (width, height))
+        if self.letter == "E":
+            width *= 3
+        target_x, target_y = pos
+        is_inside_x = my_x <= target_x <= (my_x + width)
+        is_inside_y = my_y <= target_y <= (my_y + height)
+        return is_inside_x and is_inside_y
+
+
+class Cursor:
+    def __init__(
+        self,
+    ) -> None:
+        scale = 11
+        self.surf = Renderer.scale_surface(
+            pygame.image.load(f"{Asset.CURSOR_PATH.value}.png"),
+            (Asset.CURSOR_WIDTH.value, Asset.CURSOR_HEIGHT.value),
+            scale,
+        )
+        self.wide_surf = Renderer.scale_surface(
+            pygame.image.load(f"{Asset.CURSOR_WIDE_PATH.value}.png"),
+            (Asset.CURSOR_WIDE_WIDTH.value, Asset.CURSOR_WIDE_HEIGHT.value),
+            scale,
+        )
+
+        width = Asset.CURSOR_WIDTH.value * scale
+        height = Asset.CURSOR_WIDTH.value * scale
+        self.size = (width, height)
+
+        wide_width = Asset.CURSOR_WIDE_WIDTH.value * scale
+        wide_height = Asset.CURSOR_WIDE_HEIGHT.value * scale
+        self.wide_size = (wide_width, wide_height)
+
+        self.is_wide = False
+        self.x = 0
+        self.y = 0
+        self.letter_hover = "0"
+
+
+class NameFrame:
+    def __init__(self) -> None:
+        width, height = (
+            Asset.NAME_FRAME_WIDTH.value,
+            Asset.NAME_FRAME_HEIGHT.value,
+        )
+        scale = 10
+        self.surf = Renderer.scale_surface(
+            pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"),
+            (width, height),
+            scale,
+        )
+        self.size = (width * scale, height * scale)
+        self.pos = (
+            DisplayInfo.SCREEN_WIDTH.value // 2,
+            DisplayInfo.SCREEN_HEIGHT.value // 2,
+        )
+
+        self.name = ""
+        self.text = Text(" ", self.pos, "white")
+
+    def update_name(self, letter: str):
+        self.name += letter
+        self.text = Text(self.name, self.pos, "white")
 
 
 class Scene(ABC):
@@ -85,17 +142,13 @@ class Character(ABC):
         scale: int,
         maze: list[list[Cell]],
         anchors: list = [],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @abstractmethod
     def get_sprite(self, frame: int) -> pygame.Surface: ...
 
     @abstractmethod
-    def move(
-        self,
-        frame: int
-    ) -> pygame.Surface: ...
+    def move(self, frame: int) -> pygame.Surface: ...
 
     @abstractmethod
     def update_visual_cord(self): ...

@@ -6,6 +6,7 @@ from webcolors import name_to_hex
 
 class Renderer:
     def __init__(self) -> None:
+
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
@@ -92,7 +93,49 @@ class Renderer:
         )
         return (idel, hover, new_size)
 
-    def render(self, source: pygame.Surface, pos: tuple[int, int]):
+    @classmethod
+    def get_pos(
+        cls,
+        pos: tuple[int, int],
+        size: tuple[int, int],
+        anchor: str = "center",
+    ) -> tuple[int, int]:
+
+        x, y = pos
+        width, height = size
+        match anchor.lower():
+            # Left anchors
+            case "topleft" | "lefttop":
+                return (x, y)
+            case "centerleft" | "leftcenter":
+                return (x, y - height // 2)
+            case "bottomleft" | "leftbottom":  # includes your typo safeguard
+                return (x, y - height)
+
+            # Center anchors
+            case "topcenter" | "centertop":
+                return (x - width // 2, y)
+            case "center":
+                return (x - width // 2, y - height // 2)
+            case "bottomcenter" | "centerbottom" | "bottomcenter":
+                return (x - width // 2, y - height)
+
+            # Right anchors
+            case "topright":
+                return (x - width, y)
+            case "centerright" | "rightcenter":
+                return (x - width, y - height // 2)
+            case "bottomright" | "rightbottom":
+                return (x - width, y - height)
+
+            case _:
+                raise ValueError(f"anchor value unknown {anchor}")
+
+    def render(
+        self,
+        source: pygame.Surface,
+        pos: tuple[int, int],
+    ):
         self.__window.blit(source, pos)
 
     @classmethod
@@ -148,7 +191,6 @@ class Renderer:
                 scaled_letter = cls.scale_surface(
                     letter_surface, (width, height), scale, color
                 )
-
                 for y in range(height * scale):
                     for x in range(width * scale):
                         pixel_color = scaled_letter.get_at((x, y))

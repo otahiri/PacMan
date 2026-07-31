@@ -15,7 +15,7 @@ class GameScene(Scene):
         scale = 2
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
-        self.text_gui = []
+        self.text_gui: list[Text] = []
         for i, label in enumerate(["score", f"{self.game_logic.score}"]):
             y = 75 * i
             self.text_gui.append(
@@ -39,8 +39,11 @@ class GameScene(Scene):
             self.game_logic.maze_engine(delta),
             self.game_logic.v_offset,
         )
+
         for text in self.text_gui:
-            renderer.render(text.surf, text.get_pos("topcenter"))
+            renderer.render(
+                text.surf, Renderer.get_pos(text.pos, text.size, "topcenter")
+            )
         for i in range(self.game_logic.hearts):
             renderer.render(
                 self.heart_surf,

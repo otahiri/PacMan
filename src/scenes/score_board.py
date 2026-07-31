@@ -32,12 +32,16 @@ class ScoreboardScene(Scene):
 
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(
-            self.text.surf,
-            self.text.get_pos(),
+            self.text.surf, Renderer.get_pos(self.text.pos, self.text.size)
         )
         for name, score in self.scores:
-            renderer.render(name.surf, name.get_pos("rightcenter"))
-            renderer.render(score.surf, score.get_pos("leftcenter"))
+            renderer.render(
+                name.surf, Renderer.get_pos(name.pos, name.size, "rightcenter")
+            )
+            renderer.render(
+                score.surf,
+                Renderer.get_pos(score.pos, score.size, "leftcenter"),
+            )
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:

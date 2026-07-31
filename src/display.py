@@ -23,7 +23,7 @@ class Screen:
             SceneName.SCOREBOARD: ScoreboardScene(),
             SceneName.OPTIONS: OptionsScene(),
         }
-        self.current_scene: SceneName = SceneName.GAME
+        self.current_scene: SceneName = SceneName.MAIN_MENU
 
     def game_loop(self) -> None:
         running = True

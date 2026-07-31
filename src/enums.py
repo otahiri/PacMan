@@ -22,13 +22,29 @@ class GhostState(Enum):
 
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
+    CURSOR_PATH = "assets/cursor"
+    CURSOR_WIDE_PATH = "assets/cursor_wide"
+    NAME_FRAME_PATH = "assets/name_frame"
+
     LETTER_WIDTH = 8
-    LETTER_HEIGHT = 16
+    LETTER_HEIGHT = 8
+
     LETTER_SPACING = 5
+
     BUTTON_WIDTH = 32
     BUTTON_HEIGHT = 11
+
     HEART_WIDTH = 16
     HEART_HEIGHT = 13
+
+    CURSOR_WIDTH = 8
+    CURSOR_HEIGHT = 8
+
+    CURSOR_WIDE_WIDTH = 24
+    CURSOR_WIDE_HEIGHT = 8
+
+    NAME_FRAME_WIDTH = 50
+    NAME_FRAME_HEIGHT = 8
 
 
 class DisplayInfo(Enum):
