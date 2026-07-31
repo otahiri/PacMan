@@ -1,6 +1,6 @@
 import pygame
 from src.enums import Asset, DisplayInfo, SceneName
-from src.models import Cursor, LetterButton, Scene, Text
+from src.models import Cursor, LetterButton, NameFrame, Scene, Text
 from src.render import Renderer
 
 
@@ -12,9 +12,10 @@ class ScoreEntryScene(Scene):
             DisplayInfo.SCREEN_HEIGHT.value,
         )
 
-        self.text = Text("score entry", (width // 2, height // 4), "white")
+        self.text = Text("score entry", (width // 2, height // 6), "white")
         self.keyboard = self.__get_keyboard_letters()
         self.cursor = Cursor()
+        self.name_frame = NameFrame()
 
     def __get_keyboard_letters(
         self,
@@ -42,12 +43,12 @@ class ScoreEntryScene(Scene):
 
         i = 0
         x = DisplayInfo.SCREEN_WIDTH.value // 2 - keyboard_width // 2
-        y = DisplayInfo.SCREEN_HEIGHT.value // 2 - keyboard_height // 2
+        y = DisplayInfo.SCREEN_HEIGHT.value - keyboard_height
 
         place_x = 0
         place_y = 0
 
-        for c in "abcdefghijklmnopqrstuvwxyz0123456789 E":
+        for c in "0123456789abcdefghijklmnopqrstuvwxyz E":
             if i % 10 == 0 and i != 0:
                 y += spacing_height + letter_height
                 i = 0
@@ -90,14 +91,20 @@ class ScoreEntryScene(Scene):
             self.text.surf,
             Renderer.get_pos(self.text.pos, self.text.size),
         )
+        renderer.render(
+            self.name_frame.surf,
+            Renderer.get_pos(self.name_frame.pos, self.name_frame.size),
+        )
+        if self.name_frame.name != "":
+            renderer.render(
+                self.name_frame.text.surf,
+                Renderer.get_pos(
+                    self.name_frame.text.pos, self.name_frame.text.size
+                ),
+            )
 
         for letter in self.keyboard:
-            # renderer.render(
-            #     letter.hover_surf,
-            #     Renderer.get_pos(
-            #         letter.pos, (letter.hover_width, letter.hover_height)
-            #     ),
-            # )
+
             renderer.render(
                 letter.surf, Renderer.get_pos(letter.pos, letter.size)
             )
@@ -148,16 +155,26 @@ class ScoreEntryScene(Scene):
             case (_, _, "down"):
                 self.cursor.y += 1
 
-        self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
+        for button in self.keyboard:
+            if button.place == (self.cursor.x, self.cursor.y):
+                self.cursor.x, self.cursor.y = button.place
+                self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
+                self.cursor.letter_hover = button.letter
+
+    def __press_action(self) -> bool:
+        if self.cursor.letter_hover == "E":
+            return True
+        if len(self.name_frame.name) < 10:
+            self.name_frame.update_name(self.cursor.letter_hover)
+        return False
 
     def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
         for event in events:
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                return SceneName.MAIN_MENU
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return SceneName.MAIN_MENU
+                    if self.__press_action():
+                        return SceneName.MAIN_MENU
+
                 elif event.key == pygame.K_RIGHT:
                     self.__move_cursor("right")
 
@@ -175,3 +192,8 @@ class ScoreEntryScene(Scene):
                         self.cursor.is_wide = (
                             self.cursor.y == 3 and self.cursor.x >= 7
                         )
+                        self.cursor.letter_hover = button.letter
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.__press_action():
+                    return SceneName.MAIN_MENU

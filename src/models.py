@@ -1,7 +1,6 @@
-from numpy.testing import assert_
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, SceneName
+from src.enums import Asset, DisplayInfo, SceneName
 from src.render import Renderer
 from src.maze import Cell
 
@@ -53,12 +52,6 @@ class LetterButton:
         self.size = size
         self.place = place
 
-        # self.hover_width, self.hover_height = size
-        # self.hover_width *= 2
-        # self.hover_height *= 2
-        # self.hover_surf = pygame.Surface((self.hover_width, self.hover_height))
-        # self.hover_surf.fill("red")
-
     def is_collide(self, pos: tuple[int, int]):
 
         width, height = self.size
@@ -101,6 +94,33 @@ class Cursor:
         self.is_wide = False
         self.x = 0
         self.y = 0
+        self.letter_hover = "0"
+
+
+class NameFrame:
+    def __init__(self) -> None:
+        width, height = (
+            Asset.NAME_FRAME_WIDTH.value,
+            Asset.NAME_FRAME_HEIGHT.value,
+        )
+        scale = 10
+        self.surf = Renderer.scale_surface(
+            pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"),
+            (width, height),
+            scale,
+        )
+        self.size = (width * scale, height * scale)
+        self.pos = (
+            DisplayInfo.SCREEN_WIDTH.value // 2,
+            DisplayInfo.SCREEN_HEIGHT.value // 2,
+        )
+
+        self.name = ""
+        self.text = Text(" ", self.pos, "white")
+
+    def update_name(self, letter: str):
+        self.name += letter
+        self.text = Text(self.name, self.pos, "white")
 
 
 class Scene(ABC):

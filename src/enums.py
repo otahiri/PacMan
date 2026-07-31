@@ -13,6 +13,7 @@ class Asset(Enum):
     LETTER_PATH = "assets/letters"
     CURSOR_PATH = "assets/cursor"
     CURSOR_WIDE_PATH = "assets/cursor_wide"
+    NAME_FRAME_PATH = "assets/name_frame"
 
     LETTER_WIDTH = 8
     LETTER_HEIGHT = 8
@@ -30,6 +31,9 @@ class Asset(Enum):
 
     CURSOR_WIDE_WIDTH = 24
     CURSOR_WIDE_HEIGHT = 8
+
+    NAME_FRAME_WIDTH = 50
+    NAME_FRAME_HEIGHT = 8
 
 
 class DisplayInfo(Enum):
