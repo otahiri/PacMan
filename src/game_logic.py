@@ -9,11 +9,43 @@ import pygame
 
 class GameLogic:
     FRIGHTENED_DURATIONS = (
-        6.0, 5.0, 4.0, 3.0, 2.0,
-        5.0, 2.0, 1.0, 1.0, 5.0,
-        2.0, 1.0, 1.0, 3.0, 1.0,
-        1.0, 0.0, 1.0, 0.0
+        6.0,
+        5.0,
+        4.0,
+        3.0,
+        2.0,
+        5.0,
+        2.0,
+        1.0,
+        1.0,
+        5.0,
+        2.0,
+        1.0,
+        1.0,
+        3.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
     )
+    WAVES_AFTER_FIFTH = [
+        (0, GhostState.SCATTER),
+        (5, GhostState.CHASE),
+        (25, GhostState.SCATTER),
+        (30, GhostState.CHASE),
+        (50, GhostState.SCATTER),
+        (55, GhostState.CHASE),
+    ]
+    WAVES_BEFORE_FIFTH = [
+        (0, GhostState.SCATTER),
+        (7, GhostState.CHASE),
+        (27, GhostState.SCATTER),
+        (34, GhostState.CHASE),
+        (54, GhostState.SCATTER),
+        (61, GhostState.CHASE),
+    ]
+
     def __init__(
         self,
         scale: int,
@@ -26,22 +58,6 @@ class GameLogic:
         self.accumulator = 0.0
         self.time_stamp = 0.0
         self.super_gum_timer = 0.0
-        self.waves_after_fifth = [
-            (0, GhostState.SCATTER),
-            (5, GhostState.CHASE),
-            (25, GhostState.SCATTER),
-            (30, GhostState.CHASE),
-            (50, GhostState.SCATTER),
-            (55, GhostState.CHASE),
-        ]
-        self.waves_before_fifth = [
-            (0, GhostState.SCATTER),
-            (7, GhostState.CHASE),
-            (27, GhostState.SCATTER),
-            (34, GhostState.CHASE),
-            (54, GhostState.SCATTER),
-            (61, GhostState.CHASE),
-        ]
 
         self.global_mode = GhostState.SCATTER
         self.MS_PER_GRAME = 0.016
@@ -96,15 +112,18 @@ class GameLogic:
     def set_global_mode(self, delta: float):
         if self.global_mode == GhostState.FRIGHTENED:
             self.super_gum_timer += delta
-            if self.super_gum_timer <= GameLogic.FRIGHTENED_DURATIONS[self.level - 1]:
+            if (
+                self.super_gum_timer
+                <= GameLogic.FRIGHTENED_DURATIONS[self.level - 1]
+            ):
                 return
             else:
                 self.super_gum_timer = 0
         self.time_stamp += delta
         waves = (
-            self.waves_before_fifth
+            GameLogic.WAVES_BEFORE_FIFTH
             if self.level < 5
-            else self.waves_after_fifth
+            else GameLogic.WAVES_AFTER_FIFTH
         )
         new_mode = waves[0][1]
         for thresh_hold, mode in waves:
