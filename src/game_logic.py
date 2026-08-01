@@ -107,7 +107,7 @@ class GameLogic:
             for mob in mobs:
                 mob.bit_x, mob.bit_y = mob.origin
                 self.erase_frame(self.working_surf, mob)
-                mob.set_cords()
+                mob.reset_cords()
                 self.change_frame(self.working_surf, mob, frame)
             self.player.dead = False
             self.hearts -= 1

@@ -25,7 +25,13 @@ class Player(Character):
         frame: the current frame that passed between 0 and 60
     """
 
-    def __init__(self, speed: int, scale: int, maze: list[list[Cell]]) -> None:
+    def __init__(
+        self,
+        speed: int,
+        scale: int,
+        maze: list[list[Cell]],
+        anchors: list = [],
+    ) -> None:
         """constructor
 
         Args:
@@ -33,21 +39,22 @@ class Player(Character):
             cord_y: the cord y inside the bit maze
             maze: the cell grid
         """
-        self.maze = maze
+        super().__init__(
+            speed,
+            scale,
+            (len(maze) // 2, len(maze[0]) // 2),
+            maze,
+            anchors,
+        )
         self.lifes = 3
-        self.scaled_v_step_y = 32 * scale
-        self.scaled_v_step_x = 32 * scale
-        self.scaled_half_v_step_y = 16 * scale
-        self.scaled_half_v_step_x = 16 * scale
-        self.speed = speed
-        self.scale = scale
-        self.max_y = len(self.maze) * self.scaled_v_step_y
-        self.max_x = len(self.maze[0]) * self.scaled_v_step_x
-        self.set_cords()
+        self.power = -1
+        cord_x = len(self.maze) // 2
+        cord_y = len(self.maze[0]) // 2
+        self.origin = (cord_x, cord_y)
+        self.reset_cords()
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.state = PlayerState.ALIVE
-        # remember to change the dimensions of the sprite to 16 , 16 later after fixing the image dimensions
         self.sprites = [
             [
                 Renderer.scale_surface(
@@ -81,15 +88,17 @@ class Player(Character):
         self.dead = False
         self.score = 0
         self.prev_sprite = self.get_sprite(0)
+        self.hover = 2
 
-    def set_cords(self) -> None:
-        cord_x = len(self.maze) // 2
-        cord_y = len(self.maze[0]) // 2
-        self.origin = (cord_x, cord_y)
-        self.v_x = cord_x * self.scaled_v_step_x + self.scaled_half_v_step_x
-        self.v_y = cord_y * self.scaled_v_step_y + self.scaled_half_v_step_y
-        self.bit_y = cord_y
-        self.bit_x = cord_x
+    def reset_cords(self) -> None:
+        self.v_x = (
+            self.origin[0] * self.scaled_v_step_x + self.scaled_half_v_step_x
+        )
+        self.v_y = (
+            self.origin[1] * self.scaled_v_step_y + self.scaled_half_v_step_y
+        )
+        self.bit_y = self.origin[1]
+        self.bit_x = self.origin[0]
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
@@ -186,16 +195,18 @@ class Blinky(Character):
             cord_y: the cord y inside the bit maze
             maze: the cell grid
         """
-        self.origin = (0, 0)
+        super().__init__(
+            speed,
+            scale,
+            (0, 0),
+            maze,
+            anchors,
+        )
+        self.hover = 4
+        self.steps = 2
+        self.accumelated_steps = 0
         self.state = GhostState.CHASE
-        self.maze = maze
-        self.speed = speed
-        self.scaled_v_step_y = 32 * scale
-        self.scaled_v_step_x = 32 * scale
-        self.scaled_half_v_step_y = 16 * scale
-        self.scaled_half_v_step_x = 16 * scale
-        self.max_y = len(self.maze) * 32 * scale
-        self.max_x = len(self.maze[0]) * 32 * scale
+        self.power = 0
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
         self.scale = scale
@@ -219,19 +230,20 @@ class Blinky(Character):
             )
             for i in range(4)
         ]
-        self.set_cords()
+        self.reset_cords()
         self.player = anchors[0]
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
         self.can_move = True
 
-    def set_cords(self):
+    def reset_cords(self):
         self.direction = Direction.NONE
         self.new_direction = Direction.NONE
         x, y = self.origin
         self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
         self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
+        self.static_v_y = self.v_y
         self.bit_y = y
         self.bit_x = x
 
@@ -281,12 +293,13 @@ class Blinky(Character):
         max_x = self.max_x
         max_y = self.max_y
         new_x = ((dx * self.speed) * self.scale) + self.v_x
-        new_y = ((dy * self.speed) * self.scale) + self.v_y
+        new_y = ((dy * self.speed) * self.scale) + self.static_v_y
         if min_y <= new_y < max_y and min_x <= new_x < max_x:
             self.v_x = new_x
-            self.v_y = new_y
+            self.static_v_y = new_y
+            self.v_y = self.static_v_y + self.accumelated_steps
             self.bit_x = self.v_x // (self.scaled_v_step_x)
-            self.bit_y = self.v_y // (self.scaled_v_step_y)
+            self.bit_y = self.static_v_y // (self.scaled_v_step_y)
 
     def check_movability(self, is_centered: bool) -> bool:
         can_move = False
@@ -306,14 +319,14 @@ class Blinky(Character):
         player = self.anchors[0]
         if (
             abs(self.v_x - player.v_x) < self.scaled_half_v_step_x
-            and abs(self.v_y - player.v_y) < self.scaled_half_v_step_y
+            and abs(self.static_v_y - player.v_y) < self.scaled_half_v_step_y
             and not player.dead
         ):
             player.dead = True
             player.state = PlayerState.DEAD
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
-            and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
+            and (self.static_v_y) % (self.scaled_v_step_y) == self.scaled_half_v_step_y
         )
         if is_centered:
             self.choose_direction()
@@ -334,6 +347,12 @@ class Blinky(Character):
             surface with player sprite loaded
         """
         animation = self.sprites[self.direction.value[2]][self.frame]
+        if frame % 5 == 0:
+            self.accumelated_steps += self.steps
+            if self.accumelated_steps >= self.hover * self.scale:
+                self.steps = -1
+            elif self.accumelated_steps <= -self.hover * self.scale:
+                self.steps = 1
         if frame % 10 == 0:
             self.frame = (self.frame + 1) % 4
         return animation
@@ -349,7 +368,7 @@ class Pinky(Blinky):
     ) -> None:
         super().__init__(speed, scale, maze, anchors)
         self.origin = (0, len(maze[0]) - 1)
-        self.set_cords()
+        self.reset_cords()
 
     def choose_target(self) -> tuple:
         player = self.anchors[0]
@@ -368,7 +387,7 @@ class Clyde(Blinky):
     ) -> None:
         super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
-        self.set_cords()
+        self.reset_cords()
 
     def choose_target(self) -> tuple:
         player = self.anchors[0]
@@ -388,7 +407,7 @@ class Inky(Blinky):
     ) -> None:
         super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, 0)
-        self.set_cords()
+        self.reset_cords()
 
     def choose_target(self) -> tuple:
         player = self.anchors[0]

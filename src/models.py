@@ -135,14 +135,24 @@ class Scene(ABC):
 
 
 class Character(ABC):
-    @abstractmethod
     def __init__(
         self,
         speed: int,
         scale: int,
+        origin: tuple,
         maze: list[list[Cell]],
         anchors: list = [],
-    ) -> None: ...
+    ) -> None:
+        self.maze = maze
+        self.speed = speed
+        self.scale = scale
+        self.scaled_v_step_y = 32 * scale
+        self.scaled_v_step_x = 32 * scale
+        self.scaled_half_v_step_y = 16 * scale
+        self.scaled_half_v_step_x = 16 * scale
+        self.max_y = len(self.maze) * self.scaled_v_step_y
+        self.max_x = len(self.maze[0]) * self.scaled_v_step_x
+        self.origin = origin
 
     @abstractmethod
     def get_sprite(self, frame: int) -> pygame.Surface: ...
@@ -157,4 +167,4 @@ class Character(ABC):
     def choose_direction(self): ...
 
     @abstractmethod
-    def set_cords(self) -> None: ...
+    def reset_cords(self) -> None: ...
