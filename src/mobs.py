@@ -1,3 +1,6 @@
+from os import stat
+import random
+
 from src.enums import Direction, PlayerState, GhostState
 from src.models import Character
 from src import Cell
@@ -248,7 +251,12 @@ class Blinky(Character):
         self.bit_x = x
 
     def choose_target(self) -> tuple:
-        return self.player.bit_x, self.player.bit_y
+        target = (
+            (self.player.bit_x, self.player.bit_y)
+            if self.state == GhostState.CHASE
+            else self.origin
+        )
+        return target
 
     def choose_direction(self):
         t_x, t_y = self.choose_target()
@@ -285,6 +293,10 @@ class Blinky(Character):
                 valid_direction = possible_directions
             valid_direction.sort(key=lambda x: x[0])
             self.direction = valid_direction[0][1]
+
+    def panic_direction(self):
+        possible_directions = [d for d in Direction if self.direction.value[0] != -d.value[0] and self.direction.value[1] != -d.value[1] and d != Direction.NONE]
+        self.direction = random.choice(possible_directions)
 
     def update_visual_cord(self):
         dx, dy, shift = self.direction.value
@@ -326,10 +338,14 @@ class Blinky(Character):
             player.state = PlayerState.DEAD
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
-            and (self.static_v_y) % (self.scaled_v_step_y) == self.scaled_half_v_step_y
+            and (self.static_v_y) % (self.scaled_v_step_y)
+            == self.scaled_half_v_step_y
         )
         if is_centered:
-            self.choose_direction()
+            if self.state == GhostState.FRIGHTENED:
+                self.panic_direction()
+            else:
+                self.choose_direction()
         dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
@@ -346,8 +362,9 @@ class Blinky(Character):
         Returns:
             surface with player sprite loaded
         """
-        animation = self.sprites[self.direction.value[2]][self.frame]
-        if frame % 5 == 0:
+        sprite = self.frightened_sprites if self.state == GhostState.FRIGHTENED else self.sprites[self.direction.value[2]]
+        animation = sprite[self.frame]
+        if frame % 2 == 0:
             self.accumelated_steps += self.steps
             if self.accumelated_steps >= self.hover * self.scale:
                 self.steps = -1
@@ -370,11 +387,12 @@ class Pinky(Blinky):
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
 
-    def choose_target(self) -> tuple:
+    def choose_target(self, ) -> tuple:
         player = self.anchors[0]
         x = player.bit_x + (player.direction.value[0] * 4)
         y = player.bit_y + (player.direction.value[1] * 4)
-        return x, y
+        target = (x, y) if self.state == GhostState.CHASE else self.origin
+        return target
 
 
 class Clyde(Blinky):
@@ -389,12 +407,16 @@ class Clyde(Blinky):
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.reset_cords()
 
-    def choose_target(self) -> tuple:
+    def choose_target(self, ) -> tuple:
         player = self.anchors[0]
-        if abs(self.bit_x - player.bit_x) + abs(self.bit_y - player.bit_y) > 8:
+
+        if (
+            abs(self.bit_x - player.bit_x) + abs(self.bit_y - player.bit_y) > 8
+            and self.state == GhostState.CHASE
+        ):
             return (player.bit_x, player.bit_y)
         else:
-            return (len(self.maze[0]) - 1, len(self.maze) - 1)
+            return self.origin
 
 
 class Inky(Blinky):
@@ -409,12 +431,21 @@ class Inky(Blinky):
         self.origin = (len(maze) - 1, 0)
         self.reset_cords()
 
-    def choose_target(self) -> tuple:
+    def choose_target(self, ) -> tuple:
         player = self.anchors[0]
         blinky = self.anchors[1]
         blinky_x_distance = player.bit_x - blinky.bit_x
         blinky_y_distance = player.bit_y - blinky.bit_y
-        return (
-            player.bit_x + (player.direction.value[0] * 2) + blinky_x_distance,
-            player.bit_y + (player.direction.value[1] * 2) + blinky_y_distance,
+        target = (
+            (
+                player.bit_x
+                + (player.direction.value[0] * 2)
+                + blinky_x_distance,
+                player.bit_y
+                + (player.direction.value[1] * 2)
+                + blinky_y_distance,
+            )
+            if self.state == GhostState.CHASE
+            else self.origin
         )
+        return target

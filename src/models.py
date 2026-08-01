@@ -1,6 +1,6 @@
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, DisplayInfo, SceneName
+from src.enums import Asset, DisplayInfo, GhostState, SceneName
 from src.render import Renderer
 from src.maze import Cell
 

@@ -2,7 +2,7 @@ from typing import Union
 import numpy
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
-from src.enums import Direction, DisplayInfo, PlayerState
+from src.enums import Direction, DisplayInfo, GhostState, PlayerState
 from mazegenerator import MazeGenerator
 import pygame
 
@@ -16,10 +16,29 @@ class GameLogic:
         self.maze = Maze(MazeGenerator(), scale)
         self.game_over = False
         self.frame = 0
+        self.level = 1
         self.accumulator = 0.0
         self.time_stamp = 0.0
+        self.waves_after_fifth = [
+            (0, GhostState.SCATTER),
+            (5, GhostState.CHASE),
+            (25, GhostState.SCATTER),
+            (30, GhostState.CHASE),
+            (50, GhostState.SCATTER),
+            (55, GhostState.CHASE),
+        ]
+        self.waves_before_fifth = [
+            (0, GhostState.SCATTER),
+            (7, GhostState.CHASE),
+            (27, GhostState.SCATTER),
+            (34, GhostState.CHASE),
+            (54, GhostState.SCATTER),
+            (61, GhostState.CHASE),
+        ]
+
+        self.global_mode = GhostState.SCATTER
         self.MS_PER_GRAME = 0.016
-        self.score = 0
+        self.score = 1
         self.hearts = 3
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
@@ -32,6 +51,7 @@ class GameLogic:
         self.inky = Inky(
             1, scale, self.maze.cell_grid, [self.player, self.blinky]
         )
+        self.mobs = [self.blinky, self.pinky, self.clyde, self.inky]
         self.working_surf = pygame.Surface(
             (
                 self.maze.max_x + 32 * self.scale,
@@ -45,9 +65,8 @@ class GameLogic:
         self.new_move = Direction.NONE
 
     def handle_collision(self) -> None:
-        mobs = [self.blinky, self.pinky, self.inky, self.clyde]
         p_x, p_y = self.player.bit_x, self.player.bit_y
-        for mob in mobs:
+        for mob in self.mobs:
             if (
                 abs(mob.v_x - self.player.v_x) < (8 * self.scale)
                 and abs(mob.v_y - self.player.v_y) < (8 * self.scale)
@@ -59,15 +78,40 @@ class GameLogic:
         gum = self.maze.get_gum(p_x, p_y)
         if gum:
             if gum.is_super:
-                print("super")
+                self.global_mode = GhostState.FRIGHTENED
+                self.change_mode()
             self.score += gum.score
             self.maze.set_gum(p_x, p_y)
 
     def get_score(self) -> int:
         return self.score
 
-    def maze_engine(self, delta: float) -> pygame.Surface:
+    def set_global_mode(self, delta: float):
+        if self.global_mode == GhostState.FRIGHTENED:
+            return
         self.time_stamp += delta
+        waves = (
+            self.waves_before_fifth
+            if self.level < 5
+            else self.waves_after_fifth
+        )
+        new_mode = waves[0][1]
+        for thresh_hold, mode in waves:
+            if self.time_stamp > thresh_hold:
+                new_mode = mode
+            else:
+                break
+
+        if new_mode != self.global_mode:
+            self.global_mode = new_mode
+            self.change_mode()
+
+    def change_mode(self):
+        for mob in self.mobs:
+            mob.state = self.global_mode
+
+    def maze_engine(self, delta: float) -> pygame.Surface:
+        self.set_global_mode(delta)
         self.accumulator += delta
         while self.accumulator > self.MS_PER_GRAME:
             self.frame += 1
