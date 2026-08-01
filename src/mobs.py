@@ -1,3 +1,4 @@
+from os import sched_setaffinity
 import random
 
 from src.enums import Direction, PlayerState, GhostState
@@ -91,6 +92,10 @@ class Player(Character):
         self.score = 0
         self.prev_sprite = self.get_sprite(0)
         self.hover = 2
+
+    def die(self):
+        self.state = PlayerState.DEAD
+        self.dead = True
 
     def reset_cords(self) -> None:
         """reset the cordination to the original point of the character"""
@@ -212,6 +217,7 @@ class Blinky(Character):
         anchors: the anchors used to choose direction
         prev_sprite: the previous sprite
     """
+
     def __init__(
         self,
         speed: int,
@@ -265,6 +271,7 @@ class Blinky(Character):
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
+        self.death_frame = 0
 
     def reset_cords(self):
         """reset the cords of character to the origin"""
@@ -291,7 +298,10 @@ class Blinky(Character):
 
     def choose_direction(self):
         """choose a direction depending on the target"""
-        t_x, t_y = self.choose_target()
+        if self.state == GhostState.DEAD:
+            t_x, t_y = self.origin
+        else:
+            t_x, t_y = self.choose_target()
         possible_directions = []
         for direction in Direction:
             if direction.name == "NONE":
@@ -343,8 +353,10 @@ class Blinky(Character):
         ]
         if valid_direction:
             possible_directions = valid_direction
-        print(possible_directions)
         self.direction = random.choice(possible_directions)
+
+    def die(self) -> None:
+        self.state = GhostState.DEAD
 
     def update_visual_cord(self):
         """change the visual cords"""
@@ -393,14 +405,6 @@ class Blinky(Character):
         """
         if self.player.dead:
             return self.prev_sprite
-        player = self.anchors[0]
-        if (
-            abs(self.v_x - player.v_x) < self.scaled_half_v_step_x
-            and abs(self.static_v_y - player.v_y) < self.scaled_half_v_step_y
-            and not player.dead
-        ):
-            player.dead = True
-            player.state = PlayerState.DEAD
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and (self.static_v_y) % (self.scaled_v_step_y)
@@ -416,6 +420,8 @@ class Blinky(Character):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
         self.prev_sprite = sprite
+        if (self.bit_x, self.bit_y) == self.origin and self.state == GhostState.DEAD:
+            self.state = GhostState.CHASE
         return sprite
 
     def get_sprite(self, frame: int) -> pygame.Surface:
@@ -429,7 +435,7 @@ class Blinky(Character):
         """
         sprite = (
             self.frightened_sprites
-            if self.state == GhostState.FRIGHTENED
+            if self.state == GhostState.FRIGHTENED or self.state == GhostState.DEAD
             else self.sprites[self.direction.value[2]]
         )
         animation = sprite[self.frame]
@@ -450,6 +456,7 @@ class Pinky(Blinky):
     Attributes:
         origin: the bottom right corner of the maze
     """
+
     def __init__(
         self,
         speed: int,
@@ -483,6 +490,7 @@ class Clyde(Blinky):
     Attributes:
         origin: the bottom right of the maze
     """
+
     def __init__(
         self,
         speed: int,
@@ -527,6 +535,7 @@ class Inky(Blinky):
     Attributes:
         origin: the top right corner of the maze
     """
+
     def __init__(
         self,
         speed: int,

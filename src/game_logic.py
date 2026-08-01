@@ -90,13 +90,16 @@ class GameLogic:
     def handle_collision(self) -> None:
         p_x, p_y = self.player.bit_x, self.player.bit_y
         for mob in self.mobs:
+            if mob.state == GhostState.DEAD:
+                continue
             if (
                 abs(mob.v_x - self.player.v_x) < (8 * self.scale)
                 and abs(mob.v_y - self.player.v_y) < (8 * self.scale)
                 and not self.player.dead
             ):
-                self.player.dead = True
-                self.player.state = PlayerState.DEAD
+                victim = mob if mob.state == GhostState.FRIGHTENED else self.player
+                print(victim.__class__.__name__)
+                victim.die()
                 return
         gum = self.maze.get_gum(p_x, p_y)
         if gum:
@@ -119,6 +122,7 @@ class GameLogic:
                 return
             else:
                 self.super_gum_timer = 0
+                self.player.power = - self.player.power
         self.time_stamp += delta
         waves = (
             GameLogic.WAVES_BEFORE_FIFTH
