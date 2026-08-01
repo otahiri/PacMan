@@ -93,6 +93,7 @@ class Player(Character):
         self.hover = 2
 
     def reset_cords(self) -> None:
+        """reset the cordination to the original point of the character"""
         self.v_x = (
             self.origin[0] * self.scaled_v_step_x + self.scaled_half_v_step_x
         )
@@ -124,6 +125,7 @@ class Player(Character):
         return animation
 
     def choose_direction(self):
+        """choose the new direction"""
         self.bit_y = self.v_y // (self.scaled_v_step_y)
         self.bit_x = self.v_x // (self.scaled_v_step_x)
         dx, dy, shift = self.new_direction.value
@@ -133,6 +135,15 @@ class Player(Character):
             )
 
     def check_movability(self, is_centered: bool) -> bool:
+        """check if the character can move or not depending on the surrounding
+        walls and if the character is in the center of a cell or not
+
+        Args:
+            is_centered: is the character in the middle  of the cell
+
+        Returns:
+            bool representing if the character can change direction or not
+        """
         can_move = False
         dx, dy, shift = self.direction.value
         if is_centered:
@@ -146,6 +157,7 @@ class Player(Character):
         return can_move
 
     def update_visual_cord(self):
+        """update the visual cords"""
         dx, dy, shift = self.direction.value
         max_x = self.max_x
         max_y = self.max_y
@@ -183,6 +195,23 @@ class Player(Character):
 
 
 class Blinky(Character):
+    """the friendly ghost blinky
+
+    Attributes:
+        hover: the bobbing distance when moving
+        steps: the steps of the bobbing
+        accumelated_steps: the total steps accumelated
+        state: the current state of the ghost
+        power: the power of the character
+        direction: the direction the character is moving towards
+        scale: the scale multiplier of the visual maze
+        sprites: the normal sprites of the character
+        frightened_sprites: the frightened sprites of the character
+        player: the player
+        frame: the current frame of the animation
+        anchors: the anchors used to choose direction
+        prev_sprite: the previous sprite
+    """
     def __init__(
         self,
         speed: int,
@@ -193,8 +222,8 @@ class Blinky(Character):
         """constructor
 
         Args:
-            cord_x: the cord x inside the bit maze
-            cord_y: the cord y inside the bit maze
+            cord_x: the cord x inside the logical maze
+            cord_y: the cord y inside the logical maze
             maze: the cell grid
         """
         super().__init__(
@@ -209,8 +238,7 @@ class Blinky(Character):
         self.accumelated_steps = 0
         self.state = GhostState.CHASE
         self.power = 0
-        self.new_direction = Direction.NORTH
-        self.direction = self.new_direction
+        self.direction = Direction.NONE
         self.scale = scale
         self.sprites = [
             [
@@ -237,11 +265,10 @@ class Blinky(Character):
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
-        self.can_move = True
 
     def reset_cords(self):
+        """reset the cords of character to the origin"""
         self.direction = Direction.NONE
-        self.new_direction = Direction.NONE
         x, y = self.origin
         self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
         self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
@@ -250,6 +277,11 @@ class Blinky(Character):
         self.bit_x = x
 
     def choose_target(self) -> tuple:
+        """get the cords the player tile if in chase mode else cords
+        of the corner
+        Returns:
+            return the bit cord of the chosen target
+        """
         target = (
             (self.player.bit_x, self.player.bit_y)
             if self.state == GhostState.CHASE
@@ -258,6 +290,7 @@ class Blinky(Character):
         return target
 
     def choose_direction(self):
+        """choose a direction depending on the target"""
         t_x, t_y = self.choose_target()
         possible_directions = []
         for direction in Direction:
@@ -294,10 +327,27 @@ class Blinky(Character):
             self.direction = valid_direction[0][1]
 
     def panic_direction(self):
-        possible_directions = [d for d in Direction if self.direction.value[0] != -d.value[0] and self.direction.value[1] != -d.value[1] and d != Direction.NONE]
+        """direction algo when the ghost is in panic mode"""
+        possible_directions = []
+        for d in Direction:
+            if d == Direction.NONE:
+                continue
+            dx, dy, shift = d.value
+            if self.maze[self.bit_y][self.bit_x].bit_value & 1 << shift == 0:
+                possible_directions.append(d)
+        valid_direction = [
+            d
+            for d in possible_directions
+            if self.direction.value[0] != -d.value[0]
+            or self.direction.value[1] != -d.value[1]
+        ]
+        if valid_direction:
+            possible_directions = valid_direction
+        print(possible_directions)
         self.direction = random.choice(possible_directions)
 
     def update_visual_cord(self):
+        """change the visual cords"""
         dx, dy, shift = self.direction.value
         min_x = 0
         min_y = 0
@@ -313,6 +363,14 @@ class Blinky(Character):
             self.bit_y = self.static_v_y // (self.scaled_v_step_y)
 
     def check_movability(self, is_centered: bool) -> bool:
+        """check if the character can move
+
+        Args:
+            is_centered: is the character in the middle of a cell
+
+        Returns:
+            bool representing if it is possible to change direction
+        """
         can_move = False
         dx, dy, shift = self.direction.value
         if is_centered:
@@ -325,6 +383,14 @@ class Blinky(Character):
         return can_move
 
     def move(self, frame: int) -> pygame.Surface:
+        """move the character to a chosen direction if it is possible
+
+        Args:
+            frame: the current frame of the game
+
+        Returns:
+            the appropriate sprite for the current direction and the mode
+        """
         if self.player.dead:
             return self.prev_sprite
         player = self.anchors[0]
@@ -361,7 +427,11 @@ class Blinky(Character):
         Returns:
             surface with player sprite loaded
         """
-        sprite = self.frightened_sprites if self.state == GhostState.FRIGHTENED else self.sprites[self.direction.value[2]]
+        sprite = (
+            self.frightened_sprites
+            if self.state == GhostState.FRIGHTENED
+            else self.sprites[self.direction.value[2]]
+        )
         animation = sprite[self.frame]
         if frame % 2 == 0:
             self.accumelated_steps += self.steps
@@ -375,6 +445,11 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
+    """the friendly ghost pinky
+
+    Attributes:
+        origin: the bottom right corner of the maze
+    """
     def __init__(
         self,
         speed: int,
@@ -386,7 +461,15 @@ class Pinky(Blinky):
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
 
-    def choose_target(self, ) -> tuple:
+    def choose_target(
+        self,
+    ) -> tuple:
+        """get the cord of the tile 4 steps infront  of the player if in chase mode
+        else the corner
+
+        Returns:
+            the tuple representing the cord of the target
+        """
         player = self.anchors[0]
         x = player.bit_x + (player.direction.value[0] * 4)
         y = player.bit_y + (player.direction.value[1] * 4)
@@ -395,6 +478,11 @@ class Pinky(Blinky):
 
 
 class Clyde(Blinky):
+    """the friendly ghost clyde
+
+    Attributes:
+        origin: the bottom right of the maze
+    """
     def __init__(
         self,
         speed: int,
@@ -402,11 +490,26 @@ class Clyde(Blinky):
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
+        """
+
+        Args:
+            speed: the speed of the ghost
+            scale: the scale modifier of the size of the maze
+            maze: the cell grid representing the maze
+            anchors: the anchors used to choose the new direction
+        """
         super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.reset_cords()
 
-    def choose_target(self, ) -> tuple:
+    def choose_target(
+        self,
+    ) -> tuple:
+        """get the cord of the player if the it is within 8 tiles from clyde else the cord of the corner
+
+        Returns:
+            the cord of the chosen target
+        """
         player = self.anchors[0]
 
         if (
@@ -419,6 +522,11 @@ class Clyde(Blinky):
 
 
 class Inky(Blinky):
+    """your friendly ghost inky
+
+    Attributes:
+        origin: the top right corner of the maze
+    """
     def __init__(
         self,
         speed: int,
@@ -430,7 +538,15 @@ class Inky(Blinky):
         self.origin = (len(maze) - 1, 0)
         self.reset_cords()
 
-    def choose_target(self, ) -> tuple:
+    def choose_target(
+        self,
+    ) -> tuple:
+        """the cords of tile 8 steps from blinky to the direction of the player
+        if in chase mode else the cord of origin
+
+        Returns:
+            the cords of the chosen target
+        """
         player = self.anchors[0]
         blinky = self.anchors[1]
         blinky_x_distance = player.bit_x - blinky.bit_x
