@@ -149,8 +149,10 @@ class Maze:
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
-        for row in self.cell_grid:
-            for cell in row:
+        for y, row in enumerate(self.cell_grid):
+            for x, cell in enumerate(row):
+                if (x, y) == (max_x // 2, max_y // 2):
+                    continue
                 if cell.bit_value != 15:
                     cell.content = (
                         Gum(10, cell.cord, gum)

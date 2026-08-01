@@ -13,10 +13,11 @@ class GameScene(Scene):
     def __init__(self) -> None:
 
         scale = 2
+        self.score = 0
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
         self.text_gui: list[Text] = []
-        for i, label in enumerate(["score", f"{self.game_logic.score}"]):
+        for i, label in enumerate(["score", f"{self.score}"]):
             y = 75 * i
             self.text_gui.append(
                 Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
@@ -30,7 +31,18 @@ class GameScene(Scene):
 
         self.running = True
 
+    def update_score(self) -> None:
+        self.text_gui = []
+        for i, label in enumerate(["score", f"{self.score}"]):
+            y = 75 * i
+            self.text_gui.append(
+                Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
+            )
+
     def render_scene(self, renderer: Renderer) -> None:
+        if self.score != self.game_logic.score:
+            self.score = self.game_logic.score
+            self.update_score()
         current_time = time.perf_counter()
         delta = current_time - self.last_time
         self.last_time = current_time

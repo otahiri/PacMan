@@ -8,6 +8,12 @@ import pygame
 
 
 class GameLogic:
+    FRIGHTENED_DURATIONS = (
+        6.0, 5.0, 4.0, 3.0, 2.0,
+        5.0, 2.0, 1.0, 1.0, 5.0,
+        2.0, 1.0, 1.0, 3.0, 1.0,
+        1.0, 0.0, 1.0, 0.0
+    )
     def __init__(
         self,
         scale: int,
@@ -19,6 +25,7 @@ class GameLogic:
         self.level = 1
         self.accumulator = 0.0
         self.time_stamp = 0.0
+        self.super_gum_timer = 0.0
         self.waves_after_fifth = [
             (0, GhostState.SCATTER),
             (5, GhostState.CHASE),
@@ -38,7 +45,7 @@ class GameLogic:
 
         self.global_mode = GhostState.SCATTER
         self.MS_PER_GRAME = 0.016
-        self.score = 1
+        self.score = 0
         self.hearts = 3
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
@@ -88,7 +95,11 @@ class GameLogic:
 
     def set_global_mode(self, delta: float):
         if self.global_mode == GhostState.FRIGHTENED:
-            return
+            self.super_gum_timer += delta
+            if self.super_gum_timer <= GameLogic.FRIGHTENED_DURATIONS[self.level - 1]:
+                return
+            else:
+                self.super_gum_timer = 0
         self.time_stamp += delta
         waves = (
             self.waves_before_fifth

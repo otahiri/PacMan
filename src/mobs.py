@@ -1,4 +1,3 @@
-from os import stat
 import random
 
 from src.enums import Direction, PlayerState, GhostState
