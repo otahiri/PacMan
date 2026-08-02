@@ -37,11 +37,12 @@ class Shake:
         dest_px = surfarray.pixels2d(dest)
         frame_px = surfarray.pixels2d(src)
         dest_dim = dest_px.shape
+        width , height = frame_px.shape
         start_x = max(0, shake_info.last_x)
         start_y = max(0, shake_info.last_y)
-        end_x = start_x + 16 * scale
-        end_y = start_y + 16 * scale
         max_x, max_y = dest_dim
+        end_x = start_x + ((width))
+        end_y = start_y + ((height))
 
         if (
             0 <= start_x <= max_x
