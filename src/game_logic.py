@@ -1,10 +1,12 @@
 from typing import Union
 import numpy
+from numpy._core.multiarray import scalar
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import Direction, DisplayInfo, GhostState, PlayerState
 from mazegenerator import MazeGenerator
 import pygame
+from src.shake_object import Shake
 
 
 class GameLogic:
@@ -53,8 +55,10 @@ class GameLogic:
         self.scale = scale
         self.maze = Maze(MazeGenerator(), scale)
         self.game_over = False
+        self.shake = Shake()
         self.frame = 0
         self.level = 1
+        self.death_timer = 0
         self.accumulator = 0.0
         self.time_stamp = 0.0
         self.super_gum_timer = 0.0
@@ -97,7 +101,9 @@ class GameLogic:
                 and abs(mob.v_y - self.player.v_y) < (8 * self.scale)
                 and not self.player.dead
             ):
-                victim = mob if mob.state == GhostState.FRIGHTENED else self.player
+                victim = (
+                    mob if mob.state == GhostState.FRIGHTENED else self.player
+                )
                 print(victim.__class__.__name__)
                 victim.die()
                 return
@@ -122,7 +128,7 @@ class GameLogic:
                 return
             else:
                 self.super_gum_timer = 0
-                self.player.power = - self.player.power
+                self.player.power = -self.player.power
         self.time_stamp += delta
         waves = (
             GameLogic.WAVES_BEFORE_FIFTH
@@ -162,37 +168,66 @@ class GameLogic:
         self.player.new_direction = self.new_move
         self.maze.load_gums(self.working_surf)
         self.change_frame(self.working_surf, self.player, frame)
-        self.change_frame(self.working_surf, self.blinky, frame)
-        self.change_frame(self.working_surf, self.inky, frame)
-        self.change_frame(self.working_surf, self.pinky, frame)
-        self.change_frame(self.working_surf, self.clyde, frame)
+        for mob in self.mobs:
+            self.shake.apply_shake(4, 4, 2, 2, 100, 4, mob.move(frame), mob.id, (mob.v_x, mob.v_y), self.scale, self.working_surf)
+
 
     def death_logic(self, frame: int) -> None:
+        wait_timer = 60
         self.new_move = Direction.NONE
-        self.change_frame(self.working_surf, self.player, frame)
-        self.change_frame(self.working_surf, self.blinky, frame)
-        self.change_frame(self.working_surf, self.inky, frame)
-        self.change_frame(self.working_surf, self.pinky, frame)
-        self.change_frame(self.working_surf, self.clyde, frame)
-        if self.player.death_frame >= 8:
-            mobs: list[Union[Player, Blinky]] = [
-                self.player,
-                self.blinky,
-                self.inky,
-                self.pinky,
-                self.clyde,
-            ]
-            for mob in mobs:
-                mob.bit_x, mob.bit_y = mob.origin
-                self.erase_frame(self.working_surf, mob)
-                mob.reset_cords()
-                self.change_frame(self.working_surf, mob, frame)
-            self.player.dead = False
-            self.hearts -= 1
-            self.player.death_frame = 0
-            self.player.state = PlayerState.ALIVE
-        if self.hearts <= 0:
-            self.game_over = True
+        if self.death_timer < wait_timer:
+            if self.death_timer < 20:
+                self.death_timer += 1
+                return
+
+            if self.death_timer == 20:
+                for mob in self.mobs:
+                    self.shake.erase_frame(self.scale, self.working_surf, mob.id)
+                self.shake.apply_shake(
+                    2,
+                    0,
+                    2,
+                    0,
+                    4,
+                    1,
+                    self.player.prev_sprite,
+                    self.player.id,
+                    (self.player.v_x, self.player.v_y),
+                    self.scale,
+                    self.working_surf,
+                )
+            self.shake.apply_shake(
+                2,
+                0,
+                2,
+                0,
+                4,
+                1,
+                self.player.prev_sprite,
+                self.player.id,
+                (self.player.v_x, self.player.v_y),
+                self.scale,
+                self.working_surf,
+            )
+            self.death_timer += 1
+        else:
+            self.shake.erase_frame(self.scale, self.working_surf, self.player.id)
+            self.change_frame(self.working_surf, self.player, frame)
+            if self.player.death_frame >= 8:
+                for mob in self.mobs:
+                    mob.bit_x, mob.bit_y = mob.origin
+                    self.erase_frame(self.working_surf, mob)
+                    mob.reset_cords()
+                self.erase_frame(self.working_surf, self.player)
+                self.player.dead = False
+                self.hearts -= 1
+                self.player.death_frame = 0
+                self.player.state = PlayerState.ALIVE
+                self.death_timer = 0
+                self.player.reset_cords()
+                self.change_frame(self.working_surf, self.player, frame)
+            if self.hearts <= 0:
+                self.game_over = True
 
     def erase_frame(
         self, dest: pygame.Surface, character: Union[Player, Blinky]

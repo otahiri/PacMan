@@ -2,7 +2,8 @@ import pygame
 from abc import ABC, abstractmethod
 from src.enums import Asset, DisplayInfo, GhostState, SceneName
 from src.render import Renderer
-from src.maze import Cell
+
+from typing import Any
 
 
 class Button:
@@ -134,6 +135,69 @@ class Scene(ABC):
     ) -> None | SceneName: ...
 
 
+class Corner:
+    """corner object to decide the look of the corner connecting walls
+
+    Attributes:
+        bit: bit value for the corner representing the sides it has
+    """
+
+    def __init__(self) -> None:
+        """constructor of the Corner class"""
+        self.bit = 0
+
+
+class Cell:
+    """cell class that has all the attributes of the cell
+
+    Attributes:
+        bit_value: the bit value of the cell representing which  walls are open
+        top_left: top left corner
+        top_right: top right corner
+        bottom_left: bottom left corner
+        bottom_right: bottom right corner
+    """
+
+    def __init__(
+        self, bit_value: int, corners: list[Corner], content: Any, cord: tuple
+    ) -> None:
+        """constructor of the Cell class
+
+        Args:
+            bit: bit value of the cell
+            corners: list of corners surrounding the cell
+        """
+        self.bit_value = bit_value
+        self.content: Any = None
+        self.top_left = corners[0]
+        self.top_right = corners[1]
+        self.bottom_left = corners[2]
+        self.bottom_right = corners[3]
+        self.update_corners()
+        self.content = content
+        self.cord = cord
+
+    def update_corners(self):
+        """mask the corner bit value according to the bit value of the cell
+        top left corner will have an east side if the cell has a north wall
+        and a south side if the cell has a west wall
+        top right corner will have a west side if the cell has a north wall
+        and a south side if the cell has an east wall
+        bottom right corner will have north side if the cell has an east
+        wall and a west side if the cell has a south wall
+        bottom left corner  will have a north side if the cell has a west
+        wall and an east side if the cell has a south wall
+        """
+        self.top_left.bit |= (1 & self.bit_value) << 1
+        self.top_left.bit |= (8 & self.bit_value) >> 1
+        self.top_right.bit |= (1 & self.bit_value) << 3
+        self.top_right.bit |= (2 & self.bit_value) << 1
+        self.bottom_right.bit |= (2 & self.bit_value) >> 1
+        self.bottom_right.bit |= (4 & self.bit_value) << 1
+        self.bottom_left.bit |= (4 & self.bit_value) >> 1
+        self.bottom_left.bit |= (8 & self.bit_value) >> 3
+
+
 class Character(ABC):
     def __init__(
         self,
@@ -143,6 +207,7 @@ class Character(ABC):
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
+        self.id = 0
         self.maze = maze
         self.speed = speed
         self.scale = scale
@@ -168,3 +233,24 @@ class Character(ABC):
 
     @abstractmethod
     def reset_cords(self) -> None: ...
+
+
+class Gum:
+    def __init__(
+        self,
+        score: int,
+        cord: tuple,
+        sprite: pygame.Surface,
+        is_super: bool = False,
+    ) -> None:
+        self.is_super = is_super
+        self.score = score
+        self.cord = cord
+        self.sprite = sprite
+
+
+class SuperGum(Gum):
+    def __init__(
+        self, score: int, cord: tuple, sprite: pygame.Surface
+    ) -> None:
+        super().__init__(score, cord, sprite, True)

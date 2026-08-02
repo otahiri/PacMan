@@ -49,6 +49,7 @@ class Player(Character):
             maze,
             anchors,
         )
+        self.id = 0
         self.lifes = 3
         self.power = -1
         cord_x = len(self.maze) // 2
@@ -239,6 +240,8 @@ class Blinky(Character):
             maze,
             anchors,
         )
+
+        self.id = 1
         self.hover = 4
         self.steps = 2
         self.accumelated_steps = 0
@@ -279,7 +282,6 @@ class Blinky(Character):
         x, y = self.origin
         self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
         self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
-        self.static_v_y = self.v_y
         self.bit_y = y
         self.bit_x = x
 
@@ -366,13 +368,12 @@ class Blinky(Character):
         max_x = self.max_x
         max_y = self.max_y
         new_x = ((dx * self.speed) * self.scale) + self.v_x
-        new_y = ((dy * self.speed) * self.scale) + self.static_v_y
+        new_y = ((dy * self.speed) * self.scale) + self.v_y
         if min_y <= new_y < max_y and min_x <= new_x < max_x:
             self.v_x = new_x
-            self.static_v_y = new_y
-            self.v_y = self.static_v_y + self.accumelated_steps
+            self.v_y = new_y
             self.bit_x = self.v_x // (self.scaled_v_step_x)
-            self.bit_y = self.static_v_y // (self.scaled_v_step_y)
+            self.bit_y = self.v_y // (self.scaled_v_step_y)
 
     def check_movability(self, is_centered: bool) -> bool:
         """check if the character can move
@@ -407,7 +408,7 @@ class Blinky(Character):
             return self.prev_sprite
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
-            and (self.static_v_y) % (self.scaled_v_step_y)
+            and (self.v_y) % (self.scaled_v_step_y)
             == self.scaled_half_v_step_y
         )
         if is_centered:
@@ -467,6 +468,7 @@ class Pinky(Blinky):
         super().__init__(speed, scale, maze, anchors)
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
+        self.id = 2
 
     def choose_target(
         self,
@@ -509,6 +511,7 @@ class Clyde(Blinky):
         super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.reset_cords()
+        self.id = 3
 
     def choose_target(
         self,
@@ -545,6 +548,7 @@ class Inky(Blinky):
     ) -> None:
         super().__init__(speed, scale, maze, anchors)
         self.origin = (len(maze) - 1, 0)
+        self.id = 4
         self.reset_cords()
 
     def choose_target(
