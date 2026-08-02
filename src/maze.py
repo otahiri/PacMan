@@ -144,8 +144,12 @@ class Maze:
         self.cell_grid[y][x].content = None
 
     def set_gums(self, scale) -> None:
-        gum = Renderer.scale_surface(pygame.image.load("assets/gum.png"), (16, 16), scale)
-        super_gum = Renderer.scale_surface(pygame.image.load("assets/super_gum.png"), (16,16), scale)
+        gum = Renderer.scale_surface(
+            pygame.image.load("assets/gum.png"), (16, 16), scale
+        )
+        super_gum = Renderer.scale_surface(
+            pygame.image.load("assets/super_gum.png"), (16, 16), scale
+        )
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
