@@ -196,7 +196,6 @@ class GameLogic:
                     self.scale,
                     self.working_surf,
                 )
-            self.shake.apply_shake(1, 1, 1, 1, 2, 1, self.maze.render_maze(self.scale), 5, (0, 0), self.scale, self.working_surf)
             self.shake.apply_shake(
                 2,
                 0,
@@ -214,7 +213,7 @@ class GameLogic:
         else:
             Renderer.fill(self.working_surf, "black")
             self.change_frame(self.working_surf, self.player, frame)
-            if self.player.death_frame >= 8:
+            if self.player.death_frame >= 9:
                 for mob in self.mobs:
                     mob.bit_x, mob.bit_y = mob.origin
                     self.erase_frame(self.working_surf, mob)
