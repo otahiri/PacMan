@@ -1,3 +1,5 @@
+from typing import Any
+
 import pygame
 from abc import ABC, abstractmethod
 from src.enums import Asset, DisplayInfo, GhostState, SceneName
@@ -129,9 +131,10 @@ class Scene(ABC):
     def render_scene(self, renderer: Renderer) -> None: ...
 
     @abstractmethod
-    def handle_events(
-        self, events: list[pygame.Event]
-    ) -> None | SceneName: ...
+    def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]: ...
+
+    @abstractmethod
+    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
 
 
 class Character(ABC):

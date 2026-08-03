@@ -1,3 +1,5 @@
+from typing import Any
+
 import pygame
 from src.enums import Asset, DisplayInfo, SceneName
 from src.models import Cursor, LetterButton, NameFrame, Scene, Text
@@ -13,6 +15,10 @@ class ScoreEntryScene(Scene):
         )
 
         self.text = Text("score entry", (width // 2, height // 6), "white")
+        self.score = Text(
+            "your score is 0", (width // 2, height // 2 - 200), "white"
+        )
+
         self.keyboard = self.__get_keyboard_letters()
         self.cursor = Cursor()
         self.name_frame = NameFrame()
@@ -91,6 +97,12 @@ class ScoreEntryScene(Scene):
             self.text.surf,
             Renderer.get_pos(self.text.pos, self.text.size),
         )
+
+        renderer.render(
+            self.score.surf,
+            Renderer.get_pos(self.score.pos, self.score.size),
+        )
+
         renderer.render(
             self.name_frame.surf,
             Renderer.get_pos(self.name_frame.pos, self.name_frame.size),
@@ -168,12 +180,25 @@ class ScoreEntryScene(Scene):
             self.name_frame.update_name(self.cursor.letter_hover)
         return False
 
-    def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
+    def get_scene_arguments(self, arguments: dict[str, Any]) -> None:
+        score = arguments.get("score")
+        width, height = (
+            DisplayInfo.SCREEN_WIDTH.value,
+            DisplayInfo.SCREEN_HEIGHT.value,
+        )
+        if score:
+            self.score = Text(
+                f"your score is {score}",
+                (width // 2, height // 6 - 100),
+                "white",
+            )
+
+    def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     if self.__press_action():
-                        return SceneName.MAIN_MENU
+                        return {"next_scene": SceneName.MAIN_MENU}
 
                 elif event.key == pygame.K_RIGHT:
                     self.__move_cursor("right")
@@ -196,4 +221,5 @@ class ScoreEntryScene(Scene):
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.__press_action():
-                    return SceneName.MAIN_MENU
+                    return {"next_scene": SceneName.MAIN_MENU}
+        return {"next_scene": None}

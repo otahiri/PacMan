@@ -1,3 +1,5 @@
+from typing import Any
+
 import pygame
 from src.enums import SceneName
 from src.models import Scene, Text
@@ -14,11 +16,14 @@ class OptionsScene(Scene):
             self.text.surf, Renderer.get_pos(self.text.pos, self.text.size)
         )
 
-    def handle_events(self, events: list[pygame.Event]) -> None | SceneName:
+    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
+
+    def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                return SceneName.MAIN_MENU
+                return {"next_scene": SceneName.MAIN_MENU}
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return SceneName.MAIN_MENU
+                    return {"next_scene": SceneName.MAIN_MENU}
+        return {"next_scene": None}

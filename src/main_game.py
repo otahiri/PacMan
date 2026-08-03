@@ -24,7 +24,7 @@ class MainGame:
             SceneName.SCOREBOARD: ScoreboardScene(game_config.heighscores),
             SceneName.OPTIONS: OptionsScene(),
         }
-        self.current_scene: SceneName = SceneName.SCOREBOARD
+        self.current_scene: SceneName = SceneName.MAIN_MENU
 
     def game_loop(self) -> None:
         running = True
@@ -37,12 +37,15 @@ class MainGame:
                     if event.key == pygame.K_q:
                         running = False
 
-            scene = self.scenes[self.current_scene]
-            next_scene = scene.handle_events(events)
+            scene: Scene = self.scenes[self.current_scene]
+
+            scene_arguments = scene.handle_events(events)
+            next_scene: SceneName | None = scene_arguments.get("next_scene")
 
             if next_scene:
                 self.current_scene = next_scene
                 scene = self.scenes[next_scene]
+                scene.get_scene_arguments(scene_arguments)
 
             self.renderer.clear()
             scene.render_scene(self.renderer)

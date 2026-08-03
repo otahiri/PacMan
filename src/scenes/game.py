@@ -1,3 +1,5 @@
+from typing import Any
+
 import pygame
 import time
 from pygame.event import Event
@@ -16,12 +18,14 @@ class GameScene(Scene):
         self.score = 0
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
-        self.text_gui: list[Text] = []
-        for i, label in enumerate(["score", f"{self.score}"]):
-            y = 75 * i
-            self.text_gui.append(
-                Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
-            )
+        self.title_text = Text(
+            "score", (DisplayInfo.SCREEN_WIDTH.value // 2, 10), "white"
+        )
+        self.score_text = Text(
+            str(self.score),
+            (DisplayInfo.SCREEN_WIDTH.value // 2, 75),
+            "white",
+        )
         self.heart_surf = Renderer.scale_surface(
             pygame.image.load("assets/hart.png"),
             (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
@@ -32,17 +36,17 @@ class GameScene(Scene):
         self.running = True
 
     def update_score(self) -> None:
-        self.text_gui = []
-        for i, label in enumerate(["score", f"{self.score}"]):
-            y = 75 * i
-            self.text_gui.append(
-                Text(label, (DisplayInfo.SCREEN_WIDTH.value // 2, y), "white")
-            )
+        self.score_text = Text(
+            str(self.score),
+            (DisplayInfo.SCREEN_WIDTH.value // 2, 75),
+            "white",
+        )
 
     def render_scene(self, renderer: Renderer) -> None:
         if self.score != self.game_logic.score:
             self.score = self.game_logic.score
             self.update_score()
+
         current_time = time.perf_counter()
         delta = current_time - self.last_time
         self.last_time = current_time
@@ -52,10 +56,18 @@ class GameScene(Scene):
             self.game_logic.v_offset,
         )
 
-        for text in self.text_gui:
-            renderer.render(
-                text.surf, Renderer.get_pos(text.pos, text.size, "topcenter")
-            )
+        renderer.render(
+            self.title_text.surf,
+            Renderer.get_pos(
+                self.title_text.pos, self.title_text.size, "topcenter"
+            ),
+        )
+        renderer.render(
+            self.score_text.surf,
+            Renderer.get_pos(
+                self.score_text.pos, self.score_text.size, "topcenter"
+            ),
+        )
         for i in range(self.game_logic.hearts):
             renderer.render(
                 self.heart_surf,
@@ -66,16 +78,18 @@ class GameScene(Scene):
                 ),
             )
 
-    def handle_events(self, events: list[Event]) -> None | SceneName:
+    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
+
+    def handle_events(self, events: list[Event]) -> dict[str, Any]:
         if self.game_logic.game_over:
-            return SceneName.SCORE_ENTRY
+            return {"next_scene": SceneName.SCORE_ENTRY, "score": self.score}
 
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return SceneName.SCORE_ENTRY
+                    return {"next_scene": SceneName.SCORE_ENTRY}
                 elif event.key in [pygame.K_w, pygame.K_UP]:
                     self.game_logic.new_move = Direction.NORTH
                 elif event.key in [pygame.K_s, pygame.K_DOWN]:
@@ -86,5 +100,5 @@ class GameScene(Scene):
                     self.game_logic.new_move = Direction.WEST
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                return SceneName.SCORE_ENTRY
-        return None
+                return {"next_scene": SceneName.SCORE_ENTRY}
+        return {"next_scene": None}
