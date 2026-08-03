@@ -34,7 +34,7 @@ class Renderer:
         src_end_x = src_start_x + (end_x - start_x)
         src_end_y = src_start_y + (end_y - start_y)
         if start_x < end_x and start_y < end_y:
-            view_src = src_px[src_start_x: src_end_x, src_start_y: src_end_y]
+            view_src = src_px[src_start_x:src_end_x, src_start_y:src_end_y]
             view_dest = dest_px[start_x:end_x, start_y:end_y]
             mask = view_src != 0
             view_dest[mask] = view_src[mask]
@@ -176,7 +176,6 @@ class Renderer:
     def get_text(
         cls, text: str, scale: int, color: str
     ) -> tuple[pygame.Surface, tuple[int, int]]:
-
         path = Asset.LETTER_PATH.value
         width = Asset.LETTER_WIDTH.value
         height = Asset.LETTER_HEIGHT.value

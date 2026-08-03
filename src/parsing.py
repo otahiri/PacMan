@@ -22,7 +22,7 @@ ScoreName = Annotated[
 class GameConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    heighscores: dict[ScoreName, PositiveInt]
+    heighscores: dict[ScoreName, str]
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
     points_per_pacgum: PositiveInt = 10
     points_per_ghost: PositiveInt = 200
@@ -56,20 +56,24 @@ class GameConfig(BaseModel):
             )
         try:
             scores_data = json.loads(Parser.get_file_content(file))
-            for name, score in scores_data.items():
-                if not isinstance(score, int):
-                    raise PydanticCustomError(
-                        "invalid_score_type",
-                        "score for '{player}' must be an integer, got '{val}'",
-                        {"player": name, "val": score},
-                    )
             if not isinstance(scores_data, dict):
                 raise PydanticCustomError(
                     "invalid_json_root",
                     "json root in '{filepath}' must be an object",
                     {"filepath": str(file)},
                 )
-            return {k: int(v) for k, v in scores_data.items()}
+            scores = {}
+
+            for name, score in scores_data.items():
+                if not isinstance(score, int) or score <= 0:
+                    raise PydanticCustomError(
+                        "invalid_score_type",
+                        "score value must be a positive integer, for '{player}' got '{val}'",
+                        {"player": name, "val": score},
+                    )
+                scores.update({name.lower(): str(score)})
+
+            return scores
 
         except OSError:
             raise PydanticCustomError(
@@ -113,7 +117,8 @@ class Parser:
             file_conent = Parser.get_file_content(file)
 
             game_config = GameConfig.model_validate_json(file_conent)
-            print(game_config)
+
+            return game_config
 
         except ValidationError as e:
             print("File:", current_file.absolute())

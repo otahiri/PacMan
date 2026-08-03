@@ -1,9 +1,8 @@
 import pygame
-from src.display import Screen
+from src.main_game import MainGame
 from src.parsing import Parser
 
-Parser.parse()
-exit()
+game_config = Parser.parse()
 pygame.init()
-screen = Screen()
+screen = MainGame(game_config)
 screen.game_loop()
