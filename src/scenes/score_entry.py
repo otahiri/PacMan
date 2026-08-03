@@ -1,21 +1,25 @@
-from typing import Any
+import json
+from pathlib import Path
+import sys
 
 import pygame
+from typing import Any
 from src.enums import Asset, DisplayInfo, SceneName
 from src.models import Cursor, LetterButton, NameFrame, Scene, Text
 from src.render import Renderer
 
 
 class ScoreEntryScene(Scene):
-    def __init__(self) -> None:
+    def __init__(self, heighscores_path: Path) -> None:
         print("initialize ScoreEntryScene")
         width, height = (
             DisplayInfo.SCREEN_WIDTH.value,
             DisplayInfo.SCREEN_HEIGHT.value,
         )
-
+        self.heighscores_path = heighscores_path
         self.text = Text("score entry", (width // 2, height // 6), "white")
-        self.score = Text(
+        self.score: int = 0
+        self.score_text = Text(
             "your score is 0", (width // 2, height // 2 - 200), "white"
         )
 
@@ -99,8 +103,8 @@ class ScoreEntryScene(Scene):
         )
 
         renderer.render(
-            self.score.surf,
-            Renderer.get_pos(self.score.pos, self.score.size),
+            self.score_text.surf,
+            Renderer.get_pos(self.score_text.pos, self.score_text.size),
         )
 
         renderer.render(
@@ -173,8 +177,28 @@ class ScoreEntryScene(Scene):
                 self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
                 self.cursor.letter_hover = button.letter
 
+    def __save_score(self):
+        score, name = self.score, self.name_frame.name
+        try:
+            with open(self.heighscores_path, "r") as f:
+                scores = json.load(f)
+            scores[name] = score
+
+            with open(self.heighscores_path, "w") as f:
+                json.dump(scores, f, indent=4)
+            print(
+                "Saved new score in",
+                self.heighscores_path,
+                "successfuly.",
+            )
+
+        except OSError as e:
+            print("File:", self.heighscores_path.absolute())
+            print(f"Error: {e.strerror}")
+
     def __press_action(self) -> bool:
         if self.cursor.letter_hover == "E":
+            self.__save_score()
             return True
         if len(self.name_frame.name) < 10:
             self.name_frame.update_name(self.cursor.letter_hover)
@@ -187,7 +211,9 @@ class ScoreEntryScene(Scene):
             DisplayInfo.SCREEN_HEIGHT.value,
         )
         if score:
-            self.score = Text(
+
+            self.score = score
+            self.score_text = Text(
                 f"your score is {score}",
                 (width // 2, height // 6 - 100),
                 "white",

@@ -8,6 +8,7 @@ from pydantic import (
     StringConstraints,
     ValidationError,
     field_validator,
+    model_validator,
 )
 import json
 
@@ -22,7 +23,9 @@ ScoreName = Annotated[
 class GameConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    heighscores: dict[ScoreName, str]
+    heighscores: dict[ScoreName, str] = {}
+    heighscores_path: Path
+
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
     points_per_pacgum: PositiveInt = 10
     points_per_ghost: PositiveInt = 200
@@ -30,14 +33,15 @@ class GameConfig(BaseModel):
     seed: PositiveInt | None = None
     levels_number: PositiveInt = 10
 
-    @field_validator("heighscores", mode="before")
+    @field_validator("heighscores_path", mode="before")
     @classmethod
-    def load_scores_from_path(cls, value: str) -> dict[str, int]:
+    def validate_scores_path(cls, value: str) -> str:
         if not isinstance(value, str):
             raise PydanticCustomError(
                 "invalid_type",
-                "'heighscores' must be a valid file path",
+                "'heighscores_path' must be a valid file path",
             )
+
         file = Path(value)
 
         if file.suffix != ".json":
@@ -54,6 +58,11 @@ class GameConfig(BaseModel):
                 "File '{filepath}' does not exist",
                 {"filepath": str(file)},
             )
+        return str(file)
+
+    @model_validator(mode="after")
+    def load_scores_from_path(self) -> "GameConfig":
+        file = self.heighscores_path
         try:
             scores_data = json.loads(Parser.get_file_content(file))
             if not isinstance(scores_data, dict):
@@ -72,14 +81,14 @@ class GameConfig(BaseModel):
                         {"player": name, "val": score},
                     )
                 scores.update({name.lower(): str(score)})
-
-            return scores
+            self.heighscores = scores
+            return self
 
         except OSError:
             raise PydanticCustomError(
                 "permission_denied",
                 "Permission denied when reading file '{path}'",
-                {"path": value},
+                {"path": str(file)},
             )
 
 
@@ -117,7 +126,7 @@ class Parser:
             file_conent = Parser.get_file_content(file)
 
             game_config = GameConfig.model_validate_json(file_conent)
-
+            print(game_config)
             return game_config
 
         except ValidationError as e:

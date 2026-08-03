@@ -20,7 +20,9 @@ class MainGame:
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),
             SceneName.GAME: GameScene(),
-            SceneName.SCORE_ENTRY: ScoreEntryScene(),
+            SceneName.SCORE_ENTRY: ScoreEntryScene(
+                game_config.heighscores_path
+            ),
             SceneName.SCOREBOARD: ScoreboardScene(game_config.heighscores),
             SceneName.OPTIONS: OptionsScene(),
         }
