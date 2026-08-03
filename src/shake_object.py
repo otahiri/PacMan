@@ -9,7 +9,16 @@ from src.render import Renderer
 
 
 class ShakeInfo:
-    def __init__(self, max_x: int, max_y: int, steps_x: int, steps_y: int, target_id: int, wait_time: int, max_cycles: int) -> None:
+    def __init__(
+        self,
+        max_x: int,
+        max_y: int,
+        steps_x: int,
+        steps_y: int,
+        target_id: int,
+        wait_time: int,
+        max_cycles: int,
+    ) -> None:
         self.max_x: int = max_x
         self.max_y: int = max_y
         self.steps_x: int = steps_x
@@ -37,7 +46,7 @@ class Shake:
         dest_px = surfarray.pixels2d(dest)
         frame_px = surfarray.pixels2d(src)
         dest_dim = dest_px.shape
-        width , height = frame_px.shape
+        width, height = frame_px.shape
         start_x = max(0, shake_info.last_x)
         start_y = max(0, shake_info.last_y)
         max_x, max_y = dest_dim
@@ -58,6 +67,9 @@ class Shake:
         del dest_px
         del frame_px
 
+    def del_shake(self, target_id: int) -> None:
+        del self.shake_objects[target_id]
+
     def apply_shake(
         self,
         max_x: int,
@@ -70,12 +82,20 @@ class Shake:
         target_id: int,
         cords: tuple,
         scale: int,
-        working_surface: Surface
+        working_surface: Surface,
     ) -> Surface:
         shake_info = self.shake_objects.get(target_id, None)
         if not shake_info:
             Renderer.custom_blit(working_surface, target_frame, cords)
-            shake_info = ShakeInfo(max_x, max_y, steps_x, steps_y, target_id, wait_time, max_cycles)
+            shake_info = ShakeInfo(
+                max_x,
+                max_y,
+                steps_x,
+                steps_y,
+                target_id,
+                wait_time,
+                max_cycles,
+            )
             shake_info.last_frame = target_frame
             shake_info.last_x = cords[0]
             shake_info.last_y = cords[1]
@@ -88,7 +108,10 @@ class Shake:
             shake_info.current_time = 0
             shake_info.accumelated_y += shake_info.steps_y
             shake_info.accumelated_x += shake_info.steps_x
-            if abs(shake_info.accumelated_y) >= shake_info.max_y and abs(shake_info.accumelated_x) >= shake_info.max_x:
+            if (
+                abs(shake_info.accumelated_y) >= shake_info.max_y
+                and abs(shake_info.accumelated_x) >= shake_info.max_x
+            ):
                 shake_info.steps_x = -shake_info.steps_x
                 shake_info.steps_y = -shake_info.steps_y
                 shake_info.half += 1
@@ -101,5 +124,9 @@ class Shake:
         shake_info.last_y = cords[1] + shake_info.accumelated_y
         shake_info.last_frame = target_frame
 
-        Renderer.custom_blit(working_surface, target_frame, (shake_info.last_x, shake_info.last_y))
+        Renderer.custom_blit(
+            working_surface,
+            target_frame,
+            (shake_info.last_x, shake_info.last_y),
+        )
         return working_surface

@@ -119,9 +119,10 @@ class Player(Character):
             surface with player sprite loaded
         """
         if not self.dead:
-            animation = self.sprites[self.direction.value[2]][self.frame]
+            sprite = self.sprites[self.direction.value[2]]
+            animation = sprite[self.frame]
             if frame % 10 == 0:
-                self.frame = (self.frame + 1) % 3
+                self.frame = (self.frame + 1) % len(sprite)
         else:
             animation = self.death_animation[self.direction.value[2]][
                 self.death_frame
@@ -262,12 +263,18 @@ class Blinky(Character):
             if d is not Direction.NONE
         ]
         self.frightened_sprites = [
-            Renderer.scale_surface(
-                pygame.image.load(f"assets/mobs/frightened/{i}.png"),
-                (16, 16),
-                scale,
-            )
-            for i in range(4)
+            [
+                Renderer.scale_surface(
+                    pygame.image.load(
+                        f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
+                    ),
+                    (16, 16),
+                    scale,
+                )
+                for i in range(4)
+            ]
+            for d in Direction
+            if d is not Direction.NONE
         ]
         self.reset_cords()
         self.player = anchors[0]
@@ -421,7 +428,10 @@ class Blinky(Character):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
         self.prev_sprite = sprite
-        if (self.bit_x, self.bit_y) == self.origin and self.state == GhostState.DEAD:
+        if (
+            self.bit_x,
+            self.bit_y,
+        ) == self.origin and self.state == GhostState.DEAD:
             self.state = GhostState.CHASE
         return sprite
 
@@ -435,19 +445,14 @@ class Blinky(Character):
             surface with player sprite loaded
         """
         sprite = (
-            self.frightened_sprites
-            if self.state == GhostState.FRIGHTENED or self.state == GhostState.DEAD
+            self.frightened_sprites[self.direction.value[2]]
+            if self.state == GhostState.FRIGHTENED
+            or self.state == GhostState.DEAD
             else self.sprites[self.direction.value[2]]
         )
         animation = sprite[self.frame]
-        if frame % 2 == 0:
-            self.accumelated_steps += self.steps
-            if self.accumelated_steps >= self.hover * self.scale:
-                self.steps = -1
-            elif self.accumelated_steps <= -self.hover * self.scale:
-                self.steps = 1
         if frame % 10 == 0:
-            self.frame = (self.frame + 1) % 4
+            self.frame = (self.frame + 1) % len(sprite)
         return animation
 
 

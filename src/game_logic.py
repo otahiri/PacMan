@@ -85,8 +85,9 @@ class GameLogic:
                 self.maze.max_y + 32 * self.scale,
             )
         )
+        self.maze_surf = self.maze.render_maze(self.scale)
         Renderer.custom_blit(
-            self.working_surf, self.maze.render_maze(self.scale), (0, 0)
+            self.working_surf, self.maze_surf, (0, 0)
         )
         self.maze.load_gums(self.working_surf)
         self.new_move = Direction.NONE
@@ -147,6 +148,8 @@ class GameLogic:
             self.change_mode()
 
     def change_mode(self):
+        Renderer.fill(self.working_surf, "black")
+        Renderer.custom_blit(self.working_surf, self.maze_surf, (0, 0))
         for mob in self.mobs:
             mob.state = self.global_mode
 
@@ -169,7 +172,11 @@ class GameLogic:
         self.maze.load_gums(self.working_surf)
         self.change_frame(self.working_surf, self.player, frame)
         for mob in self.mobs:
-            self.shake.apply_shake(4, 4, 2, 2, 100, 4, mob.move(frame), mob.id, (mob.v_x, mob.v_y), self.scale, self.working_surf)
+            if mob.state != GhostState.FRIGHTENED:
+                self.shake.apply_shake(4, 4, 2, 2, 100, 4, mob.move(frame), mob.id, (mob.v_x, mob.v_y), self.scale, self.working_surf)
+            else:
+                self.change_frame(self.working_surf, mob, frame)
+
 
 
     def death_logic(self, frame: int) -> None:
