@@ -108,7 +108,12 @@ class Parser:
     def get_file_content(file):
         content = ""
         with open(file) as f:
-            content = f.read()
+            for line in f:
+                if "#" in line:
+                    line = line[0 : line.index("#")]
+                if "//" in line:
+                    line = line[0 : line.index("//")]
+                content += line
 
         return content
 

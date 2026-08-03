@@ -6,6 +6,7 @@ import pygame
 from typing import Any
 from src.enums import Asset, DisplayInfo, SceneName
 from src.models import Cursor, LetterButton, NameFrame, Scene, Text
+from src.parsing import Parser
 from src.render import Renderer
 
 
@@ -180,8 +181,7 @@ class ScoreEntryScene(Scene):
     def __save_score(self):
         score, name = self.score, self.name_frame.name
         try:
-            with open(self.heighscores_path, "r") as f:
-                scores = json.load(f)
+            scores = json.loads(Parser.get_file_content(self.heighscores_path))
             scores[name] = score
 
             with open(self.heighscores_path, "w") as f:
