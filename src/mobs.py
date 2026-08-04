@@ -1,5 +1,6 @@
 from os import sched_setaffinity
 import random
+from typing_extensions import Sentinel
 
 from src.enums import Direction, PlayerState, GhostState
 from src.models import Character
@@ -62,31 +63,34 @@ class Player(Character):
         self.sprites = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(
-                        f"assets/player/alive/{d.name.lower()}/{i}.png"
-                    ),
+                    pygame.image.load(f"assets/player/alive/{i}.png"),
                     (16, 16),
                     scale,
                 )
-                for i in range(3)
+                for i in range(6)
             ]
-            for d in Direction
-            if d is not Direction.NONE
         ]
         self.death_animation = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(
-                        f"assets/player/dead/{d.name.lower()}/{i}.png"
-                    ),
+                    pygame.image.load(f"assets/player/dead/{i}.png"),
                     (16, 16),
                     scale,
                 )
-                for i in range(9)
+                for i in range(11)
             ]
-            for d in Direction
-            if d is not Direction.NONE
         ]
+        for i in range(3):
+            self.sprites.append(
+                [Renderer.rotate_surf(s, i + 1) for s in self.sprites[0]]
+            )
+            self.death_animation.append(
+                [
+                    Renderer.rotate_surf(s, i + 1)
+                    for s in self.death_animation[0]
+                ]
+            )
+
         self.frame = 0
         self.death_frame = 0
         self.dead = False
