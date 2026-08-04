@@ -154,6 +154,9 @@ class GameLogic:
             self.shake.del_shake(mob.id)
             mob.reset_cords()
             self.change_frame(self.working_surf, mob, 0)
+            mob.state = self.global_mode
+            mob.respawn_timer = 0
+            mob.death_frame = 0
         self.player.reset_cords()
         self.change_frame(self.working_surf, self.player, 0)
         self.player.dead = False
@@ -187,7 +190,7 @@ class GameLogic:
         self.change_frame(self.working_surf, self.player, frame)
         for mob in self.mobs:
             if mob.state == GhostState.RESPAWN:
-                self.erase_frame(self.working_surf, mob)
+                self.shake.erase_frame(self.scale, self.working_surf, mob.id)
                 mob.reset_cords()
                 if frame % 60 == 0:
                     mob.respawn_timer += 1
