@@ -1,13 +1,11 @@
 import json
-from pathlib import Path
-import sys
-
 import pygame
 from typing import Any
-from src.enums import Asset, DisplayInfo, SceneName
-from src.models import Cursor, LetterButton, NameFrame, Scene, Text
+from pathlib import Path
 from src.parsing import Parser
 from src.render import Renderer
+from src.enums import Asset, DisplayInfo, SceneName
+from src.models import Cursor, LetterButton, NameFrame, Scene, Text
 
 
 class ScoreEntryScene(Scene):
@@ -182,10 +180,15 @@ class ScoreEntryScene(Scene):
         score, name = self.score, self.name_frame.name
         try:
             scores = json.loads(Parser.get_file_content(self.heighscores_path))
+            old_score = scores.get(name)
+
+            if old_score and score <= old_score:
+                return
             scores[name] = score
 
             with open(self.heighscores_path, "w") as f:
                 json.dump(scores, f, indent=4)
+
             print(
                 "Saved new score in",
                 self.heighscores_path,
@@ -198,6 +201,8 @@ class ScoreEntryScene(Scene):
 
     def __press_action(self) -> bool:
         if self.cursor.letter_hover == "E":
+            if self.name_frame.name == "":
+                return False
             self.__save_score()
             return True
         if len(self.name_frame.name) < 10:
@@ -224,7 +229,12 @@ class ScoreEntryScene(Scene):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     if self.__press_action():
-                        return {"next_scene": SceneName.MAIN_MENU}
+                        return {
+                            "next_scene": SceneName.MAIN_MENU,
+                            "new_score": {
+                                self.name_frame.name: str(self.score)
+                            },
+                        }
 
                 elif event.key == pygame.K_RIGHT:
                     self.__move_cursor("right")
@@ -247,5 +257,8 @@ class ScoreEntryScene(Scene):
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.__press_action():
-                    return {"next_scene": SceneName.MAIN_MENU}
+                    return {
+                        "next_scene": SceneName.MAIN_MENU,
+                        "new_score": {self.name_frame.name: str(self.score)},
+                    }
         return {"next_scene": None}

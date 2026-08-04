@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 from pydantic import (
     BaseModel,
     ConfigDict,
-    PositiveInt,
+    NonNegativeInt,
     StringConstraints,
     ValidationError,
     field_validator,
@@ -27,11 +27,11 @@ class GameConfig(BaseModel):
     heighscores_path: Path
 
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
-    points_per_pacgum: PositiveInt = 10
-    points_per_ghost: PositiveInt = 200
-    points_per_super_pacgum: PositiveInt = 100
-    seed: PositiveInt | None = None
-    levels_number: PositiveInt = 10
+    points_per_pacgum: NonNegativeInt = 10
+    points_per_ghost: NonNegativeInt = 200
+    points_per_super_pacgum: NonNegativeInt = 100
+    seed: NonNegativeInt | None = None
+    levels_number: NonNegativeInt = 10
 
     @field_validator("heighscores_path", mode="before")
     @classmethod
@@ -74,10 +74,10 @@ class GameConfig(BaseModel):
             scores = {}
 
             for name, score in scores_data.items():
-                if not isinstance(score, int) or score <= 0:
+                if not isinstance(score, int) or score < 0:
                     raise PydanticCustomError(
                         "invalid_score_type",
-                        "score value must be a positive integer, for '{player}' got '{val}'",
+                        "score value must be a non negative integer, for '{player}' got '{val}'",
                         {"player": name, "val": score},
                     )
                 scores.update({name.lower(): str(score)})
@@ -121,7 +121,6 @@ class Parser:
     def parse():
         current_file = Path()
         try:
-
             file = Parser.get_file_path()
             current_file = file
             if file.suffix != ".json":
@@ -131,7 +130,7 @@ class Parser:
             file_conent = Parser.get_file_content(file)
 
             game_config = GameConfig.model_validate_json(file_conent)
-            print(game_config)
+
             return game_config
 
         except ValidationError as e:

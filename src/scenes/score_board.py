@@ -7,22 +7,35 @@ from src.render import Renderer
 
 
 class ScoreboardScene(Scene):
-    def __init__(self, scores: dict[str, str]) -> None:
+    def __init__(self) -> None:
         print("initialize ScoreboardScene")
-        width = DisplayInfo.SCREEN_WIDTH.value
-        height = DisplayInfo.SCREEN_HEIGHT.value
-
-        self.text = Text("score board", (width // 2, height // 6), "white")
+        self.text = Text(
+            "score board",
+            (
+                DisplayInfo.SCREEN_WIDTH.value // 2,
+                DisplayInfo.SCREEN_HEIGHT.value // 6,
+            ),
+            "white",
+        )
 
         self.scores: list[tuple[Text, Text]] = []
-        i = 0
+
+    def __set_scores(self, scores: dict[str, str]):
+
+        self.scores.clear()
         padding = 200
+        i = 0
         for name, score in scores.items():
-            y = height // 3 + i * 80
+
+            y = DisplayInfo.SCREEN_HEIGHT.value // 3 + i * 80
             self.scores.append(
                 (
                     Text(name, (padding, y), "white"),
-                    Text(score, (width - padding, y), "white"),
+                    Text(
+                        score,
+                        (DisplayInfo.SCREEN_WIDTH.value - padding, y),
+                        "white",
+                    ),
                 )
             )
             i += 1
@@ -40,7 +53,11 @@ class ScoreboardScene(Scene):
                 Renderer.get_pos(score.pos, score.size, "rightcenter"),
             )
 
-    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
+    def get_scene_arguments(self, arguments: dict[str, Any]) -> None:
+        scores = arguments.get("scores")
+        if scores:
+            self.__set_scores(scores)
+            print("score updated")
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:
