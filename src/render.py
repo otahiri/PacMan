@@ -1,5 +1,5 @@
 import pygame
-import numpy
+import numpy as np
 from src.enums import Asset, DisplayInfo
 from webcolors import name_to_hex
 
@@ -46,7 +46,7 @@ class Renderer:
     def fill(dest: pygame.Surface, color: str):
         color_hex = name_to_hex(color)[1:]
         dest_px = pygame.surfarray.pixels2d(dest)
-        colored_rect = numpy.full_like(dest_px, color_hex)
+        colored_rect = np.full_like(dest_px, color_hex)
         mask = dest_px != 0
         dest_px[mask] = colored_rect[mask]
         del colored_rect
@@ -134,6 +134,19 @@ class Renderer:
 
             case _:
                 raise ValueError(f"anchor value unknown {anchor}")
+
+    @staticmethod
+    def rotate_surf(surf: pygame.Surface, degree: int) -> pygame.Surface:
+        surf_px = pygame.surfarray.pixels2d(surf)
+        new_array = np.rot90(surf_px, degree)
+        new_surf = pygame.Surface(new_array.shape)
+        Renderer.fill(new_surf, "black")
+        mask = new_array != 0
+        new_surf_px = pygame.surfarray.pixels2d(new_surf)
+        new_surf_px[mask] = new_array[mask]
+        del new_surf_px
+        del surf_px
+        return new_surf
 
     def render(
         self,

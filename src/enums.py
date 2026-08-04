@@ -18,6 +18,8 @@ class GhostState(Enum):
     CHASE = auto()
     SCATTER = auto()
     FRIGHTENED = auto()
+    DEAD = auto()
+    RESPAWN = auto()
 
 
 class Asset(Enum):
