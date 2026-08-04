@@ -41,7 +41,9 @@ class Shake:
         self.shake_objects: dict = {}
 
     def erase_frame(self, scale, dest: Surface, target_id: int):
-        shake_info = self.shake_objects[target_id]
+        shake_info = self.shake_objects.get(target_id, None)
+        if not shake_info:
+            return
         src = shake_info.last_frame
         dest_px = surfarray.pixels2d(dest)
         frame_px = surfarray.pixels2d(src)
@@ -68,7 +70,8 @@ class Shake:
         del frame_px
 
     def del_shake(self, target_id: int) -> None:
-        del self.shake_objects[target_id]
+        target = self.shake_objects.get(target_id, None)
+        del target
 
     def apply_shake(
         self,

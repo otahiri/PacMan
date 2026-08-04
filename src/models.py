@@ -234,6 +234,10 @@ class Character(ABC):
     @abstractmethod
     def reset_cords(self) -> None: ...
 
+    @abstractmethod
+    def die(self) -> None: ...
+
+
 
 class Gum:
     def __init__(

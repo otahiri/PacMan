@@ -125,13 +125,13 @@ class Player(Character):
         if not self.dead:
             sprite = self.sprites[self.direction.value[2]]
             animation = sprite[self.frame]
-            if frame % 10 == 0:
+            if frame % 5 == 0:
                 self.frame = (self.frame + 1) % len(sprite)
         else:
             animation = self.death_animation[self.direction.value[2]][
                 self.death_frame
             ]
-            if frame % 10 == 0:
+            if frame % 5 == 0:
                 self.death_frame += 1
         return animation
 
@@ -190,7 +190,9 @@ class Player(Character):
             a surface with the player drawn on it
         """
         if self.dead:
-            return self.get_sprite(frame)
+            sprite = self.get_sprite(frame)
+            self.prev_sprite = sprite
+            return sprite
         is_centered = (
             self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
             and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
@@ -280,12 +282,14 @@ class Blinky(Character):
             for d in Direction
             if d is not Direction.NONE
         ]
+        self.dead_sprite = [Renderer.scale_surface(pygame.image.load(f"assets/mobs/dead/{i}.png"), (16, 16), self.scale) for i in range(6)]
         self.reset_cords()
         self.player = anchors[0]
         self.frame = 0
         self.anchors: list = anchors
         self.prev_sprite = self.get_sprite(0)
         self.death_frame = 0
+        self.respawn_timer = 0
 
     def reset_cords(self):
         """reset the cords of character to the origin"""
@@ -415,6 +419,15 @@ class Blinky(Character):
         Returns:
             the appropriate sprite for the current direction and the mode
         """
+        if self.state == GhostState.DEAD:
+            sprite = self.dead_sprite[self.death_frame]
+            if frame % 5 == 0:
+                self.death_frame += 1
+            if self.death_frame >= 6:
+                self.death_frame = 0
+                self.state = GhostState.RESPAWN
+            self.prev_sprite = sprite
+            return sprite
         if self.player.dead:
             return self.prev_sprite
         is_centered = (
@@ -478,6 +491,8 @@ class Pinky(Blinky):
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
         self.id = 2
+        self.death_frame = 0
+        self.respawn_timer = 0
 
     def choose_target(
         self,
@@ -521,6 +536,8 @@ class Clyde(Blinky):
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.reset_cords()
         self.id = 3
+        self.death_frame = 0
+        self.respawn_timer = 0
 
     def choose_target(
         self,
@@ -559,6 +576,8 @@ class Inky(Blinky):
         self.origin = (len(maze) - 1, 0)
         self.id = 4
         self.reset_cords()
+        self.death_frame = 0
+        self.respawn_timer = 0
 
     def choose_target(
         self,

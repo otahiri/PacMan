@@ -1,6 +1,6 @@
 from typing import Union
 import numpy
-from numpy._core.multiarray import scalar
+from src.models import Character
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import Direction, DisplayInfo, GhostState, PlayerState
@@ -64,7 +64,7 @@ class GameLogic:
         self.super_gum_timer = 0.0
 
         self.global_mode = GhostState.SCATTER
-        self.MS_PER_GRAME = 0.016
+        self.MS_PER_FRAME = 0.016
         self.score = 0
         self.hearts = 3
         self.v_offset = (
@@ -86,16 +86,14 @@ class GameLogic:
             )
         )
         self.maze_surf = self.maze.render_maze(self.scale)
-        Renderer.custom_blit(
-            self.working_surf, self.maze_surf, (0, 0)
-        )
+        Renderer.custom_blit(self.working_surf, self.maze_surf, (0, 0))
         self.maze.load_gums(self.working_surf)
         self.new_move = Direction.NONE
 
     def handle_collision(self) -> None:
         p_x, p_y = self.player.bit_x, self.player.bit_y
         for mob in self.mobs:
-            if mob.state == GhostState.DEAD:
+            if mob.state in [GhostState.DEAD, GhostState.RESPAWN]:
                 continue
             if (
                 abs(mob.v_x - self.player.v_x) < (8 * self.scale)
@@ -105,8 +103,9 @@ class GameLogic:
                 victim = (
                     mob if mob.state == GhostState.FRIGHTENED else self.player
                 )
-                print(victim.__class__.__name__)
                 victim.die()
+                self.shake.erase_frame(self.scale, self.working_surf, victim.id)
+                self.shake.del_shake(victim.id)
                 return
         gum = self.maze.get_gum(p_x, p_y)
         if gum:
@@ -147,22 +146,39 @@ class GameLogic:
             self.global_mode = new_mode
             self.change_mode()
 
+    def reset_maze(self) -> None:
+        Renderer.fill(self.working_surf, "black")
+        Renderer.custom_blit(self.working_surf, self.maze_surf, (0, 0))
+        for mob in self.mobs:
+            self.shake.erase_frame(self.scale, self.working_surf, mob.id)
+            self.shake.del_shake(mob.id)
+            mob.reset_cords()
+            self.change_frame(self.working_surf, mob, 0)
+        self.player.reset_cords()
+        self.change_frame(self.working_surf, self.player, 0)
+        self.player.dead = False
+        self.hearts -= 1
+        self.player.death_frame = 0
+        self.player.state = PlayerState.ALIVE
+        self.death_timer = 0
+
     def change_mode(self):
         for mob in self.mobs:
+            if mob.state == GhostState.RESPAWN:
+                continue
             mob.state = self.global_mode
 
     def maze_engine(self, delta: float) -> pygame.Surface:
         self.set_global_mode(delta)
         self.accumulator += delta
-        while self.accumulator > self.MS_PER_GRAME:
+        while self.accumulator > self.MS_PER_FRAME:
             self.frame += 1
             if not self.player.dead:
                 self.alive_logic(self.frame)
                 self.handle_collision()
             else:
                 self.death_logic(self.frame)
-            self.accumulator -= self.MS_PER_GRAME
-
+            self.accumulator -= self.MS_PER_FRAME
         return self.working_surf
 
     def alive_logic(self, frame: int) -> None:
@@ -170,9 +186,28 @@ class GameLogic:
         self.maze.load_gums(self.working_surf)
         self.change_frame(self.working_surf, self.player, frame)
         for mob in self.mobs:
-            self.shake.apply_shake(4, 4, 2, 2, 100, 4, mob.move(frame), mob.id, (mob.v_x, mob.v_y), self.scale, self.working_surf)
-
-
+            if mob.state == GhostState.RESPAWN:
+                self.erase_frame(self.working_surf, mob)
+                mob.reset_cords()
+                if frame % 60 == 0:
+                    mob.respawn_timer += 1
+                    if mob.respawn_timer >= 10:
+                        mob.respawn_timer = 0
+                        mob.state = self.global_mode
+                continue
+            self.shake.apply_shake(
+                4,
+                4,
+                2,
+                2,
+                100,
+                4,
+                mob.move(frame),
+                mob.id,
+                (mob.v_x, mob.v_y),
+                self.scale,
+                self.working_surf,
+            )
 
     def death_logic(self, frame: int) -> None:
         wait_timer = 60
@@ -182,9 +217,12 @@ class GameLogic:
                 self.death_timer += 1
                 return
 
-            if self.death_timer == 20:
+            else:
+                Renderer.fill(self.working_surf, "black")
                 for mob in self.mobs:
-                    self.shake.erase_frame(self.scale, self.working_surf, mob.id)
+                    self.shake.erase_frame(
+                        self.scale, self.working_surf, mob.id
+                    )
                 self.shake.apply_shake(
                     2,
                     0,
@@ -213,25 +251,12 @@ class GameLogic:
             )
             self.death_timer += 1
         else:
-            Renderer.fill(self.working_surf, "black")
-            self.change_frame(self.working_surf, self.player, frame)
-            if self.player.death_frame >= 9:
-                for mob in self.mobs:
-                    mob.bit_x, mob.bit_y = mob.origin
-                    self.erase_frame(self.working_surf, mob)
-                    mob.reset_cords()
-                self.erase_frame(self.working_surf, self.player)
-                self.player.dead = False
-                self.hearts -= 1
-                self.player.death_frame = 0
-                self.player.state = PlayerState.ALIVE
-                self.death_timer = 0
-                self.player.reset_cords()
-                self.change_frame(self.working_surf, self.player, frame)
-                Renderer.fill(self.working_surf, "black")
-                Renderer.custom_blit(self.working_surf, self.maze.render_maze(self.scale), (0, 0))
             if self.hearts <= 0:
                 self.game_over = True
+                return
+            self.change_frame(self.working_surf, self.player, frame)
+            if self.player.death_frame >= 9:
+                self.reset_maze()
 
     def erase_frame(
         self, dest: pygame.Surface, character: Union[Player, Blinky]
@@ -267,8 +292,24 @@ class GameLogic:
         frame: int,
     ):
         self.erase_frame(dest, character)
-        Renderer.custom_blit(
-            self.working_surf,
-            character.move(frame),
-            (character.v_x, character.v_y),
-        )
+        if isinstance(character, Player):
+            Renderer.custom_blit(
+                self.working_surf,
+                character.move(frame),
+                (character.v_x, character.v_y),
+            )
+        else:
+
+            self.shake.apply_shake(
+                4,
+                4,
+                2,
+                2,
+                100,
+                4,
+                character.move(frame),
+                character.id,
+                (character.v_x, character.v_y),
+                self.scale,
+                self.working_surf,
+            )

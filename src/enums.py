@@ -19,6 +19,7 @@ class GhostState(Enum):
     SCATTER = auto()
     FRIGHTENED = auto()
     DEAD = auto()
+    RESPAWN = auto()
 
 
 class Asset(Enum):
