@@ -1,11 +1,8 @@
 from typing import Any
-
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, DisplayInfo, GhostState, SceneName
+from src.enums import Asset, DisplayInfo
 from src.render import Renderer
-
-from typing import Any
 
 
 class Button:
@@ -22,7 +19,7 @@ class Button:
 
         self.text = Text(name, pos, "black")
 
-    def is_collide(self, pos: tuple[int, int]):
+    def is_collide(self, pos: tuple[int, int]) -> bool:
         my_x, my_y = self.pos
         target_x, target_y = pos
         is_inside_x = my_x <= target_x <= (my_x + self.width)
@@ -55,7 +52,7 @@ class LetterButton:
         self.size = size
         self.place = place
 
-    def is_collide(self, pos: tuple[int, int]):
+    def is_collide(self, pos: tuple[int, int]) -> bool:
 
         width, height = self.size
 
@@ -121,7 +118,7 @@ class NameFrame:
         self.name = ""
         self.text = Text(" ", self.pos, "white")
 
-    def update_name(self, letter: str):
+    def update_name(self, letter: str) -> None:
         self.name += letter
         self.text = Text(self.name, self.pos, "white")
 
@@ -171,7 +168,7 @@ class Cell:
             corners: list of corners surrounding the cell
         """
         self.bit_value = bit_value
-        self.content: Any = None
+        self.content: Gum | SuperGum | None = None
         self.top_left = corners[0]
         self.top_right = corners[1]
         self.bottom_left = corners[2]
@@ -180,7 +177,7 @@ class Cell:
         self.content = content
         self.cord = cord
 
-    def update_corners(self):
+    def update_corners(self) -> None:
         """mask the corner bit value according to the bit value of the cell
         top left corner will have an east side if the cell has a north wall
         and a south side if the cell has a west wall
@@ -229,17 +226,16 @@ class Character(ABC):
     def move(self, frame: int) -> pygame.Surface: ...
 
     @abstractmethod
-    def update_visual_cord(self): ...
+    def update_visual_cord(self) -> None: ...
 
     @abstractmethod
-    def choose_direction(self): ...
+    def choose_direction(self) -> None: ...
 
     @abstractmethod
     def reset_cords(self) -> None: ...
 
     @abstractmethod
     def die(self) -> None: ...
-
 
 
 class Gum:

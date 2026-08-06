@@ -1,10 +1,6 @@
-from typing import Any
 import math
 import numpy as np
-from pygame import NOEVENT, Surface
 import pygame
-from pygame.version import PygameVersion
-
 from src.render import Renderer
 
 
@@ -12,14 +8,14 @@ class TrailInfo:
     def __init__(
         self,
         trail_length: int,
-        target_frame: Surface,
+        target_frame: pygame.Surface,
     ) -> None:
         self.trail_lenght: int = trail_length
         self.pixel_array: np.ndarray
         self.trail_list: list = []
 
     def set_correct_line(
-        self, target_frame: Surface, direction: int, cord
+        self, target_frame: pygame.Surface, direction: int, cord
     ) -> None:
         target_px = pygame.surfarray.array2d(target_frame)
         pixel_array = target_px
@@ -46,7 +42,7 @@ class TrailManager:
 
     def apply_trail(
         self,
-        working_surf: Surface,
+        working_surf: pygame.Surface,
         target_id,
         target_frame,
         trail_lenght,
@@ -75,7 +71,9 @@ class TrailManager:
 
         trail.trail_list = new_list
 
-    def make_slice(self, pixel_array: np.ndarray, ratio: float) -> Surface:
+    def make_slice(
+        self, pixel_array: np.ndarray, ratio: float
+    ) -> pygame.Surface:
         h, w = pixel_array.shape
         is_horizontal = w == 1
         lenght = h if is_horizontal else w

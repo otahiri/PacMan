@@ -1,10 +1,5 @@
-from sys import int_info
-
 import numpy
 from pygame import Surface, surfarray
-from typing import Union
-from src.mobs import Blinky, Player
-
 from src.render import Renderer
 
 

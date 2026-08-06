@@ -1,6 +1,8 @@
 import sys
+import json
 from pathlib import Path
 from typing import Annotated, Literal
+from pydantic_core import PydanticCustomError
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -10,9 +12,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-import json
-
-from pydantic_core import PydanticCustomError
 
 ScoreName = Annotated[
     str,
@@ -77,7 +76,8 @@ class GameConfig(BaseModel):
                 if not isinstance(score, int) or score < 0:
                     raise PydanticCustomError(
                         "invalid_score_type",
-                        "score value must be a non negative integer, for '{player}' got '{val}'",
+                        "score value must be a non negative integer, "
+                        "for '{player}' got '{val}'",
                         {"player": name, "val": score},
                     )
                 scores.update({name.lower(): str(score)})
@@ -110,9 +110,11 @@ class Parser:
         with open(file) as f:
             for line in f:
                 if "#" in line:
-                    line = line[0 : line.index("#")]
+                    command_idx = line.index("#")
+                    line = line[0:command_idx]
                 if "//" in line:
-                    line = line[0 : line.index("//")]
+                    command_idx = line.index("//")
+                    line = line[0:command_idx]
                 content += line
 
         return content
@@ -128,7 +130,6 @@ class Parser:
                     f"Invalid config file extension '{file}'. Must be .json"
                 )
             file_conent = Parser.get_file_content(file)
-
             game_config = GameConfig.model_validate_json(file_conent)
 
             return game_config
@@ -136,11 +137,7 @@ class Parser:
         except ValidationError as e:
             print("File:", current_file.absolute())
             for error in e.errors():
-                loc = (
-                    " -> ".join(str(l) for l in error["loc"])
-                    if error["loc"]
-                    else "Config"
-                )
+                loc = error["loc"][0] if error["loc"] else "Config"
                 msg = error["msg"]
                 if msg.startswith("Value error, "):
                     msg = msg.removeprefix("Value error, ")

@@ -12,7 +12,7 @@ class Renderer:
         )
         print("initialize Renderer")
 
-    def clear(self):
+    def clear(self) -> None:
         self.__window.fill((0, 0, 0))
 
     @staticmethod
@@ -43,7 +43,7 @@ class Renderer:
         del src_px
 
     @staticmethod
-    def fill(dest: pygame.Surface, color: str):
+    def fill(dest: pygame.Surface, color: str) -> None:
         color_hex = name_to_hex(color)[1:]
         dest_px = pygame.surfarray.pixels2d(dest)
         colored_rect = np.full_like(dest_px, color_hex)
@@ -52,7 +52,7 @@ class Renderer:
         del colored_rect
         del dest_px
 
-    def draw_debug(self):
+    def draw_debug(self) -> None:
         pygame.draw.line(
             self.__window,
             "red",
@@ -152,7 +152,7 @@ class Renderer:
         self,
         source: pygame.Surface,
         pos: tuple[int, int],
-    ):
+    ) -> None:
         self.__window.blit(source, pos)
 
     @classmethod
@@ -182,7 +182,7 @@ class Renderer:
 
         return scaled_surface
 
-    def update_window(self):
+    def update_window(self) -> None:
         pygame.display.flip()
 
     @classmethod

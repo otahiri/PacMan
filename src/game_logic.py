@@ -1,6 +1,5 @@
 from typing import Union
 import numpy
-from src.models import Character
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import Direction, DisplayInfo, GhostState, PlayerState
@@ -104,7 +103,9 @@ class GameLogic:
                     mob if mob.state == GhostState.FRIGHTENED else self.player
                 )
                 victim.die()
-                self.shake.erase_frame(self.scale, self.working_surf, victim.id)
+                self.shake.erase_frame(
+                    self.scale, self.working_surf, victim.id
+                )
                 self.shake.del_shake(victim.id)
                 return
         gum = self.maze.get_gum(p_x, p_y)

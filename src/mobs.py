@@ -1,7 +1,4 @@
-from os import sched_setaffinity
 import random
-from typing_extensions import Sentinel
-
 from src.enums import Direction, PlayerState, GhostState
 from src.models import Character
 from src import Cell
@@ -98,7 +95,7 @@ class Player(Character):
         self.prev_sprite = self.get_sprite(0)
         self.hover = 2
 
-    def die(self):
+    def die(self) -> None:
         self.state = PlayerState.DEAD
         self.dead = True
 
@@ -135,7 +132,7 @@ class Player(Character):
                 self.death_frame += 1
         return animation
 
-    def choose_direction(self):
+    def choose_direction(self) -> None:
         """choose the new direction"""
         self.bit_y = self.v_y // (self.scaled_v_step_y)
         self.bit_x = self.v_x // (self.scaled_v_step_x)
@@ -167,7 +164,7 @@ class Player(Character):
 
         return can_move
 
-    def update_visual_cord(self):
+    def update_visual_cord(self) -> None:
         """update the visual cords"""
         dx, dy, shift = self.direction.value
         max_x = self.max_x
@@ -282,7 +279,14 @@ class Blinky(Character):
             for d in Direction
             if d is not Direction.NONE
         ]
-        self.dead_sprite = [Renderer.scale_surface(pygame.image.load(f"assets/mobs/dead/{i}.png"), (16, 16), self.scale) for i in range(6)]
+        self.dead_sprite = [
+            Renderer.scale_surface(
+                pygame.image.load(f"assets/mobs/dead/{i}.png"),
+                (16, 16),
+                self.scale,
+            )
+            for i in range(6)
+        ]
         self.reset_cords()
         self.player = anchors[0]
         self.frame = 0
@@ -291,7 +295,7 @@ class Blinky(Character):
         self.death_frame = 0
         self.respawn_timer = 0
 
-    def reset_cords(self):
+    def reset_cords(self) -> None:
         """reset the cords of character to the origin"""
         self.direction = Direction.NONE
         x, y = self.origin
@@ -313,7 +317,7 @@ class Blinky(Character):
         )
         return target
 
-    def choose_direction(self):
+    def choose_direction(self) -> None:
         """choose a direction depending on the target"""
         if self.state == GhostState.DEAD:
             t_x, t_y = self.origin
@@ -353,7 +357,7 @@ class Blinky(Character):
             valid_direction.sort(key=lambda x: x[0])
             self.direction = valid_direction[0][1]
 
-    def panic_direction(self):
+    def panic_direction(self) -> None:
         """direction algo when the ghost is in panic mode"""
         possible_directions = []
         for d in Direction:
@@ -375,7 +379,7 @@ class Blinky(Character):
     def die(self) -> None:
         self.state = GhostState.DEAD
 
-    def update_visual_cord(self):
+    def update_visual_cord(self) -> None:
         """change the visual cords"""
         dx, dy, shift = self.direction.value
         min_x = 0
@@ -497,8 +501,8 @@ class Pinky(Blinky):
     def choose_target(
         self,
     ) -> tuple:
-        """get the cord of the tile 4 steps infront  of the player if in chase mode
-        else the corner
+        """get the cord of the tile 4 steps infront of
+        the player if in chase mode else the corner
 
         Returns:
             the tuple representing the cord of the target
@@ -542,7 +546,8 @@ class Clyde(Blinky):
     def choose_target(
         self,
     ) -> tuple:
-        """get the cord of the player if the it is within 8 tiles from clyde else the cord of the corner
+        """get the cord of the player if the it is within
+        8 tiles from clyde else the cord of the corner
 
         Returns:
             the cord of the chosen target

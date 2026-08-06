@@ -1,5 +1,4 @@
 import pygame
-import time
 from src.enums import SceneName
 from src.models import Scene
 from src.parsing import GameConfig
@@ -79,7 +78,6 @@ class MainGame:
 
             self.renderer.clear()
             scene.render_scene(self.renderer)
-            self.renderer.draw_debug()
+            # self.renderer.draw_debug()
 
             self.renderer.update_window()
-            time.sleep(0.001)
