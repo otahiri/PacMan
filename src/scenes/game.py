@@ -85,16 +85,8 @@ class GameScene(Scene):
             return {"next_scene": SceneName.SCORE_ENTRY, "score": self.score}
 
         for event in events:
-            if event.type == pygame.QUIT:
-                self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    return {
-                        "next_scene": SceneName.SCORE_ENTRY,
-                        "score": self.score,
-                    }
-
-                elif event.key in [pygame.K_w, pygame.K_UP]:
+            if event.type == pygame.KEYDOWN:
+                if event.key in [pygame.K_w, pygame.K_UP]:
                     self.game_logic.new_move = Direction.NORTH
                 elif event.key in [pygame.K_s, pygame.K_DOWN]:
                     self.game_logic.new_move = Direction.SOUTH
@@ -103,9 +95,4 @@ class GameScene(Scene):
                 elif event.key in [pygame.K_a, pygame.K_LEFT]:
                     self.game_logic.new_move = Direction.WEST
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return {
-                    "next_scene": SceneName.SCORE_ENTRY,
-                    "score": self.score,
-                }
         return {"next_scene": None}

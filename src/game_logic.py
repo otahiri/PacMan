@@ -1,6 +1,5 @@
 from typing import Union
 import numpy
-from src.models import Character
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import Direction, DisplayInfo, GhostState, PlayerState
@@ -86,8 +85,8 @@ class GameLogic:
             )
         )
         self.maze_surf = self.maze.render_maze(self.scale)
+        self.gum_count = self.maze.load_gums(self.working_surf)
         Renderer.custom_blit(self.working_surf, self.maze_surf, (0, 0))
-        self.maze.load_gums(self.working_surf)
         self.new_move = Direction.NONE
 
     def handle_collision(self) -> None:
@@ -104,7 +103,9 @@ class GameLogic:
                     mob if mob.state == GhostState.FRIGHTENED else self.player
                 )
                 victim.die()
-                self.shake.erase_frame(self.scale, self.working_surf, victim.id)
+                self.shake.erase_frame(
+                    self.scale, self.working_surf, victim.id
+                )
                 self.shake.del_shake(victim.id)
                 return
         gum = self.maze.get_gum(p_x, p_y)
@@ -113,7 +114,12 @@ class GameLogic:
                 self.global_mode = GhostState.FRIGHTENED
                 self.change_mode()
             self.score += gum.score
-            self.maze.set_gum(p_x, p_y)
+            self.maze.remove_gum(p_x, p_y)
+            self.gum_count -= 1
+            if not self.gum_count:
+                self.level += 1
+                self.reset_maze()
+                self.maze.set_gums(self.scale)
 
     def get_score(self) -> int:
         return self.score
@@ -136,8 +142,8 @@ class GameLogic:
             else GameLogic.WAVES_AFTER_FIFTH
         )
         new_mode = waves[0][1]
-        for thresh_hold, mode in waves:
-            if self.time_stamp > thresh_hold:
+        for threshold, mode in waves:
+            if self.time_stamp > threshold:
                 new_mode = mode
             else:
                 break
@@ -157,7 +163,9 @@ class GameLogic:
             mob.state = self.global_mode
             mob.respawn_timer = 0
             mob.death_frame = 0
+
         self.player.reset_cords()
+        self.player.direction = Direction.NONE
         self.change_frame(self.working_surf, self.player, 0)
         self.player.dead = False
         self.hearts -= 1
@@ -167,7 +175,7 @@ class GameLogic:
 
     def change_mode(self):
         for mob in self.mobs:
-            if mob.state == GhostState.RESPAWN:
+            if mob.state in [GhostState.RESPAWN, GhostState.DEAD]:
                 continue
             mob.state = self.global_mode
 
@@ -254,12 +262,15 @@ class GameLogic:
             )
             self.death_timer += 1
         else:
-            if self.hearts <= 0:
-                self.game_over = True
-                return
             self.change_frame(self.working_surf, self.player, frame)
             if self.player.death_frame >= 9:
                 self.reset_maze()
+                if self.hearts <= 0:
+                    self.game_over = True
+                    self.reset_maze()
+                    self.maze.set_gums(self.scale)
+                    self.hearts = 3
+                    return
 
     def erase_frame(
         self, dest: pygame.Surface, character: Union[Player, Blinky]

@@ -77,7 +77,7 @@ class Maze:
     def get_gum(self, x: int, y: int) -> Union[Gum, SuperGum]:
         return self.cell_grid[y][x].content
 
-    def set_gum(self, x: int, y: int) -> None:
+    def remove_gum(self, x: int, y: int) -> None:
         self.cell_grid[y][x].content = None
 
     def set_gums(self, scale) -> None:
@@ -173,12 +173,14 @@ class Maze:
                     )
         return maze_surface
 
-    def load_gums(self, maze_surface) -> None:
+    def load_gums(self, maze_surface) -> int:
+        gum_count = 0
         for y, row in enumerate(self.cell_grid):
             cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):
                 cord_x = x * self.scaled_v_step_x
                 if cell.content:
+                    gum_count += 1
                     Renderer.custom_blit(
                         maze_surface,
                         cell.content.sprite,
@@ -187,3 +189,4 @@ class Maze:
                             cord_y + self.scaled_half_v_step_y,
                         ),
                     )
+        return gum_count
