@@ -35,6 +35,9 @@ class GameScene(Scene):
 
         self.running = True
 
+    def __repr__(self) -> str:
+        return "GameScene"
+
     def update_score(self) -> None:
         self.score_text = Text(
             str(self.score),
@@ -78,11 +81,14 @@ class GameScene(Scene):
                 ),
             )
 
-    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
 
     def handle_events(self, events: list[Event]) -> dict[str, Any]:
         if self.game_logic.game_over:
-            return {"next_scene": SceneName.SCORE_ENTRY, "score": self.score}
+            return {
+                "pop": True,
+                "next_scene": SceneName.SCORE_ENTRY,
+                "score": self.score,
+            }
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -90,6 +96,7 @@ class GameScene(Scene):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     return {
+                        "pop": True,
                         "next_scene": SceneName.SCORE_ENTRY,
                         "score": self.score,
                     }
@@ -105,7 +112,8 @@ class GameScene(Scene):
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 return {
+                    "pop": True,
                     "next_scene": SceneName.SCORE_ENTRY,
                     "score": self.score,
                 }
-        return {"next_scene": None}
+        return {"pop": False, "next_scene": None}

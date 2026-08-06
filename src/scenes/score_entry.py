@@ -9,22 +9,24 @@ from src.models import Cursor, LetterButton, NameFrame, Scene, Text
 
 
 class ScoreEntryScene(Scene):
-    def __init__(self, heighscores_path: Path) -> None:
-        print("initialize ScoreEntryScene")
+    def __init__(self, heighscores_path: Path, score: int) -> None:
         width, height = (
             DisplayInfo.SCREEN_WIDTH.value,
             DisplayInfo.SCREEN_HEIGHT.value,
         )
         self.heighscores_path = heighscores_path
         self.text = Text("score entry", (width // 2, height // 6), "white")
-        self.score: int = 0
+        self.score = score
         self.score_text = Text(
-            "your score is 0", (width // 2, height // 2 - 200), "white"
+            f"your score is {score}", (width // 2, height // 2 - 200), "white"
         )
 
         self.keyboard = self.__get_keyboard_letters()
         self.cursor = Cursor()
         self.name_frame = NameFrame()
+
+    def __repr__(self) -> str:
+        return "ScoreEntryScene"
 
     def __get_keyboard_letters(
         self,
@@ -209,31 +211,15 @@ class ScoreEntryScene(Scene):
             self.name_frame.update_name(self.cursor.letter_hover)
         return False
 
-    def get_scene_arguments(self, arguments: dict[str, Any]) -> None:
-        score = arguments.get("score")
-        width, height = (
-            DisplayInfo.SCREEN_WIDTH.value,
-            DisplayInfo.SCREEN_HEIGHT.value,
-        )
-        if score:
-
-            self.score = score
-            self.score_text = Text(
-                f"your score is {score}",
-                (width // 2, height // 6 - 100),
-                "white",
-            )
-
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     if self.__press_action():
                         return {
+                            "pop": True,
                             "next_scene": SceneName.MAIN_MENU,
-                            "new_score": {
-                                self.name_frame.name: str(self.score)
-                            },
+                            "new_recorder": (self.name_frame.name, self.score),
                         }
 
                 elif event.key == pygame.K_RIGHT:
@@ -246,6 +232,7 @@ class ScoreEntryScene(Scene):
                     self.__move_cursor("up")
                 elif event.key == pygame.K_DOWN:
                     self.__move_cursor("down")
+
             elif event.type == pygame.MOUSEMOTION:
                 for button in self.keyboard:
                     if button.is_collide(pygame.mouse.get_pos()):
@@ -258,7 +245,8 @@ class ScoreEntryScene(Scene):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.__press_action():
                     return {
+                        "pop": True,
                         "next_scene": SceneName.MAIN_MENU,
-                        "new_score": {self.name_frame.name: str(self.score)},
+                        "new_recorder": (self.name_frame.name, self.score),
                     }
-        return {"next_scene": None}
+        return {"pop": False, "next_scene": None}

@@ -22,7 +22,7 @@ ScoreName = Annotated[
 class GameConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    heighscores: dict[ScoreName, str] = {}
+    heighscores: dict[ScoreName, NonNegativeInt] = {}
     heighscores_path: Path
 
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
@@ -80,7 +80,13 @@ class GameConfig(BaseModel):
                         "for '{player}' got '{val}'",
                         {"player": name, "val": score},
                     )
-                scores.update({name.lower(): str(score)})
+                if any(c.isupper() for c in name):
+                    raise PydanticCustomError(
+                        "invalid_player_name",
+                        "player name must be lowercase, got '{player}'",
+                        {"player": name},
+                    )
+                scores.update({name: score})
             self.heighscores = scores
             return self
 

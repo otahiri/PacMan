@@ -1,7 +1,7 @@
 from typing import Any
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, DisplayInfo
+from src.enums import Asset, DisplayInfo, SceneName
 from src.render import Renderer
 
 
@@ -29,11 +29,13 @@ class Button:
 
 class Text:
 
-    def __init__(self, text: str, pos: tuple[int, int], color: str) -> None:
+    def __init__(
+        self, label: str, pos: tuple[int, int], color: str, scale: int = 5
+    ) -> None:
 
-        self.text = text
-        self.surf, self.size = Renderer.get_text(text, 5, color)
+        self.label = label
         self.pos = pos
+        self.surf, self.size = Renderer.get_text(label, scale, color)
 
 
 class LetterButton:
@@ -124,15 +126,11 @@ class NameFrame:
 
 
 class Scene(ABC):
-
     @abstractmethod
     def render_scene(self, renderer: Renderer) -> None: ...
 
     @abstractmethod
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]: ...
-
-    @abstractmethod
-    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
 
 
 class Corner:

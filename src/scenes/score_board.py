@@ -7,8 +7,8 @@ from src.render import Renderer
 
 
 class ScoreboardScene(Scene):
-    def __init__(self) -> None:
-        print("initialize ScoreboardScene")
+
+    def __init__(self, scores: dict[str, int]) -> None:
         self.text = Text(
             "score board",
             (
@@ -17,12 +17,8 @@ class ScoreboardScene(Scene):
             ),
             "white",
         )
-
         self.scores: list[tuple[Text, Text]] = []
 
-    def __set_scores(self, scores: dict[str, str]):
-
-        self.scores.clear()
         padding = 200
         i = 0
         for name, score in scores.items():
@@ -32,13 +28,16 @@ class ScoreboardScene(Scene):
                 (
                     Text(name, (padding, y), "white"),
                     Text(
-                        score,
+                        str(score),
                         (DisplayInfo.SCREEN_WIDTH.value - padding, y),
                         "white",
                     ),
                 )
             )
             i += 1
+
+    def __repr__(self) -> str:
+        return "ScoreboardScene"
 
     def render_scene(self, renderer: Renderer) -> None:
         renderer.render(
@@ -53,18 +52,12 @@ class ScoreboardScene(Scene):
                 Renderer.get_pos(score.pos, score.size, "rightcenter"),
             )
 
-    def get_scene_arguments(self, arguments: dict[str, Any]) -> None:
-        scores = arguments.get("scores")
-        if scores:
-            self.__set_scores(scores)
-            print("score updated")
-
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                return {"next_scene": SceneName.MAIN_MENU}
+                return {"pop": True, "next_scene": SceneName.MAIN_MENU}
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return {"next_scene": SceneName.MAIN_MENU}
-        return {"next_scene": None}
+                    return {"pop": True, "next_scene": SceneName.MAIN_MENU}
+        return {"pop": False, "next_scene": None}

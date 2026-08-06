@@ -1,3 +1,4 @@
+from typing import Any
 import pygame
 from src.enums import SceneName
 from src.models import Scene
@@ -13,32 +14,70 @@ from src.scenes.score_entry import ScoreEntryScene
 class MainGame:
     def __init__(self, game_config: GameConfig) -> None:
         print("initialize MainGame")
-        self.scores: dict[str, str] = {}
-        self.game_config = game_config
-        self.__set_scores(game_config.heighscores)
-
-        self.renderer: Renderer = Renderer()
-
-        self.scenes: dict[SceneName, Scene] = {
-            SceneName.MAIN_MENU: MainMenuScene(),
-            SceneName.GAME: GameScene(),
-            SceneName.SCORE_ENTRY: ScoreEntryScene(
-                game_config.heighscores_path
-            ),
-            SceneName.SCOREBOARD: ScoreboardScene(),
-            SceneName.OPTIONS: OptionsScene(),
+        self.scores: dict[str, int] = {
+            k: v
+            for k, v in sorted(
+                game_config.heighscores.items(),
+                key=lambda x: x[1],
+                reverse=True,
+            )[:10]
         }
-        self.current_scene: SceneName = SceneName.MAIN_MENU
+        self.game_config = game_config
+        self.renderer: Renderer = Renderer()
+        self.scene_stack: list[Scene] = [MainMenuScene()]
 
-    def __set_scores(self, scores: dict[str, str]):
+    def __update_score(self, new_recorder: tuple[str, int]):
+        scores = self.scores
+        name, score = new_recorder
+
+        old_score = scores.get(name)
+
+        if old_score and score <= old_score:
+            return
+
+        scores[name] = score
+
         self.scores = {
             k: v
             for k, v in sorted(
                 scores.items(),
-                key=lambda x: int(x[1]),
+                key=lambda x: x[1],
                 reverse=True,
             )[:10]
         }
+
+    def __navigate(self, arguments: dict[str, Any]):
+        next_scene: SceneName | None = arguments.get("next_scene")
+        new_recorder: tuple[str, int] | None = arguments.get("new_recorder")
+        last_score: int = arguments.get("score", 0)
+
+        if new_recorder:
+            self.__update_score(new_recorder)
+
+        if arguments.get("pop"):
+            print("pop:", self.scene_stack[-1])
+            self.scene_stack.pop()
+
+        match next_scene:
+            case SceneName.GAME:
+                self.scene_stack.append(GameScene())
+                print("insert:", self.scene_stack[-1])
+
+            case SceneName.SCOREBOARD:
+                self.scene_stack.append(ScoreboardScene(self.scores))
+                print("insert:", self.scene_stack[-1])
+
+            case SceneName.SCORE_ENTRY:
+                self.scene_stack.append(
+                    ScoreEntryScene(
+                        self.game_config.heighscores_path, last_score
+                    )
+                )
+                print("insert:", self.scene_stack[-1])
+
+            case SceneName.OPTIONS:
+                self.scene_stack.append(OptionsScene())
+                print("insert:", self.scene_stack[-1])
 
     def game_loop(self) -> None:
         running = True
@@ -51,31 +90,10 @@ class MainGame:
                     if event.key == pygame.K_q:
                         running = False
 
-            scene: Scene = self.scenes[self.current_scene]
+            scene = self.scene_stack[-1]
 
             scene_arguments = scene.handle_events(events)
-            next_scene: SceneName | None = scene_arguments.get("next_scene")
-
-            new_score: dict[str, str] | None = scene_arguments.get("new_score")
-
-            if new_score:
-                self.scores.update(new_score)
-                self.__set_scores(self.scores)
-
-            if next_scene:
-                self.current_scene = next_scene
-                scene = self.scenes[next_scene]
-
-                if next_scene == SceneName.SCOREBOARD:
-                    scene.get_scene_arguments({"scores": self.scores})
-
-                elif next_scene == SceneName.SCORE_ENTRY:
-                    scene.get_scene_arguments(
-                        {"scores_path": self.game_config.heighscores_path}
-                    )
-
-                scene.get_scene_arguments(scene_arguments)
-
+            self.__navigate(scene_arguments)
             self.renderer.clear()
             scene.render_scene(self.renderer)
             # self.renderer.draw_debug()

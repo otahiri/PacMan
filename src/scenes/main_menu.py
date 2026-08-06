@@ -1,15 +1,12 @@
 from typing import Any
-
 import pygame
 from src.enums import DisplayInfo, SceneName
-from src.models import Scene
-from src.models import Button
+from src.models import Button, Scene
 from src.render import Renderer
 
 
 class MainMenuScene(Scene):
     def __init__(self) -> None:
-        print("initialize MainMenuScene")
 
         self.buttons: list[Button] = []
 
@@ -24,6 +21,9 @@ class MainMenuScene(Scene):
 
         self.button_idx = 0
 
+    def __repr__(self) -> str:
+        return "MainMenuScene"
+
     def render_scene(self, renderer: Renderer) -> None:
         for i, button in enumerate(self.buttons):
 
@@ -37,7 +37,6 @@ class MainMenuScene(Scene):
                 Renderer.get_pos(button.text.pos, button.text.size),
             )
 
-    def get_scene_arguments(self, arguments: dict[str, Any]) -> None: ...
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
 

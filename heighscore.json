@@ -1,13 +1,12 @@
 {
-    "PacMan": 100,
-    "Blinky": 90,
-    "Pinky": 80,
-    "Inky": 70,
-    "Clyde": 60,
-    "Shadow": 50,
-    "Speedy": 40,
-    "Bashful": 30,
-    "Pokey": 20,
-    "Player1": 10,
+    "pacman": 260,
+    "blinky": 90,
+    "pinky": 80,
+    "inky": 70,
+    "clyde": 60,
+    "shadow": 50,
+    "speedy": 40,
+    "bashful": 30,
+    "pokey": 50,
     "sa3d": 1020
 }
