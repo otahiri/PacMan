@@ -6,7 +6,7 @@ from pygame.event import Event
 from src import Direction
 from src.enums import Asset, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
-from src.models import Scene, Text
+from src.models import Heart, Scene, Text
 from src.render import Renderer
 from src.game_logic import GameLogic
 
@@ -16,21 +16,16 @@ class GameScene(Scene):
 
         scale = 2
         self.score = 0
+        self.screen_w = DisplayInfo.SCREEN_WIDTH.value
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
-        self.title_text = Text(
-            "score", (DisplayInfo.SCREEN_WIDTH.value // 2, 10), "white"
-        )
+        self.title_text = Text("score", (self.screen_w // 2, 10), "white")
         self.score_text = Text(
             str(self.score),
-            (DisplayInfo.SCREEN_WIDTH.value // 2, 75),
+            (self.screen_w // 2, 75),
             "white",
         )
-        self.heart_surf = Renderer.scale_surface(
-            pygame.image.load("assets/hart.png"),
-            (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
-            5,
-        )
+        self.heart = Heart()
         self.last_time = time.perf_counter()
 
         self.running = True
@@ -41,7 +36,7 @@ class GameScene(Scene):
     def update_score(self) -> None:
         self.score_text = Text(
             str(self.score),
-            (DisplayInfo.SCREEN_WIDTH.value // 2, 75),
+            (self.screen_w // 2, 75),
             "white",
         )
 
@@ -72,15 +67,9 @@ class GameScene(Scene):
             ),
         )
         for i in range(self.game_logic.hearts):
-            renderer.render(
-                self.heart_surf,
-                (
-                    (Asset.HEART_WIDTH.value + 2) * 5 * i,
-                    DisplayInfo.SCREEN_HEIGHT.value
-                    - (Asset.HEART_HEIGHT.value * 5 + 5),
-                ),
-            )
-
+            x = (Asset.HEART_WIDTH.value + 2) * 5 * i
+            y = 0
+            renderer.render(self.heart.surf, (x, y))
 
     def handle_events(self, events: list[Event]) -> dict[str, Any]:
         if self.game_logic.game_over:

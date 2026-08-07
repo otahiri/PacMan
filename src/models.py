@@ -125,6 +125,16 @@ class NameFrame:
         self.text = Text(self.name, self.pos, "white")
 
 
+class Heart:
+    def __init__(self) -> None:
+        scale = 5
+        self.surf = Renderer.scale_surface(
+            pygame.image.load("assets/hart.png"),
+            (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
+            scale,
+        )
+
+
 class Scene(ABC):
     @abstractmethod
     def render_scene(self, renderer: Renderer) -> None: ...
