@@ -30,7 +30,7 @@ class GameConfig(BaseModel):
     points_per_pacgum: NonNegativeInt = 10
     points_per_ghost: NonNegativeInt = 200
     points_per_super_pacgum: NonNegativeInt = 100
-    seed: NonNegativeInt | None = None
+    seed: int = -1
     levels_number: NonNegativeInt = 10
 
     @field_validator("heighscores_path", mode="before")

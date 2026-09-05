@@ -7,7 +7,7 @@ from webcolors import name_to_hex
 class Renderer:
     def __init__(self) -> None:
 
-        self.__window = pygame.display.set_mode(
+        self.__window: pygame.surface.Surface = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
         print("initialize Renderer")
@@ -16,8 +16,11 @@ class Renderer:
         self.fill(self.__window, "black")
 
     @staticmethod
-    def fill(dest: pygame.Surface, color: str):
-        color_hex = name_to_hex(color)[1:]
+    def fill(dest: pygame.Surface | pygame.surface.Surface, color: str):
+        try:
+            color_hex = name_to_hex(color)[1:]
+        except ValueError:
+            color_hex = name_to_hex("black")[1:]
         dest_px = pygame.surfarray.pixels2d(dest)
         colored_rect = np.full_like(dest_px, color_hex)
         mask = dest_px != 0

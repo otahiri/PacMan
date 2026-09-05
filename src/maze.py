@@ -18,7 +18,7 @@ class Maze:
         cell_grid: grid containing all cells
     """
 
-    def __init__(self, maze: MazeGenerator, scale: int) -> None:
+    def __init__(self, maze: MazeGenerator, super_gum_score, gum_score, scale: int) -> None:
         """maze constructor
 
         Args:
@@ -35,6 +35,8 @@ class Maze:
         self.corner_images: dict = {}
         self.maze = maze
         self.bit_maze = maze.maze
+        self.super_gum_score = super_gum_score
+        self.gum_score = gum_score
         for i in range(16):
             self.corner_images[i] = Renderer.scale_surface(
                 pygame.image.load(f"{asset_path}{i}.png"), (16, 16), scale
@@ -96,9 +98,9 @@ class Maze:
                     continue
                 if cell.bit_value != 15:
                     cell.content = (
-                        Gum(10, cell.cord, gum)
+                        Gum(self.gum_score, cell.cord, gum)
                         if cell.cord not in corners
-                        else SuperGum(100, cell.cord, super_gum)
+                        else SuperGum(self.super_gum_score, cell.cord, super_gum)
                     )
 
     def render_maze(self, scale: int) -> pygame.Surface:

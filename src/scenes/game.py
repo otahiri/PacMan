@@ -7,17 +7,18 @@ from src import Direction
 from src.enums import Asset, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene, Text
+from src.parsing import GameConfig
 from src.render import Renderer
 from src.game_logic import GameLogic
 
 
 class GameScene(Scene):
-    def __init__(self) -> None:
+    def __init__(self, game_config: GameConfig) -> None:
 
         scale = 2
         self.score = 0
         self.logical_maze = MazeGenerator()
-        self.game_logic = GameLogic(scale)
+        self.game_logic = GameLogic(game_config, scale)
         self.title_text = Text(
             "score", (DisplayInfo.SCREEN_WIDTH.value // 2, 10), "white"
         )

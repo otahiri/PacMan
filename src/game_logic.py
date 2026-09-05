@@ -1,5 +1,6 @@
 from typing import Union
 import numpy
+from src.parsing import GameConfig
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import Direction, DisplayInfo, GhostState, PlayerState
@@ -49,10 +50,18 @@ class GameLogic:
 
     def __init__(
         self,
+        game_config: GameConfig,
         scale: int,
     ) -> None:
+        self.game_config = game_config
         self.scale = scale
-        self.maze = Maze(MazeGenerator(), scale)
+        seed = self.game_config.seed | 0
+        self.maze = Maze(
+            MazeGenerator(seed=self.game_config.seed),
+            game_config.points_per_super_pacgum,
+            game_config.points_per_pacgum,
+            scale,
+        )
         self.game_over = False
         self.shake = Shake()
         self.frame = 0
@@ -102,6 +111,8 @@ class GameLogic:
                 victim = (
                     mob if mob.state == GhostState.FRIGHTENED else self.player
                 )
+                if isinstance(victim, Blinky):
+                    self.score += self.game_config.points_per_ghost
                 victim.die()
                 self.shake.erase_frame(
                     self.scale, self.working_surf, victim.id
