@@ -77,7 +77,10 @@ class GameConfig(BaseModel):
                 if not isinstance(score, int) or score < 0:
                     raise PydanticCustomError(
                         "invalid_score_type",
-                        "score value must be a non negative integer, for '{player}' got '{val}'",
+                        (
+                            "score value must be a non negative integer,"
+                            + " for '{player}' got '{val}'"
+                        ),
                         {"player": name, "val": score},
                     )
                 scores.update({name.lower(): str(score)})
@@ -110,9 +113,9 @@ class Parser:
         with open(file) as f:
             for line in f:
                 if "#" in line:
-                    line = line[0 : line.index("#")]
+                    line = line[0: line.index("#")]
                 if "//" in line:
-                    line = line[0 : line.index("//")]
+                    line = line[0: line.index("//")]
                 content += line
 
         return content

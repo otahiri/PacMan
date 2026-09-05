@@ -2,10 +2,8 @@ from typing import Any
 
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, DisplayInfo, GhostState, SceneName
+from src.enums import Asset, DisplayInfo
 from src.render import Renderer
-
-from typing import Any
 
 
 class Button:
@@ -220,7 +218,8 @@ class Character(ABC):
         self.scaled_half_v_step_x = 16 * scale
         self.max_y = len(self.maze) * self.scaled_v_step_y
         self.max_x = len(self.maze[0]) * self.scaled_v_step_x
-        self.origin = origin
+        self.origin: tuple[int, int] = origin
+        self.anchors = anchors
 
     @abstractmethod
     def get_sprite(self, frame: int) -> pygame.Surface: ...
@@ -239,7 +238,6 @@ class Character(ABC):
 
     @abstractmethod
     def die(self) -> None: ...
-
 
 
 class Gum:

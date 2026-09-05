@@ -1,6 +1,4 @@
-from os import sched_setaffinity
 import random
-from typing_extensions import Sentinel
 
 from src.enums import Direction, PlayerState, GhostState
 from src.models import Character
@@ -139,7 +137,7 @@ class Player(Character):
         """choose the new direction"""
         self.bit_y = self.v_y // (self.scaled_v_step_y)
         self.bit_x = self.v_x // (self.scaled_v_step_x)
-        dx, dy, shift = self.new_direction.value
+        _, _, shift = self.new_direction.value
         if (1 << shift) & self.maze[self.bit_y][self.bit_x].bit_value == 0:
             self.direction = (
                 self.new_direction if not self.dead else self.direction
@@ -156,7 +154,7 @@ class Player(Character):
             bool representing if the character can change direction or not
         """
         can_move = False
-        dx, dy, shift = self.direction.value
+        _, _, shift = self.direction.value
         if is_centered:
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
@@ -169,7 +167,7 @@ class Player(Character):
 
     def update_visual_cord(self):
         """update the visual cords"""
-        dx, dy, shift = self.direction.value
+        dx, dy, _ = self.direction.value
         max_x = self.max_x
         max_y = self.max_y
         new_x = ((dx * self.speed) * self.scale) + self.v_x
@@ -199,7 +197,6 @@ class Player(Character):
         )
         if is_centered:
             self.choose_direction()
-        dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
@@ -282,19 +279,36 @@ class Blinky(Character):
             for d in Direction
             if d is not Direction.NONE
         ]
-        self.dead_sprite = [Renderer.scale_surface(pygame.image.load(f"assets/mobs/dead/{i}.png"), (16, 16), self.scale) for i in range(6)]
+        self.dead_sprite = [
+            Renderer.scale_surface(
+                pygame.image.load(f"assets/mobs/dead/{i}.png"),
+                (16, 16),
+                self.scale,
+            )
+            for i in range(6)
+        ]
+        self.respawn_sprite = self.dead_sprite[::-1]
         self.reset_cords()
-        self.player = anchors[0]
         self.frame = 0
-        self.anchors: list = anchors
+        self.player = self.anchors[0]
         self.prev_sprite = self.get_sprite(0)
         self.death_frame = 0
         self.respawn_timer = 0
+        self.respawn_frame = 0
 
-    def reset_cords(self):
+    def reset_cords(self) -> None:
         """reset the cords of character to the origin"""
         self.direction = Direction.NONE
         x, y = self.origin
+        self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
+        self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
+        self.bit_y: int = y
+        self.bit_x = x
+
+    def leave_maze(self) -> None:
+        self.direction = Direction.NONE
+        y: int = self.max_y // 2 - 1
+        x: int = self.max_x // 2 - 1
         self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
         self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
         self.bit_y = y
@@ -359,7 +373,7 @@ class Blinky(Character):
         for d in Direction:
             if d == Direction.NONE:
                 continue
-            dx, dy, shift = d.value
+            _, _, shift = d.value
             if self.maze[self.bit_y][self.bit_x].bit_value & 1 << shift == 0:
                 possible_directions.append(d)
         valid_direction = [
@@ -377,7 +391,7 @@ class Blinky(Character):
 
     def update_visual_cord(self):
         """change the visual cords"""
-        dx, dy, shift = self.direction.value
+        dx, dy, _ = self.direction.value
         min_x = 0
         min_y = 0
         max_x = self.max_x
@@ -400,7 +414,7 @@ class Blinky(Character):
             bool representing if it is possible to change direction
         """
         can_move = False
-        dx, dy, shift = self.direction.value
+        _, _, shift = self.direction.value
         if is_centered:
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
@@ -423,9 +437,19 @@ class Blinky(Character):
             sprite = self.dead_sprite[self.death_frame]
             if frame % 5 == 0:
                 self.death_frame += 1
-            if self.death_frame >= 6:
+            if self.death_frame >= 5:
                 self.death_frame = 0
                 self.state = GhostState.RESPAWN
+                self.leave_maze()
+            self.prev_sprite = sprite
+            return sprite
+        elif self.state == GhostState.SPAWNING:
+            sprite = self.respawn_sprite[self.respawn_frame]
+            if frame % 5 == 0:
+                self.respawn_frame += 1
+            if self.respawn_frame >= 5:
+                self.state = GhostState.CHASE
+                self.respawn_frame = 0
             self.prev_sprite = sprite
             return sprite
         if self.player.dead:
@@ -440,7 +464,6 @@ class Blinky(Character):
                 self.panic_direction()
             else:
                 self.choose_direction()
-        dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
@@ -497,8 +520,8 @@ class Pinky(Blinky):
     def choose_target(
         self,
     ) -> tuple:
-        """get the cord of the tile 4 steps infront  of the player if in chase mode
-        else the corner
+        """get the cord of the tile 4 steps infront  of the player if in
+        chase mode else the corner
 
         Returns:
             the tuple representing the cord of the target
@@ -542,7 +565,8 @@ class Clyde(Blinky):
     def choose_target(
         self,
     ) -> tuple:
-        """get the cord of the player if the it is within 8 tiles from clyde else the cord of the corner
+        """get the cord of the player if the it is within 8
+        tiles from clyde else the cord of the corner
 
         Returns:
             the cord of the chosen target

@@ -55,7 +55,6 @@ class GameLogic:
     ) -> None:
         self.game_config = game_config
         self.scale = scale
-        seed = self.game_config.seed | 0
         self.maze = Maze(
             MazeGenerator(seed=self.game_config.seed),
             game_config.points_per_super_pacgum,
@@ -101,7 +100,11 @@ class GameLogic:
     def handle_collision(self) -> None:
         p_x, p_y = self.player.bit_x, self.player.bit_y
         for mob in self.mobs:
-            if mob.state in [GhostState.DEAD, GhostState.RESPAWN]:
+            if mob.state in [
+                GhostState.DEAD,
+                GhostState.RESPAWN,
+                GhostState.SPAWNING,
+            ]:
                 continue
             if (
                 abs(mob.v_x - self.player.v_x) < (8 * self.scale)
@@ -113,6 +116,11 @@ class GameLogic:
                 )
                 if isinstance(victim, Blinky):
                     self.score += self.game_config.points_per_ghost
+                elif (
+                    isinstance(victim, Player)
+                    and self.game_config.mode == "cheat"
+                ):
+                    return
                 victim.die()
                 self.shake.erase_frame(
                     self.scale, self.working_surf, victim.id
@@ -186,7 +194,11 @@ class GameLogic:
 
     def change_mode(self):
         for mob in self.mobs:
-            if mob.state in [GhostState.RESPAWN, GhostState.DEAD]:
+            if mob.state in [
+                GhostState.RESPAWN,
+                GhostState.DEAD,
+                GhostState.SPAWNING,
+            ]:
                 continue
             mob.state = self.global_mode
 
@@ -209,13 +221,11 @@ class GameLogic:
         self.change_frame(self.working_surf, self.player, frame)
         for mob in self.mobs:
             if mob.state == GhostState.RESPAWN:
-                self.shake.erase_frame(self.scale, self.working_surf, mob.id)
                 mob.reset_cords()
                 if frame % 60 == 0:
                     mob.respawn_timer += 1
                     if mob.respawn_timer >= 10:
-                        mob.respawn_timer = 0
-                        mob.state = self.global_mode
+                        mob.state = GhostState.SPAWNING
                 continue
             self.shake.apply_shake(
                 4,

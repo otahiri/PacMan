@@ -134,7 +134,7 @@ class Renderer:
     @classmethod
     def scale_surface(
         cls,
-        src_image: pygame.Surface,
+        src_image: pygame.Surface | pygame.surface.Surface,
         size: tuple[int, int],
         scale: int,
         color: str | None = None,

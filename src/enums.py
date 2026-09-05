@@ -20,6 +20,7 @@ class GhostState(Enum):
     FRIGHTENED = auto()
     DEAD = auto()
     RESPAWN = auto()
+    SPAWNING = auto()
 
 
 class Asset(Enum):
