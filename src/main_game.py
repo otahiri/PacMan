@@ -12,6 +12,7 @@ from src.scenes.score_entry import ScoreEntryScene
 
 
 class MainGame:
+
     def __init__(self, game_config: GameConfig) -> None:
         print("initialize MainGame")
         self.scores: dict[str, str] = {}

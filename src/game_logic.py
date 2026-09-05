@@ -86,7 +86,7 @@ class GameLogic:
         )
         self.maze_surf = self.maze.render_maze(self.scale)
         self.gum_count = self.maze.load_gums(self.working_surf)
-        Renderer.custom_blit(self.working_surf, self.maze_surf, (0, 0))
+        self.working_surf.blit(self.maze_surf, (0, 0))
         self.new_move = Direction.NONE
 
     def handle_collision(self) -> None:
@@ -154,7 +154,7 @@ class GameLogic:
 
     def reset_maze(self) -> None:
         Renderer.fill(self.working_surf, "black")
-        Renderer.custom_blit(self.working_surf, self.maze_surf, (0, 0))
+        self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
             self.shake.erase_frame(self.scale, self.working_surf, mob.id)
             self.shake.del_shake(mob.id)
@@ -307,8 +307,7 @@ class GameLogic:
     ):
         self.erase_frame(dest, character)
         if isinstance(character, Player):
-            Renderer.custom_blit(
-                self.working_surf,
+            self.working_surf.blit(
                 character.move(frame),
                 (character.v_x, character.v_y),
             )

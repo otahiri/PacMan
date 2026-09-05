@@ -59,11 +59,10 @@ class TrailManager:
             self.trail_lookup[target_id] = trail
         trail.set_correct_line(target_frame, direction, cord)
         new_list = []
-        Renderer.custom_blit(working_surf, target_frame, cord)
+        working_surf.blit(target_frame, cord)
         for s in trail.trail_list:
             pixel_array, cords, life_time = s
-            Renderer.custom_blit(
-                working_surf,
+            working_surf.blit(
                 self.make_slice(pixel_array, (life_time / trail.trail_lenght)),
                 cords,
             )

@@ -89,7 +89,7 @@ class Shake:
     ) -> Surface:
         shake_info = self.shake_objects.get(target_id, None)
         if not shake_info:
-            Renderer.custom_blit(working_surface, target_frame, cords)
+            working_surface.blit(target_frame, cords)
             shake_info = ShakeInfo(
                 max_x,
                 max_y,
@@ -127,8 +127,7 @@ class Shake:
         shake_info.last_y = cords[1] + shake_info.accumelated_y
         shake_info.last_frame = target_frame
 
-        Renderer.custom_blit(
-            working_surface,
+        working_surface.blit(
             target_frame,
             (shake_info.last_x, shake_info.last_y),
         )

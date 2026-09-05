@@ -118,23 +118,16 @@ class Maze:
             cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):
                 cord_x = x * self.scaled_v_step_x
-                Renderer.custom_blit(
-                    maze_surface,
-                    self.corner_images[cell.top_left.bit],
-                    (cord_x, cord_y),
-                )
-                Renderer.custom_blit(
-                    maze_surface,
+                maze_surface.blit(self.corner_images[cell.top_left.bit], (cord_x, cord_y))
+                maze_surface.blit(
                     self.corner_images[cell.top_right.bit],
                     (cord_x + self.scaled_v_step_x, cord_y),
                 )
-                Renderer.custom_blit(
-                    maze_surface,
+                maze_surface.blit(
                     self.corner_images[cell.bottom_left.bit],
                     (cord_x, cord_y + self.scaled_v_step_y),
                 )
-                Renderer.custom_blit(
-                    maze_surface,
+                maze_surface.blit(
                     self.corner_images[cell.bottom_right.bit],
                     (
                         cord_x + self.scaled_v_step_x,
@@ -142,14 +135,12 @@ class Maze:
                     ),
                 )
                 if cell.bit_value & 1:
-                    Renderer.custom_blit(
-                        maze_surface,
+                    maze_surface.blit(
                         self.wall_images[0],
                         (cord_x + self.scaled_half_v_step_x, cord_y),
                     )
                 if cell.bit_value & 2:
-                    Renderer.custom_blit(
-                        maze_surface,
+                    maze_surface.blit(
                         self.wall_images[1],
                         (
                             cord_x + self.scaled_v_step_x,
@@ -157,8 +148,7 @@ class Maze:
                         ),
                     )
                 if cell.bit_value & 4:
-                    Renderer.custom_blit(
-                        maze_surface,
+                    maze_surface.blit(
                         self.wall_images[0],
                         (
                             cord_x + self.scaled_half_v_step_x,
@@ -166,8 +156,7 @@ class Maze:
                         ),
                     )
                 if cell.bit_value & 8:
-                    Renderer.custom_blit(
-                        maze_surface,
+                    maze_surface.blit(
                         self.wall_images[1],
                         (cord_x, cord_y + self.scaled_half_v_step_x),
                     )
@@ -181,8 +170,7 @@ class Maze:
                 cord_x = x * self.scaled_v_step_x
                 if cell.content:
                     gum_count += 1
-                    Renderer.custom_blit(
-                        maze_surface,
+                    maze_surface.blit(
                         cell.content.sprite,
                         (
                             cord_x + self.scaled_half_v_step_x,
