@@ -93,7 +93,7 @@ class GameLogic:
                 self.maze.max_y + 32 * self.scale,
             )
         )
-        self.maze_surf = self.maze.render_maze(self.scale)
+        self.maze_surf = self.maze.render_maze()
         self.gum_count = self.maze.load_gums(self.working_surf)
         self.working_surf.blit(self.maze_surf, (0, 0))
         self.new_move = Direction.NONE
@@ -130,7 +130,7 @@ class GameLogic:
                     return
                 victim.die()
                 self.shake.erase_frame(
-                    self.scale, self.working_surf, victim.id
+                     self.working_surf, victim.id
                 )
                 self.shake.del_shake(victim.id)
                 return
@@ -162,7 +162,6 @@ class GameLogic:
                 return
             else:
                 self.super_gum_timer = 0
-                self.player.power = -self.player.power
         self.time_stamp += delta
         waves = (
             GameLogic.WAVES_BEFORE_FIFTH
@@ -184,7 +183,7 @@ class GameLogic:
         Renderer.fill(self.working_surf, "black")
         self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
-            self.shake.erase_frame(self.scale, self.working_surf, mob.id)
+            self.shake.erase_frame(self.working_surf, mob.id)
             self.shake.del_shake(mob.id)
             mob.reset_cords()
             self.change_frame(self.working_surf, mob, 0)
@@ -246,7 +245,6 @@ class GameLogic:
                 mob.move(frame),
                 mob.id,
                 (mob.v_x, mob.v_y),
-                self.scale,
                 self.working_surf,
             )
 
@@ -262,7 +260,7 @@ class GameLogic:
                 Renderer.fill(self.working_surf, "black")
                 for mob in self.mobs:
                     self.shake.erase_frame(
-                        self.scale, self.working_surf, mob.id
+                         self.working_surf, mob.id
                     )
                 self.shake.apply_shake(
                     2,
@@ -274,7 +272,6 @@ class GameLogic:
                     self.player.prev_sprite,
                     self.player.id,
                     (self.player.v_x, self.player.v_y),
-                    self.scale,
                     self.working_surf,
                 )
             self.shake.apply_shake(
@@ -287,7 +284,6 @@ class GameLogic:
                 self.player.prev_sprite,
                 self.player.id,
                 (self.player.v_x, self.player.v_y),
-                self.scale,
                 self.working_surf,
             )
             self.death_timer += 1
@@ -353,6 +349,5 @@ class GameLogic:
                 character.move(frame),
                 character.id,
                 (character.v_x, character.v_y),
-                self.scale,
                 self.working_surf,
             )

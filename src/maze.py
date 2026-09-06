@@ -1,5 +1,5 @@
 from src.models import Gum, SuperGum, Cell, Corner
-from typing import Any, Union
+from typing import Union
 import pygame
 from mazegenerator import MazeGenerator
 from src.render import Renderer
@@ -18,7 +18,9 @@ class Maze:
         cell_grid: grid containing all cells
     """
 
-    def __init__(self, maze: MazeGenerator, super_gum_score, gum_score, scale: int) -> None:
+    def __init__(
+        self, maze: MazeGenerator, super_gum_score, gum_score, scale: int
+    ) -> None:
         """maze constructor
 
         Args:
@@ -100,10 +102,12 @@ class Maze:
                     cell.content = (
                         Gum(self.gum_score, cell.cord, gum)
                         if cell.cord not in corners
-                        else SuperGum(self.super_gum_score, cell.cord, super_gum)
+                        else SuperGum(
+                            self.super_gum_score, cell.cord, super_gum
+                        )
                     )
 
-    def render_maze(self, scale: int) -> pygame.Surface:
+    def render_maze(self) -> pygame.Surface:
         """render the maze into a pygame surface
 
         Returns:
@@ -120,7 +124,9 @@ class Maze:
             cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):
                 cord_x = x * self.scaled_v_step_x
-                maze_surface.blit(self.corner_images[cell.top_left.bit], (cord_x, cord_y))
+                maze_surface.blit(
+                    self.corner_images[cell.top_left.bit], (cord_x, cord_y)
+                )
                 maze_surface.blit(
                     self.corner_images[cell.top_right.bit],
                     (cord_x + self.scaled_v_step_x, cord_y),

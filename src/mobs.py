@@ -50,7 +50,6 @@ class Player(Character):
         )
         self.id = 0
         self.lifes = 3
-        self.power = -1
         cord_x = len(self.maze) // 2
         cord_y = len(self.maze[0]) // 2
         self.origin = (cord_x, cord_y)
@@ -92,9 +91,7 @@ class Player(Character):
         self.frame = 0
         self.death_frame = 0
         self.dead = False
-        self.score = 0
         self.prev_sprite = self.get_sprite(0)
-        self.hover = 2
 
     def die(self):
         self.state = PlayerState.DEAD
@@ -208,11 +205,8 @@ class Blinky(Character):
     """the friendly ghost blinky
 
     Attributes:
-        hover: the bobbing distance when moving
         steps: the steps of the bobbing
-        accumelated_steps: the total steps accumelated
         state: the current state of the ghost
-        power: the power of the character
         direction: the direction the character is moving towards
         scale: the scale multiplier of the visual maze
         sprites: the normal sprites of the character
@@ -246,11 +240,7 @@ class Blinky(Character):
         )
 
         self.id = 1
-        self.hover = 4
-        self.steps = 2
-        self.accumelated_steps = 0
         self.state = GhostState.CHASE
-        self.power = 0
         self.direction = Direction.NONE
         self.scale = scale
         self.sprites = [

@@ -152,7 +152,7 @@ class Renderer:
 
                 pixel_color = src_image.get_at((src_x, src_y))
 
-                if pixel_color.a == 0:  # skip transparent pixels
+                if pixel_color[3] == 0:  # skip transparent pixels
                     continue
                 scaled_surface.set_at((x, y), color if color else pixel_color)
 
@@ -186,7 +186,7 @@ class Renderer:
                 for y in range(height * scale):
                     for x in range(width * scale):
                         pixel_color = scaled_letter.get_at((x, y))
-                        if pixel_color.a > 0:
+                        if pixel_color[3] > 0:
                             new_surface.set_at((x_shift + x, y), pixel_color)
 
             x_shift += width * scale + Asset.LETTER_SPACING.value

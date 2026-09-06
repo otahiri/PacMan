@@ -1,11 +1,4 @@
-from sys import int_info
-
-import numpy
 from pygame import Surface, surfarray
-from typing import Union
-from src.mobs import Blinky, Player
-
-from src.render import Renderer
 
 
 class ShakeInfo:
@@ -15,7 +8,6 @@ class ShakeInfo:
         max_y: int,
         steps_x: int,
         steps_y: int,
-        target_id: int,
         wait_time: int,
         max_cycles: int,
     ) -> None:
@@ -40,34 +32,25 @@ class Shake:
     def __init__(self) -> None:
         self.shake_objects: dict = {}
 
-    def erase_frame(self, scale, dest: Surface, target_id: int):
+    def erase_frame(self, dest: Surface, target_id: int):
         shake_info = self.shake_objects.get(target_id, None)
         if not shake_info:
             return
         src = shake_info.last_frame
-        dest_px = surfarray.pixels2d(dest)
         frame_px = surfarray.pixels2d(src)
-        dest_dim = dest_px.shape
-        width, height = frame_px.shape
-        start_x = max(0, shake_info.last_x)
-        start_y = max(0, shake_info.last_y)
-        max_x, max_y = dest_dim
-        end_x = start_x + ((width))
-        end_y = start_y + ((height))
-
-        if (
-            0 <= start_x <= max_x
-            and 0 <= start_y <= max_y
-            and 0 <= end_x <= max_x
-            and 0 <= end_y <= max_y
-        ):
-            view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = frame_px != 0
-            view_src = numpy.full_like(frame_px, 0)
-            view_dest[mask] = view_src[mask]
-
-        del dest_px
+        eraser = Surface(frame_px.shape)
+        eraser_px = surfarray.pixels2d(eraser)
+        mask = frame_px != 0
+        eraser_px[mask] = 0
+        del eraser_px
         del frame_px
+        dest.blit(
+            eraser,
+            (
+                self.shake_objects[target_id].last_x,
+                self.shake_objects[target_id].last_y,
+            ),
+        )
 
     def del_shake(self, target_id: int) -> None:
         target = self.shake_objects.get(target_id, None)
@@ -84,7 +67,6 @@ class Shake:
         target_frame: Surface,
         target_id: int,
         cords: tuple,
-        scale: int,
         working_surface: Surface,
     ) -> Surface:
         shake_info = self.shake_objects.get(target_id, None)
@@ -95,7 +77,6 @@ class Shake:
                 max_y,
                 steps_x,
                 steps_y,
-                target_id,
                 wait_time,
                 max_cycles,
             )
@@ -105,7 +86,7 @@ class Shake:
             self.shake_objects[target_id] = shake_info
             return working_surface
 
-        self.erase_frame(scale, working_surface, target_id)
+        self.erase_frame(working_surface, target_id)
         shake_info.current_time += 1
         if shake_info.current_time >= shake_info.wait_time:
             shake_info.current_time = 0
