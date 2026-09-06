@@ -19,7 +19,7 @@ class MainGame:
         self.game_config = game_config
         self.__set_scores(game_config.heighscores)
 
-        self.renderer: Renderer = Renderer()
+        self.renderer: Renderer = Renderer(self.game_config.color_scheme)
 
         self.scenes: dict[SceneName, Scene] = {
             SceneName.MAIN_MENU: MainMenuScene(),

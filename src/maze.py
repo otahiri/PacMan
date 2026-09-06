@@ -41,16 +41,19 @@ class Maze:
         self.gum_score = gum_score
         for i in range(16):
             self.corner_images[i] = Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}{i}.png"), (16, 16), scale
+                Renderer.load_image(
+                    f"{asset_path}{i}.png"), (16, 16), scale
             )
         self.wall_images = [
             Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}horizontanl_wall.png"),
+                Renderer.load_image(
+                    f"{asset_path}horizontanl_wall.png"),
                 (16, 16),
                 scale,
             ),
             Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}vertical_wall.png"),
+                Renderer.load_image(
+                    f"{asset_path}vertical_wall.png"),
                 (16, 16),
                 scale,
             ),
@@ -86,10 +89,11 @@ class Maze:
 
     def set_gums(self, scale) -> None:
         gum = Renderer.scale_surface(
-            pygame.image.load("assets/gum.png"), (16, 16), scale
+            Renderer.load_image(
+                "assets/gum.png"), (16, 16), scale
         )
         super_gum = Renderer.scale_surface(
-            pygame.image.load("assets/super_gum.png"), (16, 16), scale
+            Renderer.load_image("assets/super_gum.png"), (16, 16), scale
         )
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
@@ -120,6 +124,7 @@ class Maze:
             self.maze._width * self.scaled_v_step_x
         ) + self.scaled_v_step_x
         maze_surface = pygame.Surface((width, height))
+        Renderer.fill(maze_surface, Renderer.BG)
         for y, row in enumerate(self.cell_grid):
             cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):

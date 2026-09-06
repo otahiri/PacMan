@@ -32,6 +32,7 @@ class GameConfig(BaseModel):
     points_per_super_pacgum: NonNegativeInt = 100
     seed: int = -1
     levels_number: NonNegativeInt = 10
+    color_scheme: int
 
     @field_validator("heighscores_path", mode="before")
     @classmethod

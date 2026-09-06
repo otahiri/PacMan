@@ -60,7 +60,7 @@ class Player(Character):
         self.sprites = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(f"assets/player/alive/{i}.png"),
+                    Renderer.load_image(f"assets/player/alive/{i}.png"),
                     (16, 16),
                     scale,
                 )
@@ -70,7 +70,8 @@ class Player(Character):
         self.death_animation = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(f"assets/player/dead/{i}.png"),
+
+                    Renderer.load_image(f"assets/player/dead/{i}.png"),
                     (16, 16),
                     scale,
                 )
@@ -246,9 +247,7 @@ class Blinky(Character):
         self.sprites = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(
-                        f"assets/mobs/moving/{d.name.lower()}/{i}.png"
-                    ),
+                    Renderer.load_image(f"assets/mobs/moving/{d.name.lower()}/{i}.png"),
                     (16, 16),
                     scale,
                 )
@@ -260,7 +259,7 @@ class Blinky(Character):
         self.frightened_sprites = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(
+                    Renderer.load_image(
                         f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
                     ),
                     (16, 16),
@@ -273,7 +272,8 @@ class Blinky(Character):
         ]
         self.dead_sprite = [
             Renderer.scale_surface(
-                pygame.image.load(f"assets/mobs/dead/{i}.png"),
+                Renderer.load_image(
+                    f"assets/mobs/dead/{i}.png"),
                 (16, 16),
                 self.scale,
             )

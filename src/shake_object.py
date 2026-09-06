@@ -1,5 +1,7 @@
 from pygame import Surface, surfarray
 
+from src.render import Renderer
+
 
 class ShakeInfo:
     def __init__(
@@ -41,7 +43,7 @@ class Shake:
         eraser = Surface(frame_px.shape)
         eraser_px = surfarray.pixels2d(eraser)
         mask = frame_px != 0
-        eraser_px[mask] = 0
+        eraser_px[mask] = int(Renderer.BG, 16)
         del eraser_px
         del frame_px
         dest.blit(

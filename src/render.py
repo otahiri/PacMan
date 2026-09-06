@@ -1,29 +1,54 @@
 import pygame
 import numpy as np
 from src.enums import Asset, DisplayInfo
-from webcolors import name_to_hex
 
 
 class Renderer:
-    def __init__(self) -> None:
+    COLOR_SCHEMES = [
+        ("000000", "ffffff"),
+        ("292b30", "cfab4a"),
+        ("25342f", "01eb5f"),
+        ("323c39", "d3c9a1"),
+        ("1d0f44", "f44e38"),
+        ("702963", "ffbf00"),
+        ("10368f", "ff8e42"),
+    ]
+    BG: str = "000000"
+    FG: str = "ffffff"
+
+    def __init__(self, color_scheme_idx: int) -> None:
+        try:
+            Renderer.BG = Renderer.COLOR_SCHEMES[color_scheme_idx][0]
+            Renderer.FG = Renderer.COLOR_SCHEMES[color_scheme_idx][1]
+        except IndexError:
+            pass
 
         self.__window: pygame.surface.Surface = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
+
         print("initialize Renderer")
 
     def clear(self):
-        self.fill(self.__window, "black")
+        self.fill(self.__window, Renderer.BG)
+
+    @staticmethod
+    def load_image(path: str) -> pygame.Surface:
+        image = pygame.image.load(path).convert()
+        image_px = pygame.surfarray.pixels2d(image)
+        bg_mask = image_px == 0
+        fg_mask = image_px != 0
+        image_px[bg_mask] = int(Renderer.BG, 16)
+        image_px[fg_mask] = int(Renderer.FG, 16)
+        del image_px
+        return image
 
     @staticmethod
     def fill(dest: pygame.Surface | pygame.surface.Surface, color: str):
-        try:
-            color_hex = name_to_hex(color)[1:]
-        except ValueError:
-            color_hex = name_to_hex("black")[1:]
+        color_val = int(color, 16)
         dest_px = pygame.surfarray.pixels2d(dest)
-        colored_rect = np.full_like(dest_px, color_hex)
-        mask = dest_px != 0
+        colored_rect = np.full_like(dest_px, color_val)
+        mask = dest_px != color_val
         dest_px[mask] = colored_rect[mask]
         del colored_rect
         del dest_px
@@ -116,7 +141,7 @@ class Renderer:
         surf_px = pygame.surfarray.pixels2d(surf)
         new_array = np.rot90(surf_px, degree)
         new_surf = pygame.Surface(new_array.shape)
-        Renderer.fill(new_surf, "black")
+        Renderer.fill(new_surf, Renderer.BG)
         mask = new_array != 0
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
         new_surf_px[mask] = new_array[mask]
@@ -129,7 +154,7 @@ class Renderer:
         source: pygame.Surface,
         pos: tuple[int, int],
     ):
-        self.__window.blit(source, pos)
+        self.blit(self.__window, source, pos)
 
     @classmethod
     def scale_surface(
@@ -160,6 +185,14 @@ class Renderer:
 
     def update_window(self):
         pygame.display.flip()
+
+    @staticmethod
+    def blit(
+        dest: pygame.Surface | pygame.surface.Surface,
+        src: pygame.Surface | pygame.surface.Surface,
+        cord: tuple,
+    ) -> None:
+        dest.blit(src, cord)
 
     @classmethod
     def get_text(

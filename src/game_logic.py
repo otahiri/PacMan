@@ -93,6 +93,7 @@ class GameLogic:
                 self.maze.max_y + 32 * self.scale,
             )
         )
+        Renderer.fill(self.working_surf, Renderer.BG)
         self.maze_surf = self.maze.render_maze()
         self.gum_count = self.maze.load_gums(self.working_surf)
         self.working_surf.blit(self.maze_surf, (0, 0))
@@ -180,7 +181,7 @@ class GameLogic:
             self.change_mode()
 
     def reset_maze(self) -> None:
-        Renderer.fill(self.working_surf, "black")
+        Renderer.fill(self.working_surf, Renderer.BG)
         self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
             self.shake.erase_frame(self.working_surf, mob.id)
@@ -257,7 +258,7 @@ class GameLogic:
                 return
 
             else:
-                Renderer.fill(self.working_surf, "black")
+                Renderer.fill(self.working_surf, Renderer.BG)
                 for mob in self.mobs:
                     self.shake.erase_frame(
                          self.working_surf, mob.id
@@ -302,28 +303,20 @@ class GameLogic:
         self, dest: pygame.Surface, character: Union[Player, Blinky]
     ):
         char_frame = character.prev_sprite
-        dest_px = pygame.surfarray.pixels2d(dest)
         frame_px = pygame.surfarray.pixels2d(char_frame)
-        dest_dim = dest_px.shape
-        start_x = max(0, character.v_x)
-        start_y = max(0, character.v_y)
-        end_x = start_x + 16 * self.scale
-        end_y = start_y + 16 * self.scale
-        max_x, max_y = dest_dim
-
-        if (
-            0 <= start_x < max_x
-            and 0 <= start_y < max_y
-            and 0 <= end_x < max_x
-            and 0 <= end_y < max_y
-        ):
-            view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = frame_px != 0
-            view_src = numpy.full_like(frame_px, 0)
-            view_dest[mask] = view_src[mask]
-
-        del dest_px
+        eraser = pygame.Surface(frame_px.shape)
+        eraser_px = pygame.surfarray.pixels2d(eraser)
+        mask = frame_px != int(Renderer.BG, 16)
+        eraser_px[mask] = int(Renderer.BG, 16)
+        del eraser_px
         del frame_px
+        dest.blit(
+            eraser,
+            (
+                character.v_x,
+                character.v_y
+            ),
+        )
 
     def change_frame(
         self,
