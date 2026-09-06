@@ -256,7 +256,9 @@ class Blinky(Character):
         self.sprites = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(f"assets/mobs/{d.name.lower()}/{i}.png"),
+                    pygame.image.load(
+                        f"assets/mobs/moving/{d.name.lower()}/{i}.png"
+                    ),
                     (16, 16),
                     scale,
                 )

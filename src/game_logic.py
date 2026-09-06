@@ -73,7 +73,8 @@ class GameLogic:
         self.global_mode = GhostState.SCATTER
         self.MS_PER_FRAME = 0.016
         self.score = 0
-        self.hearts = 3
+        self.hearts = 0
+        self.set_heart()
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
@@ -96,6 +97,12 @@ class GameLogic:
         self.gum_count = self.maze.load_gums(self.working_surf)
         self.working_surf.blit(self.maze_surf, (0, 0))
         self.new_move = Direction.NONE
+
+    def set_heart(self) -> None:
+        if self.game_config.mode == "hardcore":
+            self.hearts = 1
+        elif self.game_config.mode == "normal":
+            self.hearts = 5
 
     def handle_collision(self) -> None:
         p_x, p_y = self.player.bit_x, self.player.bit_y
@@ -137,6 +144,8 @@ class GameLogic:
             self.gum_count -= 1
             if not self.gum_count:
                 self.level += 1
+                if self.level >= self.game_config.levels_number:
+                    self.game_over = True
                 self.reset_maze()
                 self.maze.set_gums(self.scale)
 
@@ -290,7 +299,7 @@ class GameLogic:
                     self.game_over = True
                     self.reset_maze()
                     self.maze.set_gums(self.scale)
-                    self.hearts = 3
+                    self.set_heart()
                     return
 
     def erase_frame(
