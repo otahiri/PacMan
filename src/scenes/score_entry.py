@@ -15,10 +15,10 @@ class ScoreEntryScene(Scene):
             DisplayInfo.SCREEN_HEIGHT.value,
         )
         self.heighscores_path = heighscores_path
-        self.text = Text("score entry", (width // 2, height // 6), "white")
+        self.text = Text("score entry", (width // 2, height // 6))
         self.score = score
         self.score_text = Text(
-            f"your score is {score}", (width // 2, height // 2 - 200), "white"
+            f"your score is {score}", (width // 2, height // 2 - 200)
         )
 
         self.keyboard = self.__get_keyboard_letters()
@@ -34,16 +34,15 @@ class ScoreEntryScene(Scene):
         keyboard = []
 
         spacing = 10
-        scale = 5
 
         letters_x = 10
         letters_y = 5
 
-        spacing_width = spacing * scale
-        spacing_height = spacing * scale
+        spacing_width = spacing * 5
+        spacing_height = spacing * 5
 
-        letter_width = Asset.LETTER_WIDTH.value * scale
-        letter_height = Asset.LETTER_HEIGHT.value * scale
+        letter_width = Asset.LETTER_WIDTH.value
+        letter_height = Asset.LETTER_HEIGHT.value
 
         keyboard_width = letter_width * letters_x + (
             spacing_width * (letters_x - 1)
@@ -73,13 +72,9 @@ class ScoreEntryScene(Scene):
                 letter_path = f"{Asset.LETTER_PATH.value}/space.png"
 
             if c == "E":
-                surf = Text("enter", (x, y), "white").surf
+                surf = Text("enter", (x, y)).surf
             else:
-                surf = Renderer.scale_surface(
-                    pygame.image.load(letter_path),
-                    (Asset.LETTER_WIDTH.value, Asset.LETTER_HEIGHT.value),
-                    scale,
-                )
+                surf = pygame.image.load(letter_path)
             letter = LetterButton(
                 surf,
                 c,

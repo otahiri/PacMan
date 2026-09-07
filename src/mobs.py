@@ -244,7 +244,6 @@ class Blinky(Character):
             maze,
             anchors,
         )
-
         self.id = 1
         self.hover = 4
         self.steps = 2
@@ -256,7 +255,9 @@ class Blinky(Character):
         self.sprites = [
             [
                 Renderer.scale_surface(
-                    pygame.image.load(f"assets/mobs/{d.name.lower()}/{i}.png"),
+                    pygame.image.load(
+                        f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
+                    ),
                     (16, 16),
                     scale,
                 )

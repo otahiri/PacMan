@@ -15,7 +15,6 @@ class ScoreboardScene(Scene):
                 DisplayInfo.SCREEN_WIDTH.value // 2,
                 DisplayInfo.SCREEN_HEIGHT.value // 6,
             ),
-            "white",
         )
         self.scores: list[tuple[Text, Text]] = []
 
@@ -26,11 +25,10 @@ class ScoreboardScene(Scene):
             y = DisplayInfo.SCREEN_HEIGHT.value // 3 + i * 80
             self.scores.append(
                 (
-                    Text(name, (padding, y), "white"),
+                    Text(name, (padding, y)),
                     Text(
                         str(score),
                         (DisplayInfo.SCREEN_WIDTH.value - padding, y),
-                        "white",
                     ),
                 )
             )

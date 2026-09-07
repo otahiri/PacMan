@@ -7,17 +7,17 @@ from src.render import Renderer
 
 class Button:
 
-    def __init__(self, name: str, pos: tuple[int, int], scale: int) -> None:
+    def __init__(self, name: str, pos: tuple[int, int]) -> None:
         self.name = name
         x, y = pos
 
-        self.idel, self.hover, size = Renderer.get_button(scale)
+        self.idel, self.hover, size = Renderer.get_button()
 
         self.width, self.height = size
 
         self.pos = (x - self.width // 2, y - self.height // 2)
 
-        self.text = Text(name, pos, "black")
+        self.text = Text(name, pos)
 
     def is_collide(self, pos: tuple[int, int]) -> bool:
         my_x, my_y = self.pos
@@ -29,13 +29,11 @@ class Button:
 
 class Text:
 
-    def __init__(
-        self, label: str, pos: tuple[int, int], color: str, scale: int = 5
-    ) -> None:
+    def __init__(self, label: str, pos: tuple[int, int]) -> None:
 
         self.label = label
         self.pos = pos
-        self.surf, self.size = Renderer.get_text(label, scale, color)
+        self.surf, self.size = Renderer.get_text(label)
 
 
 class LetterButton:
@@ -74,23 +72,18 @@ class Cursor:
         self,
     ) -> None:
         scale = 11
-        self.surf = Renderer.scale_surface(
-            pygame.image.load(f"{Asset.CURSOR_PATH.value}.png"),
-            (Asset.CURSOR_WIDTH.value, Asset.CURSOR_HEIGHT.value),
-            scale,
-        )
-        self.wide_surf = Renderer.scale_surface(
-            pygame.image.load(f"{Asset.CURSOR_WIDE_PATH.value}.png"),
-            (Asset.CURSOR_WIDE_WIDTH.value, Asset.CURSOR_WIDE_HEIGHT.value),
-            scale,
+        self.surf = pygame.image.load(f"{Asset.CURSOR_PATH.value}.png")
+
+        self.wide_surf = pygame.image.load(
+            f"{Asset.CURSOR_WIDE_PATH.value}.png"
         )
 
-        width = Asset.CURSOR_WIDTH.value * scale
-        height = Asset.CURSOR_WIDTH.value * scale
+        width = Asset.CURSOR_WIDTH.value
+        height = Asset.CURSOR_WIDTH.value
         self.size = (width, height)
 
-        wide_width = Asset.CURSOR_WIDE_WIDTH.value * scale
-        wide_height = Asset.CURSOR_WIDE_HEIGHT.value * scale
+        wide_width = Asset.CURSOR_WIDE_WIDTH.value
+        wide_height = Asset.CURSOR_WIDE_HEIGHT.value
         self.wide_size = (wide_width, wide_height)
 
         self.is_wide = False
@@ -106,33 +99,25 @@ class NameFrame:
             Asset.NAME_FRAME_HEIGHT.value,
         )
         scale = 10
-        self.surf = Renderer.scale_surface(
-            pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"),
-            (width, height),
-            scale,
-        )
-        self.size = (width * scale, height * scale)
+        self.surf = pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png")
+        self.size = (width, height)
         self.pos = (
             DisplayInfo.SCREEN_WIDTH.value // 2,
             DisplayInfo.SCREEN_HEIGHT.value // 2,
         )
 
         self.name = ""
-        self.text = Text(" ", self.pos, "white")
+        self.text = Text(" ", self.pos)
 
     def update_name(self, letter: str) -> None:
         self.name += letter
-        self.text = Text(self.name, self.pos, "white")
+        self.text = Text(self.name, self.pos)
 
 
 class Heart:
     def __init__(self) -> None:
-        scale = 5
-        self.surf = Renderer.scale_surface(
-            pygame.image.load("assets/hart.png"),
-            (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
-            scale,
-        )
+
+        self.surf = pygame.image.load("assets/heart.png")
 
 
 class Scene(ABC):

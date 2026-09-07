@@ -8,7 +8,7 @@ from src.render import Renderer
 
 class OptionsScene(Scene):
     def __init__(self) -> None:
-        self.text = Text("options", (640, 640), "white")
+        self.text = Text("options", (640, 640))
 
     def __repr__(self) -> str:
         return "OptionsScene"
@@ -17,7 +17,6 @@ class OptionsScene(Scene):
         renderer.render(
             self.text.surf, Renderer.get_pos(self.text.pos, self.text.size)
         )
-
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:

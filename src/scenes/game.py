@@ -19,11 +19,10 @@ class GameScene(Scene):
         self.screen_w = DisplayInfo.SCREEN_WIDTH.value
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
-        self.title_text = Text("score", (self.screen_w // 2, 10), "white")
+        self.title_text = Text("score", (self.screen_w // 2, 10))
         self.score_text = Text(
             str(self.score),
             (self.screen_w // 2, 75),
-            "white",
         )
         self.heart = Heart()
         self.last_time = time.perf_counter()
@@ -37,7 +36,6 @@ class GameScene(Scene):
         self.score_text = Text(
             str(self.score),
             (self.screen_w // 2, 75),
-            "white",
         )
 
     def render_scene(self, renderer: Renderer) -> None:
@@ -67,7 +65,7 @@ class GameScene(Scene):
             ),
         )
         for i in range(self.game_logic.hearts):
-            x = (Asset.HEART_WIDTH.value + 2) * 5 * i
+            x = (Asset.HEART_WIDTH.value + 2) * i
             y = 0
             renderer.render(self.heart.surf, (x, y))
 

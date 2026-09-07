@@ -80,22 +80,15 @@ class Renderer:
 
     @classmethod
     def get_button(
-        cls, scale: int
+        cls,
     ) -> tuple[pygame.Surface, pygame.Surface, tuple[int, int]]:
 
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
-        new_size = (
-            Asset.BUTTON_WIDTH.value * scale,
-            Asset.BUTTON_HEIGHT.value * scale,
-        )
 
-        idel = cls.scale_surface(
-            pygame.image.load("assets/button/idel.png"), size, scale
-        )
-        hover = cls.scale_surface(
-            pygame.image.load("assets/button/hover.png"), size, scale
-        )
-        return (idel, hover, new_size)
+        idel = pygame.image.load("assets/button/idel.png")
+        hover = pygame.image.load("assets/button/hover.png")
+
+        return (idel, hover, size)
 
     @classmethod
     def get_pos(
@@ -186,33 +179,46 @@ class Renderer:
         pygame.display.flip()
 
     @classmethod
-    def get_text(
-        cls, text: str, scale: int, color: str
-    ) -> tuple[pygame.Surface, tuple[int, int]]:
+    def get_text(cls, text: str) -> tuple[pygame.Surface, tuple[int, int]]:
+        """Build a surface by concatenating per-character sprite images.
+
+        Args:
+            text: Alphanumeric text to render using letter sprites.
+
+        Returns:
+            A tuple containing:
+                - The rendered text surface.
+                - The rendered surface size as (width, height).
+        """
         path = Asset.LETTER_PATH.value
-        width = Asset.LETTER_WIDTH.value
-        height = Asset.LETTER_HEIGHT.value
-        surface_height = height * scale
-        spacing_width = Asset.LETTER_SPACING.value * (len(text) - 1)
-        surface_width = (width * scale) * len(text) + spacing_width
-        new_surface = pygame.Surface(
-            (surface_width, surface_height), pygame.SRCALPHA
+
+        letter_width = Asset.LETTER_WIDTH.value
+        letter_height = Asset.LETTER_HEIGHT.value
+        letter_spacing = Asset.LETTER_SPACING.value
+
+        spacing_width = letter_spacing * (len(text) - 1)
+
+        surface_width = (letter_width) * len(text) + spacing_width
+        surface_height = letter_height
+
+        result_surface = pygame.Surface(
+            (surface_width, letter_height), pygame.SRCALPHA
         )
         x_shift = 0
 
-        for c in text:
-            if (c.isalpha() or c.isdigit()) and c != " ":
-                letter_path = path + "/" + c + ".png"
+        for letter in text:
+            if (letter.isalpha() or letter.isdigit()) and letter != " ":
+                letter_path = path + "/" + letter + ".png"
                 letter_surface = pygame.image.load(letter_path)
-                scaled_letter = cls.scale_surface(
-                    letter_surface, (width, height), scale, color
-                )
-                for y in range(height * scale):
-                    for x in range(width * scale):
-                        pixel_color = scaled_letter.get_at((x, y))
-                        if pixel_color.a > 0:
-                            new_surface.set_at((x_shift + x, y), pixel_color)
 
-            x_shift += width * scale + Asset.LETTER_SPACING.value
+                # copy letter surf pixel by pixel to the dest surf
+                for pixel_y in range(letter_height):
+                    for pixel_x in range(letter_width):
+                        pixel_color = letter_surface.get_at((pixel_x, pixel_y))
+                        result_surface.set_at(
+                            (x_shift + pixel_x, pixel_y), pixel_color
+                        )
 
-        return (new_surface, (surface_width, surface_height))
+            x_shift += letter_width + letter_spacing
+
+        return (result_surface, (surface_width, surface_height))

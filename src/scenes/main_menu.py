@@ -12,12 +12,11 @@ class MainMenuScene(Scene):
 
         x = DisplayInfo.SCREEN_WIDTH.value // 2
         spacing = 120
-        scale = 10
 
         for i, lable in enumerate(["play", "scores", "option", "exit"]):
 
             y = DisplayInfo.SCREEN_HEIGHT.value // 2 + spacing * i
-            self.buttons.append(Button(lable, (x, y), scale))
+            self.buttons.append(Button(lable, (x, y)))
 
         self.button_idx = 0
 
@@ -36,7 +35,6 @@ class MainMenuScene(Scene):
                 button.text.surf,
                 Renderer.get_pos(button.text.pos, button.text.size),
             )
-
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
 
