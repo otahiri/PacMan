@@ -15,8 +15,10 @@ class PlayerState(Enum):
 
 
 class ColorTheme(Enum):
-    ONE = ("#323C39", "#D3C9A1")
-    TOW = ("#2E253D", "#AFB0B0")
+    ONE = ("#3E232C", "#EDF6D6")
+    TOW = ("#323C39", "#D3C9A1")
+    THREE = ("#2E253D", "#AFB0B0")
+    FOUR = ("#452F47", "#D7BCAD")
 
 
 class GhostState(Enum):

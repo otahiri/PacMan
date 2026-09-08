@@ -15,10 +15,10 @@ class ScoreEntryScene(Scene):
             DisplayInfo.SCREEN_HEIGHT.value,
         )
         self.heighscores_path = heighscores_path
-        self.text = Text("score entry", (width // 2, height // 6))
+        self.text = Text("score entry", (width // 2, height // 6), False)
         self.score = score
         self.score_text = Text(
-            f"your score is {score}", (width // 2, height // 2 - 200)
+            f"your score is {score}", (width // 2, height // 2 - 200), False
         )
 
         self.keyboard = self.__get_keyboard_letters()
@@ -72,7 +72,7 @@ class ScoreEntryScene(Scene):
                 letter_path = f"{Asset.LETTER_PATH.value}/space.png"
 
             if c == "E":
-                surf = Text("enter", (x, y)).surf
+                surf = Text("enter", (x, y), False).surf
             else:
                 surf = Renderer.change_color(
                     pygame.image.load(letter_path),

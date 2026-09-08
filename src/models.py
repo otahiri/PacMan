@@ -73,15 +73,26 @@ class Cursor:
     def __init__(
         self,
     ) -> None:
-        scale = 11
-        self.surf = pygame.image.load(f"{Asset.CURSOR_PATH.value}.png")
-
-        self.wide_surf = pygame.image.load(
-            f"{Asset.CURSOR_WIDE_PATH.value}.png"
-        )
 
         width = Asset.CURSOR_WIDTH.value
         height = Asset.CURSOR_WIDTH.value
+
+        wide_width = Asset.CURSOR_WIDE_WIDTH.value
+        wide_height = Asset.CURSOR_WIDE_HEIGHT.value
+
+        self.wide_size = (wide_width, wide_height)
+        self.size = (width, height)
+
+        self.surf = Renderer.change_color(
+            pygame.image.load(f"{Asset.CURSOR_PATH.value}.png"),
+            self.size,
+        )
+
+        self.wide_surf = Renderer.change_color(
+            pygame.image.load(f"{Asset.CURSOR_WIDE_PATH.value}.png"),
+            self.wide_size,
+        )
+
         self.size = (width, height)
 
         wide_width = Asset.CURSOR_WIDE_WIDTH.value
@@ -100,8 +111,10 @@ class NameFrame:
             Asset.NAME_FRAME_WIDTH.value,
             Asset.NAME_FRAME_HEIGHT.value,
         )
-        scale = 10
-        self.surf = pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png")
+        self.surf = Renderer.change_color(
+            pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"),
+            (width, height),
+        )
         self.size = (width, height)
         self.pos = (
             DisplayInfo.SCREEN_WIDTH.value // 2,
@@ -109,17 +122,20 @@ class NameFrame:
         )
 
         self.name = ""
-        self.text = Text(" ", self.pos)
+        self.text = Text(" ", self.pos, False)
 
     def update_name(self, letter: str) -> None:
         self.name += letter
-        self.text = Text(self.name, self.pos)
+        self.text = Text(self.name, self.pos, False)
 
 
 class Heart:
     def __init__(self) -> None:
 
-        self.surf = pygame.image.load("assets/heart.png")
+        self.surf = Renderer.change_color(
+            pygame.image.load("assets/heart.png"),
+            (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
+        )
 
 
 class Scene(ABC):

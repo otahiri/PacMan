@@ -8,7 +8,7 @@ from src.render import Renderer
 
 class OptionsScene(Scene):
     def __init__(self) -> None:
-        self.text = Text("options", (640, 640))
+        self.text = Text("options", (640, 640), False)
 
     def __repr__(self) -> str:
         return "OptionsScene"
