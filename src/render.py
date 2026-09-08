@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from src.enums import Asset, DisplayInfo
+from src.enums import Asset, ColorTheme, DisplayInfo
 from webcolors import name_to_hex
 
 
@@ -13,7 +13,9 @@ class Renderer:
         print("initialize Renderer")
 
     def clear(self) -> None:
-        self.__window.fill((0, 0, 0))
+        secondary, primary = ColorTheme.ONE.value
+
+        self.__window.fill(secondary)
 
     @staticmethod
     def custom_blit(
@@ -79,6 +81,30 @@ class Renderer:
         )
 
     @classmethod
+    def change_color(
+        cls, source: pygame.Surface, size: tuple[int, int]
+    ) -> pygame.Surface:
+        width, height = size
+        result = pygame.Surface(
+            size,
+            pygame.SRCALPHA,
+        )
+        primary, secondary = ColorTheme.ONE.value
+        for pixel_x in range(width):
+            for pixel_y in range(height):
+                r, g, b, a = source.get_at((pixel_x, pixel_y))
+                if not a:
+                    continue
+                if (r + g + b) / 3 >= 128:
+                    result.set_at(
+                        (pixel_x, pixel_y),
+                        secondary,
+                    )
+                else:
+                    result.set_at((pixel_x, pixel_y), primary)
+        return result
+
+    @classmethod
     def get_button(
         cls,
     ) -> tuple[pygame.Surface, pygame.Surface, tuple[int, int]]:
@@ -86,7 +112,9 @@ class Renderer:
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
 
         idel = pygame.image.load("assets/button/idel.png")
+        idel = cls.change_color(idel, size)
         hover = pygame.image.load("assets/button/hover.png")
+        hover = cls.change_color(hover, size)
 
         return (idel, hover, size)
 
@@ -161,17 +189,24 @@ class Renderer:
         new_h = orig_h * scale
 
         scaled_surface = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
+        secondary, primary = ColorTheme.ONE.value
 
         for y in range(new_h):
             for x in range(new_w):
                 src_x = int(x * (orig_w / new_w))
                 src_y = int(y * (orig_h / new_h))
 
-                pixel_color = src_image.get_at((src_x, src_y))
+                r, g, b, a = src_image.get_at((src_x, src_y))
 
-                if pixel_color.a == 0:  # skip transparent pixels
+                if a == 0:  # skip transparent pixels
                     continue
-                scaled_surface.set_at((x, y), color if color else pixel_color)
+                if (r + g + b) / 3 >= 128:
+                    scaled_surface.set_at(
+                        (x, y),
+                        primary,
+                    )
+                else:
+                    scaled_surface.set_at((x, y), secondary)
 
         return scaled_surface
 
@@ -179,7 +214,9 @@ class Renderer:
         pygame.display.flip()
 
     @classmethod
-    def get_text(cls, text: str) -> tuple[pygame.Surface, tuple[int, int]]:
+    def get_text(
+        cls, text: str, primary_color: bool = True
+    ) -> tuple[pygame.Surface, tuple[int, int]]:
         """Build a surface by concatenating per-character sprite images.
 
         Args:
@@ -191,7 +228,11 @@ class Renderer:
                 - The rendered surface size as (width, height).
         """
         path = Asset.LETTER_PATH.value
-
+        color = (
+            ColorTheme.ONE.value[0]
+            if primary_color
+            else ColorTheme.ONE.value[1]
+        )
         letter_width = Asset.LETTER_WIDTH.value
         letter_height = Asset.LETTER_HEIGHT.value
         letter_spacing = Asset.LETTER_SPACING.value
@@ -214,9 +255,15 @@ class Renderer:
                 # copy letter surf pixel by pixel to the dest surf
                 for pixel_y in range(letter_height):
                     for pixel_x in range(letter_width):
-                        pixel_color = letter_surface.get_at((pixel_x, pixel_y))
+                        _, _, _, alpha = letter_surface.get_at(
+                            (pixel_x, pixel_y)
+                        )
+                        if not alpha:
+                            continue
+
                         result_surface.set_at(
-                            (x_shift + pixel_x, pixel_y), pixel_color
+                            (x_shift + pixel_x, pixel_y),
+                            color,
                         )
 
             x_shift += letter_width + letter_spacing

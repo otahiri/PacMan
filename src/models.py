@@ -29,11 +29,13 @@ class Button:
 
 class Text:
 
-    def __init__(self, label: str, pos: tuple[int, int]) -> None:
+    def __init__(
+        self, label: str, pos: tuple[int, int], primary_color: bool = True
+    ) -> None:
 
         self.label = label
         self.pos = pos
-        self.surf, self.size = Renderer.get_text(label)
+        self.surf, self.size = Renderer.get_text(label, primary_color)
 
 
 class LetterButton:
