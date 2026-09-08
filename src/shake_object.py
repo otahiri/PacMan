@@ -1,5 +1,7 @@
 import numpy
-from pygame import Surface, surfarray
+from pygame import Color, Surface, surfarray
+import pygame
+from src.enums import ColorTheme
 from src.render import Renderer
 
 
@@ -40,29 +42,14 @@ class Shake:
         if not shake_info:
             return
         src = shake_info.last_frame
-        dest_px = surfarray.pixels2d(dest)
         frame_px = surfarray.pixels2d(src)
-        dest_dim = dest_px.shape
-        width, height = frame_px.shape
-        start_x = max(0, shake_info.last_x)
-        start_y = max(0, shake_info.last_y)
-        max_x, max_y = dest_dim
-        end_x = start_x + ((width))
-        end_y = start_y + ((height))
-
-        if (
-            0 <= start_x <= max_x
-            and 0 <= start_y <= max_y
-            and 0 <= end_x <= max_x
-            and 0 <= end_y <= max_y
-        ):
-            view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = frame_px != 0
-            view_src = numpy.full_like(frame_px, 0)
-            view_dest[mask] = view_src[mask]
-
-        del dest_px
+        eraser = pygame.Surface(frame_px.shape)
+        eraser_px = pygame.surfarray.pixels2d(eraser)
+        eraser_px.fill(int(ColorTheme.ONE.value[0][1:], 16))
         del frame_px
+        del eraser_px
+        dest.blit(eraser, (shake_info.last_x, shake_info.last_y))
+
 
     def del_shake(self, target_id: int) -> None:
         target = self.shake_objects.get(target_id, None)
@@ -122,8 +109,7 @@ class Shake:
         shake_info.last_y = cords[1] + shake_info.accumelated_y
         shake_info.last_frame = target_frame
 
-        Renderer.custom_blit(
-            working_surface,
+        working_surface.blit(
             target_frame,
             (shake_info.last_x, shake_info.last_y),
         )

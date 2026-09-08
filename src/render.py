@@ -13,9 +13,9 @@ class Renderer:
         print("initialize Renderer")
 
     def clear(self) -> None:
-        secondary, primary = ColorTheme.ONE.value
+        secondary, _ = ColorTheme.ONE.value
 
-        self.__window.fill(secondary)
+        Renderer.fill(self.__window, secondary)
 
     @staticmethod
     def custom_blit(
@@ -23,35 +23,13 @@ class Renderer:
         src: pygame.Surface,
         pos: tuple,
     ) -> None:
-        dest_px = pygame.surfarray.pixels2d(dest)
-        dest_dim = dest_px.shape
-        src_px = pygame.surfarray.pixels2d(src)
-        src_dim = src_px.shape
-        start_x = max(0, pos[0])
-        start_y = max(0, pos[1])
-        end_x = min(pos[0] + src_dim[0], dest_dim[0])
-        end_y = min(pos[1] + src_dim[1], dest_dim[1])
-        src_start_x = start_x - pos[0]
-        src_start_y = start_y - pos[1]
-        src_end_x = src_start_x + (end_x - start_x)
-        src_end_y = src_start_y + (end_y - start_y)
-        if start_x < end_x and start_y < end_y:
-            view_src = src_px[src_start_x:src_end_x, src_start_y:src_end_y]
-            view_dest = dest_px[start_x:end_x, start_y:end_y]
-            mask = view_src != 0
-            view_dest[mask] = view_src[mask]
-
-        del dest_px
-        del src_px
+        dest.blit(src, pos)
 
     @staticmethod
-    def fill(dest: pygame.Surface, color: str) -> None:
-        color_hex = name_to_hex(color)[1:]
+    def fill(dest: pygame.Surface, color_name: str) -> None:
+        color_hex = color_name[1:]
         dest_px = pygame.surfarray.pixels2d(dest)
-        colored_rect = np.full_like(dest_px, color_hex)
-        mask = dest_px != 0
-        dest_px[mask] = colored_rect[mask]
-        del colored_rect
+        dest_px.fill(int(color_hex, 16))
         del dest_px
 
     def draw_debug(self) -> None:
@@ -82,27 +60,19 @@ class Renderer:
 
     @classmethod
     def change_color(
-        cls, source: pygame.Surface, size: tuple[int, int]
+        cls, source: pygame.Surface
     ) -> pygame.Surface:
-        width, height = size
-        result = pygame.Surface(
-            size,
-            pygame.SRCALPHA,
-        )
-        primary, secondary = ColorTheme.ONE.value
-        for pixel_x in range(width):
-            for pixel_y in range(height):
-                r, g, b, a = source.get_at((pixel_x, pixel_y))
-                if not a:
-                    continue
-                if (r + g + b) / 3 >= 128:
-                    result.set_at(
-                        (pixel_x, pixel_y),
-                        secondary,
-                    )
-                else:
-                    result.set_at((pixel_x, pixel_y), primary)
+        secondary, primary = ColorTheme.ONE.value
+        px = pygame.surfarray.pixels2d(source)
+        result = pygame.Surface(px.shape)
+        result_px = pygame.surfarray.pixels2d(result)
+        result_px.fill(int(secondary[1:], 16))
+        mask = px != 0
+        result_px[mask] = int(primary[1:], 16)
+        del result_px, px
         return result
+
+        
 
     @classmethod
     def get_button(
@@ -112,9 +82,9 @@ class Renderer:
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
 
         idel = pygame.image.load("assets/button/idel.png")
-        idel = cls.change_color(idel, size)
+        idel = cls.change_color(idel)
         hover = pygame.image.load("assets/button/hover.png")
-        hover = cls.change_color(hover, size)
+        hover = cls.change_color(hover)
 
         return (idel, hover, size)
 
@@ -161,7 +131,7 @@ class Renderer:
         surf_px = pygame.surfarray.pixels2d(surf)
         new_array = np.rot90(surf_px, degree)
         new_surf = pygame.Surface(new_array.shape)
-        Renderer.fill(new_surf, "black")
+        Renderer.fill(new_surf, ColorTheme.ONE.value[0])
         mask = new_array != 0
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
         new_surf_px[mask] = new_array[mask]

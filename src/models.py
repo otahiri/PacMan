@@ -133,8 +133,7 @@ class Heart:
     def __init__(self) -> None:
 
         self.surf = Renderer.change_color(
-            pygame.image.load("assets/heart.png"),
-            (Asset.HEART_WIDTH.value, Asset.HEART_HEIGHT.value),
+            pygame.image.load("assets/heart.png")
         )
 
 

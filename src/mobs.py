@@ -256,7 +256,7 @@ class Blinky(Character):
             [
                 Renderer.scale_surface(
                     pygame.image.load(
-                        f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
+                        f"assets/mobs/moving/{d.name.lower()}/{i}.png"
                     ),
                     (16, 16),
                     scale,
