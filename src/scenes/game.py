@@ -4,7 +4,7 @@ import pygame
 import time
 from pygame.event import Event
 from src import Direction
-from src.enums import Asset, DisplayInfo, SceneName
+from src.enums import Asset, ColorType, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
 from src.models import Heart, Scene, Text
 from src.render import Renderer
@@ -19,9 +19,11 @@ class GameScene(Scene):
         self.screen_w = DisplayInfo.SCREEN_WIDTH.value
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
-        self.title_text = Text("score", (self.screen_w // 2, 10), False)
+        self.title_text = Text(
+            "score", (self.screen_w // 2, 10), ColorType.PRIMARY
+        )
         self.score_text = Text(
-            str(self.score), (self.screen_w // 2, 75), False
+            str(self.score), (self.screen_w // 2, 75), ColorType.PRIMARY
         )
         self.heart = Heart()
         self.last_time = time.perf_counter()
@@ -33,7 +35,7 @@ class GameScene(Scene):
 
     def update_score(self) -> None:
         self.score_text = Text(
-            str(self.score), (self.screen_w // 2, 75), False
+            str(self.score), (self.screen_w // 2, 75), ColorType.PRIMARY
         )
 
     def render_scene(self, renderer: Renderer) -> None:

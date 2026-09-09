@@ -1,7 +1,6 @@
 import numpy
 from pygame import Color, Surface, surfarray
 import pygame
-from src.enums import ColorTheme
 from src.render import Renderer
 
 
@@ -45,11 +44,10 @@ class Shake:
         frame_px = surfarray.pixels2d(src)
         eraser = pygame.Surface(frame_px.shape)
         eraser_px = pygame.surfarray.pixels2d(eraser)
-        eraser_px.fill(int(ColorTheme.ONE.value[0][1:], 16))
+        eraser_px.fill(int(Renderer.primary[1:], 16))
         del frame_px
         del eraser_px
         dest.blit(eraser, (shake_info.last_x, shake_info.last_y))
-
 
     def del_shake(self, target_id: int) -> None:
         target = self.shake_objects.get(target_id, None)

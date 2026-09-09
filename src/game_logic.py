@@ -3,7 +3,6 @@ import numpy
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import (
-    ColorTheme,
     Direction,
     DisplayInfo,
     GhostState,
@@ -227,7 +226,7 @@ class GameLogic:
                 return
 
             else:
-                Renderer.fill(self.working_surf, ColorTheme.ONE.value[0])
+                Renderer.fill(self.working_surf, Renderer.primary)
                 for mob in self.mobs:
                     self.shake.erase_frame(
                         self.scale, self.working_surf, mob.id
@@ -274,7 +273,7 @@ class GameLogic:
         frame_px = pygame.surfarray.pixels2d(char_frame)
         eraser = pygame.Surface(frame_px.shape)
         eraser_px = pygame.surfarray.pixels2d(eraser)
-        eraser_px.fill(int(ColorTheme.ONE.value[0][1:], 16))
+        eraser_px.fill(int(Renderer.primary[1:], 16))
         del eraser_px
         del frame_px
         dest.blit(eraser, (character.v_x, character.v_y))

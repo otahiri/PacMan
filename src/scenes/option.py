@@ -1,14 +1,14 @@
 from typing import Any
 
 import pygame
-from src.enums import SceneName
+from src.enums import ColorType, SceneName
 from src.models import Scene, Text
 from src.render import Renderer
 
 
 class OptionsScene(Scene):
     def __init__(self) -> None:
-        self.text = Text("options", (640, 640), False)
+        self.text = Text("options", (640, 640), ColorType.PRIMARY)
 
     def __repr__(self) -> str:
         return "OptionsScene"

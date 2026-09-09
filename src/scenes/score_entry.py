@@ -4,7 +4,7 @@ from typing import Any
 from pathlib import Path
 from src.parsing import Parser
 from src.render import Renderer
-from src.enums import Asset, DisplayInfo, SceneName
+from src.enums import Asset, ColorType, DisplayInfo, SceneName
 from src.models import Cursor, LetterButton, NameFrame, Scene, Text
 
 
@@ -15,10 +15,14 @@ class ScoreEntryScene(Scene):
             DisplayInfo.SCREEN_HEIGHT.value,
         )
         self.heighscores_path = heighscores_path
-        self.text = Text("score entry", (width // 2, height // 6), False)
+        self.text = Text(
+            "score entry", (width // 2, height // 6), ColorType.PRIMARY
+        )
         self.score = score
         self.score_text = Text(
-            f"your score is {score}", (width // 2, height // 2 - 200), False
+            f"your score is {score}",
+            (width // 2, height // 2 - 200),
+            ColorType.PRIMARY,
         )
 
         self.keyboard = self.__get_keyboard_letters()
@@ -72,9 +76,9 @@ class ScoreEntryScene(Scene):
                 letter_path = f"{Asset.LETTER_PATH.value}/space.png"
 
             if c == "E":
-                surf = Text("enter", (x, y), False).surf
+                surf = Text("enter", (x, y), ColorType.PRIMARY).surf
             else:
-                Renderer.change_color(
+                surf = Renderer.change_color(
                     pygame.image.load(letter_path),
                 )
 

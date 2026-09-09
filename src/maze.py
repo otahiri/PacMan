@@ -1,5 +1,4 @@
 import pygame
-from src.enums import ColorTheme
 from src.models import Gum, SuperGum, Cell, Corner
 from mazegenerator import MazeGenerator
 from src.render import Renderer
@@ -74,8 +73,8 @@ class Maze:
         ]
         self.set_gums(scale)
         self.empty = Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}{0}.png"), (16, 16), scale
-            )
+            pygame.image.load(f"{asset_path}{0}.png"), (16, 16), scale
+        )
 
     def get_gum(self, x: int, y: int) -> Gum | SuperGum | None:
         return self.cell_grid[y][x].content
@@ -118,7 +117,7 @@ class Maze:
         ) + self.scaled_v_step_x
         maze_surface = pygame.Surface((width, height))
 
-        Renderer.fill(maze_surface, ColorTheme.ONE.value[0])
+        Renderer.fill(maze_surface, Renderer.primary)
         for y, row in enumerate(self.cell_grid):
             cord_y = y * self.scaled_v_step_y
             for x, cell in enumerate(row):
@@ -142,35 +141,46 @@ class Maze:
                         cord_y + self.scaled_v_step_y,
                     ),
                 )
-                north = self.wall_images[0] if cell.bit_value & 1 else self.empty
-                east = self.wall_images[1] if cell.bit_value & 2 else self.empty
-                south = self.wall_images[0] if cell.bit_value & 4 else self.empty
-                west = self.wall_images[1] if cell.bit_value & 8 else self.empty
+                north = (
+                    self.wall_images[0] if cell.bit_value & 1 else self.empty
+                )
+                east = (
+                    self.wall_images[1] if cell.bit_value & 2 else self.empty
+                )
+                south = (
+                    self.wall_images[0] if cell.bit_value & 4 else self.empty
+                )
+                west = (
+                    self.wall_images[1] if cell.bit_value & 8 else self.empty
+                )
                 maze_surface.blit(
-                        north,
-                        (cord_x + self.scaled_half_v_step_x, cord_y),
-                    )
+                    north,
+                    (cord_x + self.scaled_half_v_step_x, cord_y),
+                )
                 maze_surface.blit(
-                        east,
-                        (
-                            cord_x + self.scaled_v_step_x,
-                            cord_y + self.scaled_half_v_step_y,
-                        ),
-                    )
+                    east,
+                    (
+                        cord_x + self.scaled_v_step_x,
+                        cord_y + self.scaled_half_v_step_y,
+                    ),
+                )
                 maze_surface.blit(
-                        south,
-                        (
-                            cord_x + self.scaled_half_v_step_x,
-                            cord_y + self.scaled_v_step_y,
-                        ),
-                    )
+                    south,
+                    (
+                        cord_x + self.scaled_half_v_step_x,
+                        cord_y + self.scaled_v_step_y,
+                    ),
+                )
                 maze_surface.blit(
-                        west,
-                        (cord_x, cord_y + self.scaled_half_v_step_x),
-                    )
+                    west,
+                    (cord_x, cord_y + self.scaled_half_v_step_x),
+                )
                 maze_surface.blit(
                     self.empty,
-                    (cord_x + self.scaled_half_v_step_x, cord_y + self.scaled_half_v_step_y),
+                    (
+                        cord_x + self.scaled_half_v_step_x,
+                        cord_y + self.scaled_half_v_step_y,
+                    ),
                 )
         return maze_surface
 

@@ -1,7 +1,7 @@
 from typing import Any
 
 import pygame
-from src.enums import DisplayInfo, SceneName
+from src.enums import ColorType, DisplayInfo, SceneName
 from src.models import Scene, Text
 from src.render import Renderer
 
@@ -15,7 +15,7 @@ class ScoreboardScene(Scene):
                 DisplayInfo.SCREEN_WIDTH.value // 2,
                 DisplayInfo.SCREEN_HEIGHT.value // 6,
             ),
-            False,
+            ColorType.PRIMARY,
         )
         self.scores: list[tuple[Text, Text]] = []
 
@@ -26,11 +26,11 @@ class ScoreboardScene(Scene):
             y = DisplayInfo.SCREEN_HEIGHT.value // 3 + i * 80
             self.scores.append(
                 (
-                    Text(name, (padding, y), False),
+                    Text(name, (padding, y), ColorType.PRIMARY),
                     Text(
                         str(score),
                         (DisplayInfo.SCREEN_WIDTH.value - padding, y),
-                        False,
+                        ColorType.PRIMARY,
                     ),
                 )
             )

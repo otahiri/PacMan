@@ -14,19 +14,17 @@ class PlayerState(Enum):
     DEAD = auto()
 
 
-class ColorTheme(Enum):
-    ONE = ("#3E232C", "#EDF6D6")
-    TOW = ("#323C39", "#D3C9A1")
-    THREE = ("#2E253D", "#AFB0B0")
-    FOUR = ("#452F47", "#D7BCAD")
-
-
 class GhostState(Enum):
     CHASE = auto()
     SCATTER = auto()
     FRIGHTENED = auto()
     DEAD = auto()
     RESPAWN = auto()
+
+
+class ColorType(Enum):
+    PRIMARY = auto()
+    SECONDARY = auto()
 
 
 class Asset(Enum):

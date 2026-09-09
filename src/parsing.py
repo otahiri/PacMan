@@ -24,7 +24,7 @@ class GameConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     heighscores: dict[ScoreName, NonNegativeInt] = {}
     heighscores_path: Path
-
+    color_schema: NonNegativeInt
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
     points_per_pacgum: NonNegativeInt = 10
     points_per_ghost: NonNegativeInt = 200

@@ -1,21 +1,30 @@
 import pygame
 import numpy as np
-from src.enums import Asset, ColorTheme, DisplayInfo
-from webcolors import name_to_hex
+from src.enums import Asset, ColorType, DisplayInfo
 
 
 class Renderer:
-    def __init__(self) -> None:
+    colors = [
+        ("#EDF6D6", "#3E232C"),
+        ("#D3C9A1", "#323C39"),
+        ("#AFB0B0", "#2E253D"),
+        ("#D7BCAD", "#452F47"),
+    ]
+    primary, secondary = colors[0]
+
+    def __init__(self, color_schema: int) -> None:
 
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
+
+        if color_schema >= len(self.colors):
+            color_schema = len(self.colors) - 1
+        Renderer.primary, Renderer.secondary = Renderer.colors[color_schema]
         print("initialize Renderer")
 
     def clear(self) -> None:
-        secondary, _ = ColorTheme.ONE.value
-
-        Renderer.fill(self.__window, secondary)
+        Renderer.fill(self.__window, Renderer.secondary)
 
     @staticmethod
     def custom_blit(
@@ -59,20 +68,15 @@ class Renderer:
         )
 
     @classmethod
-    def change_color(
-        cls, source: pygame.Surface
-    ) -> pygame.Surface:
-        secondary, primary = ColorTheme.ONE.value
+    def change_color(cls, source: pygame.Surface) -> pygame.Surface:
         px = pygame.surfarray.pixels2d(source)
         result = pygame.Surface(px.shape)
         result_px = pygame.surfarray.pixels2d(result)
-        result_px.fill(int(secondary[1:], 16))
+        result_px.fill(int(Renderer.secondary[1:], 16))
         mask = px != 0
-        result_px[mask] = int(primary[1:], 16)
+        result_px[mask] = int(Renderer.primary[1:], 16)
         del result_px, px
         return result
-
-        
 
     @classmethod
     def get_button(
@@ -131,7 +135,7 @@ class Renderer:
         surf_px = pygame.surfarray.pixels2d(surf)
         new_array = np.rot90(surf_px, degree)
         new_surf = pygame.Surface(new_array.shape)
-        Renderer.fill(new_surf, ColorTheme.ONE.value[0])
+        Renderer.fill(new_surf, Renderer.primary)
         mask = new_array != 0
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
         new_surf_px[mask] = new_array[mask]
@@ -152,14 +156,12 @@ class Renderer:
         src_image: pygame.Surface,
         size: tuple[int, int],
         scale: int,
-        color: str | None = None,
     ) -> pygame.Surface:
         orig_w, orig_h = size
         new_w = orig_w * scale
         new_h = orig_h * scale
 
         scaled_surface = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
-        secondary, primary = ColorTheme.ONE.value
 
         for y in range(new_h):
             for x in range(new_w):
@@ -173,10 +175,10 @@ class Renderer:
                 if (r + g + b) / 3 >= 128:
                     scaled_surface.set_at(
                         (x, y),
-                        primary,
+                        Renderer.primary,
                     )
                 else:
-                    scaled_surface.set_at((x, y), secondary)
+                    scaled_surface.set_at((x, y), Renderer.secondary)
 
         return scaled_surface
 
@@ -185,7 +187,7 @@ class Renderer:
 
     @classmethod
     def get_text(
-        cls, text: str, primary_color: bool = True
+        cls, text: str, color_type: ColorType
     ) -> tuple[pygame.Surface, tuple[int, int]]:
         """Build a surface by concatenating per-character sprite images.
 
@@ -199,9 +201,9 @@ class Renderer:
         """
         path = Asset.LETTER_PATH.value
         color = (
-            ColorTheme.ONE.value[0]
-            if primary_color
-            else ColorTheme.ONE.value[1]
+            Renderer.primary
+            if color_type == ColorType.PRIMARY
+            else Renderer.secondary
         )
         letter_width = Asset.LETTER_WIDTH.value
         letter_height = Asset.LETTER_HEIGHT.value

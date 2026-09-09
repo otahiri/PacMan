@@ -23,7 +23,7 @@ class MainGame:
             )[:10]
         }
         self.game_config = game_config
-        self.renderer: Renderer = Renderer()
+        self.renderer: Renderer = Renderer(game_config.color_schema)
         self.scene_stack: list[Scene] = [MainMenuScene()]
 
     def __update_score(self, new_recorder: tuple[str, int]):

@@ -1,7 +1,7 @@
 from typing import Any
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, DisplayInfo, SceneName
+from src.enums import Asset, ColorType, DisplayInfo, SceneName
 from src.render import Renderer
 
 
@@ -17,7 +17,7 @@ class Button:
 
         self.pos = (x - self.width // 2, y - self.height // 2)
 
-        self.text = Text(name, pos)
+        self.text = Text(name, pos, ColorType.SECONDARY)
 
     def is_collide(self, pos: tuple[int, int]) -> bool:
         my_x, my_y = self.pos
@@ -30,12 +30,12 @@ class Button:
 class Text:
 
     def __init__(
-        self, label: str, pos: tuple[int, int], primary_color: bool = True
+        self, label: str, pos: tuple[int, int], color_type: ColorType
     ) -> None:
 
         self.label = label
         self.pos = pos
-        self.surf, self.size = Renderer.get_text(label, primary_color)
+        self.surf, self.size = Renderer.get_text(label, color_type)
 
 
 class LetterButton:
@@ -85,12 +85,10 @@ class Cursor:
 
         self.surf = Renderer.change_color(
             pygame.image.load(f"{Asset.CURSOR_PATH.value}.png"),
-            self.size,
         )
 
         self.wide_surf = Renderer.change_color(
             pygame.image.load(f"{Asset.CURSOR_WIDE_PATH.value}.png"),
-            self.wide_size,
         )
 
         self.size = (width, height)
@@ -113,7 +111,6 @@ class NameFrame:
         )
         self.surf = Renderer.change_color(
             pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"),
-            (width, height),
         )
         self.size = (width, height)
         self.pos = (
@@ -122,11 +119,11 @@ class NameFrame:
         )
 
         self.name = ""
-        self.text = Text(" ", self.pos, False)
+        self.text = Text(" ", self.pos, ColorType.PRIMARY)
 
     def update_name(self, letter: str) -> None:
         self.name += letter
-        self.text = Text(self.name, self.pos, False)
+        self.text = Text(self.name, self.pos, ColorType.PRIMARY)
 
 
 class Heart:
