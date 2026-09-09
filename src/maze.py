@@ -72,10 +72,7 @@ class Maze:
             ]
             for y in range(len(self.bit_maze))
         ]
-        self.set_gums(scale)
-        self.empty = Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}{0}.png"), (16, 16), scale
-            )
+        self.set_gums()
 
     def get_gum(self, x: int, y: int) -> Gum | SuperGum | None:
         return self.cell_grid[y][x].content
@@ -83,13 +80,9 @@ class Maze:
     def set_gum(self, x: int, y: int) -> None:
         self.cell_grid[y][x].content = None
 
-    def set_gums(self, scale: int) -> None:
-        gum = Renderer.scale_surface(
-            pygame.image.load("assets/gum.png"), (16, 16), scale
-        )
-        super_gum = Renderer.scale_surface(
-            pygame.image.load("assets/super_gum.png"), (16, 16), scale
-        )
+    def set_gums(self) -> None:
+        gum = pygame.image.load("assets/gum.png")
+        super_gum = pygame.image.load("assets/super_gum.png")
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
@@ -142,36 +135,32 @@ class Maze:
                         cord_y + self.scaled_v_step_y,
                     ),
                 )
-                north = self.wall_images[0] if cell.bit_value & 1 else self.empty
-                east = self.wall_images[1] if cell.bit_value & 2 else self.empty
-                south = self.wall_images[0] if cell.bit_value & 4 else self.empty
-                west = self.wall_images[1] if cell.bit_value & 8 else self.empty
-                maze_surface.blit(
-                        north,
+                if cell.bit_value & 1:
+                    maze_surface.blit(
+                        self.wall_images[0],
                         (cord_x + self.scaled_half_v_step_x, cord_y),
                     )
-                maze_surface.blit(
-                        east,
-                        (
-                            cord_x + self.scaled_v_step_x,
-                            cord_y + self.scaled_half_v_step_y,
-                        ),
-                    )
-                maze_surface.blit(
-                        south,
-                        (
-                            cord_x + self.scaled_half_v_step_x,
-                            cord_y + self.scaled_v_step_y,
-                        ),
-                    )
-                maze_surface.blit(
-                        west,
-                        (cord_x, cord_y + self.scaled_half_v_step_x),
-                    )
-                maze_surface.blit(
-                    self.empty,
-                    (cord_x + self.scaled_half_v_step_x, cord_y + self.scaled_half_v_step_y),
-                )
+                if cell.bit_value & 2:
+                    maze_surface.blit(
+                            self.wall_images[1],
+                            (
+                                cord_x + self.scaled_v_step_x,
+                                cord_y + self.scaled_half_v_step_y,
+                            ),
+                        )
+                if cell.bit_value & 4:
+                    maze_surface.blit(
+                            self.wall_images[0],
+                            (
+                                cord_x + self.scaled_half_v_step_x,
+                                cord_y + self.scaled_v_step_y,
+                            ),
+                        )
+                if cell.bit_value & 8:
+                    maze_surface.blit(
+                            self.wall_images[1],
+                            (cord_x, cord_y + self.scaled_half_v_step_x),
+                        )
         return maze_surface
 
     def load_gums(self, maze_surface: pygame.Surface) -> None:

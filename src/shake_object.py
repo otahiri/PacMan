@@ -43,9 +43,10 @@ class Shake:
             return
         src = shake_info.last_frame
         frame_px = surfarray.pixels2d(src)
+        mask = frame_px != int(ColorTheme.ONE.value[0][1:], 16)
         eraser = pygame.Surface(frame_px.shape)
         eraser_px = pygame.surfarray.pixels2d(eraser)
-        eraser_px.fill(int(ColorTheme.ONE.value[0][1:], 16))
+        eraser_px[mask] = int(ColorTheme.ONE.value[0][1:], 16)
         del frame_px
         del eraser_px
         dest.blit(eraser, (shake_info.last_x, shake_info.last_y))

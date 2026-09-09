@@ -254,13 +254,11 @@ class Blinky(Character):
         self.scale = scale
         self.sprites = [
             [
-                Renderer.scale_surface(
+                
                     pygame.image.load(
                         f"assets/mobs/moving/{d.name.lower()}/{i}.png"
-                    ),
-                    (16, 16),
-                    scale,
-                )
+                    )
+                
                 for i in range(4)
             ]
             for d in Direction
@@ -268,25 +266,18 @@ class Blinky(Character):
         ]
         self.frightened_sprites = [
             [
-                Renderer.scale_surface(
+                
                     pygame.image.load(
                         f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
-                    ),
-                    (16, 16),
-                    scale,
-                )
+                    )
+                
                 for i in range(4)
             ]
             for d in Direction
             if d is not Direction.NONE
         ]
         self.dead_sprite = [
-            Renderer.scale_surface(
-                pygame.image.load(f"assets/mobs/dead/{i}.png"),
-                (16, 16),
-                self.scale,
-            )
-            for i in range(6)
+            pygame.image.load(f"assets/mobs/dead/{i}.png") for i in range(6)
         ]
         self.reset_cords()
         self.player = anchors[0]
@@ -379,6 +370,9 @@ class Blinky(Character):
 
     def die(self) -> None:
         self.state = GhostState.DEAD
+        self.bit_x = -1
+        self.bit_y = -1
+        self.update_visual_cord()
 
     def update_visual_cord(self) -> None:
         """change the visual cords"""

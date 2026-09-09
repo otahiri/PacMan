@@ -68,6 +68,7 @@ class Renderer:
     @classmethod
     def change_color(cls, source: pygame.Surface) -> pygame.Surface:
         secondary, primary = ColorTheme.ONE.value
+        print("here")
         px = pygame.surfarray.pixels2d(source)
         result = pygame.Surface(px.shape)
         result_px = pygame.surfarray.pixels2d(result)

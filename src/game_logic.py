@@ -193,7 +193,6 @@ class GameLogic:
     def alive_logic(self, frame: int) -> None:
         self.player.new_direction = self.new_move
         self.maze.load_gums(self.working_surf)
-        self.change_frame(self.working_surf, self.player, frame)
         for mob in self.mobs:
             if mob.state == GhostState.RESPAWN:
                 self.shake.erase_frame(self.scale, self.working_surf, mob.id)
@@ -217,6 +216,7 @@ class GameLogic:
                 self.scale,
                 self.working_surf,
             )
+        self.change_frame(self.working_surf, self.player, frame)
 
     def death_logic(self, frame: int) -> None:
         wait_timer = 60
