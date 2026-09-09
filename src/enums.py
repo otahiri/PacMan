@@ -6,7 +6,6 @@ class SceneName(Enum):
     GAME = auto()
     SCORE_ENTRY = auto()
     SCOREBOARD = auto()
-    OPTIONS = auto()
 
 
 class PlayerState(Enum):

@@ -6,7 +6,6 @@ from src.parsing import GameConfig
 from src.render import Renderer
 from src.scenes.game import GameScene
 from src.scenes.main_menu import MainMenuScene
-from src.scenes.option import OptionsScene
 from src.scenes.score_board import ScoreboardScene
 from src.scenes.score_entry import ScoreEntryScene
 
@@ -73,10 +72,6 @@ class MainGame:
                         self.game_config.heighscores_path, last_score
                     )
                 )
-                print("insert:", self.scene_stack[-1])
-
-            case SceneName.OPTIONS:
-                self.scene_stack.append(OptionsScene())
                 print("insert:", self.scene_stack[-1])
 
     def game_loop(self) -> None:
