@@ -1,15 +1,22 @@
 import pygame
+import sys
 import numpy as np
 from src.enums import Asset, ColorTheme, DisplayInfo
 from webcolors import name_to_hex
 
 
 class Renderer:
+    LETTER: dict = dict()
+
     def __init__(self) -> None:
 
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
+        Renderer.LETTER = {
+            c: pygame.image.load(f"{Asset.LETTER_PATH.value}/{c}.png")
+            for c in "0123456789abcdefghijklmnopqrstuvwxyz"
+        }
         print("initialize Renderer")
 
     def clear(self) -> None:
@@ -59,9 +66,7 @@ class Renderer:
         )
 
     @classmethod
-    def change_color(
-        cls, source: pygame.Surface
-    ) -> pygame.Surface:
+    def change_color(cls, source: pygame.Surface) -> pygame.Surface:
         secondary, primary = ColorTheme.ONE.value
         px = pygame.surfarray.pixels2d(source)
         result = pygame.Surface(px.shape)
@@ -71,8 +76,6 @@ class Renderer:
         result_px[mask] = int(primary[1:], 16)
         del result_px, px
         return result
-
-        
 
     @classmethod
     def get_button(
@@ -197,12 +200,10 @@ class Renderer:
                 - The rendered text surface.
                 - The rendered surface size as (width, height).
         """
-        path = Asset.LETTER_PATH.value
-        color = (
-            ColorTheme.ONE.value[0]
-            if primary_color
-            else ColorTheme.ONE.value[1]
-        )
+        if primary_color:
+            fg_color, bg_color = ColorTheme.ONE.value
+        else:
+            bg_color, fg_color = ColorTheme.ONE.value
         letter_width = Asset.LETTER_WIDTH.value
         letter_height = Asset.LETTER_HEIGHT.value
         letter_spacing = Asset.LETTER_SPACING.value
@@ -213,28 +214,40 @@ class Renderer:
         surface_height = letter_height
 
         result_surface = pygame.Surface(
-            (surface_width, letter_height), pygame.SRCALPHA
+            (surface_width, letter_height),
+            pygame.SRCALPHA
         )
+        px = pygame.surfarray.pixels2d(result_surface)
+        px.fill(int(bg_color[1:], 16))
         x_shift = 0
+        del px
+        np.set_printoptions(threshold=sys.maxsize)
 
-        for letter in text:
-            if (letter.isalpha() or letter.isdigit()) and letter != " ":
-                letter_path = path + "/" + letter + ".png"
-                letter_surface = pygame.image.load(letter_path)
+        for chr in text:
+            if chr.isalnum():
+                letter_surface = Renderer.LETTER[chr]
+                letter_surf_px = pygame.surfarray.pixels2d(letter_surface)
+                letter = pygame.Surface(letter_surf_px.shape)
+                letter_px = pygame.surfarray.pixels2d(letter)
+                letter_px.fill(int(bg_color.strip("#"), 16))
+                mask = letter_surf_px != 0
+                letter_px[mask] = int(fg_color.strip("#"), 16)
+                del letter_px, letter_surf_px
+                result_surface.blit(letter, (x_shift, 0))
 
-                # copy letter surf pixel by pixel to the dest surf
-                for pixel_y in range(letter_height):
-                    for pixel_x in range(letter_width):
-                        _, _, _, alpha = letter_surface.get_at(
-                            (pixel_x, pixel_y)
-                        )
-                        if not alpha:
-                            continue
-
-                        result_surface.set_at(
-                            (x_shift + pixel_x, pixel_y),
-                            color,
-                        )
+                # # copy letter surf pixel by pixel to the dest surf
+                # for pixel_y in range(letter_height):
+                #     for pixel_x in range(letter_width):
+                #         _, _, _, alpha = letter_surface.get_at(
+                #             (pixel_x, pixel_y)
+                #         )
+                #         if not alpha:
+                #             continue
+                #
+                #         result_surface.set_at(
+                #             (x_shift + pixel_x, pixel_y),
+                #             color,
+                #         )
 
             x_shift += letter_width + letter_spacing
 
