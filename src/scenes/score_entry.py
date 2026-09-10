@@ -69,18 +69,10 @@ class ScoreEntryScene(Scene):
                 x = DisplayInfo.SCREEN_WIDTH.value // 2 - keyboard_width // 2
                 place_x = 0
                 place_y += 1
-
-            letter_path = f"{Asset.LETTER_PATH.value}/{c}.png"
-
-            if c == " ":
-                letter_path = f"{Asset.LETTER_PATH.value}/space.png"
-
             if c == "E":
                 surf = Text("enter", (x, y), ColorType.PRIMARY).surf
             else:
-                surf = Renderer.change_color(
-                    pygame.image.load(letter_path),
-                )
+                surf = Renderer.LETTER[c]
 
             letter = LetterButton(
                 surf,

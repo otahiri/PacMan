@@ -1,18 +1,23 @@
+from os import fdatasync
+
 import pygame
+import sys
 import numpy as np
 from src.enums import Asset, ColorType, DisplayInfo
 
 
 class Renderer:
     colors = [
-        ("#EDF6D6", "#3E232C"),
-        ("#D3C9A1", "#323C39"),
-        ("#AFB0B0", "#2E253D"),
-        ("#D7BCAD", "#452F47"),
+        ("FFEDF6D6", "003E232C"),
+        ("FFD3C9A1", "00323C39"),
+        ("FFAFB0B0", "002E253D"),
+        ("FFD7BCAD", "00452F47"),
     ]
     primary, secondary = colors[0]
+    LETTER: dict = dict()
 
     def __init__(self, color_schema: int) -> None:
+
 
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
@@ -21,22 +26,25 @@ class Renderer:
         if color_schema >= len(self.colors):
             color_schema = len(self.colors) - 1
         Renderer.primary, Renderer.secondary = Renderer.colors[color_schema]
+        Renderer.LETTER = {
+            c: pygame.image.load(f"{Asset.LETTER_PATH.value}/{c}.png")
+            for c in "0123456789abcdefghijklmnopqrstuvwxyz"
+        }
+        Renderer.LETTER[" "] = pygame.image.load(f"{Asset.LETTER_PATH.value}/space.png")
         print("initialize Renderer")
 
     def clear(self) -> None:
         Renderer.fill(self.__window, Renderer.secondary)
 
     @staticmethod
-    def custom_blit(
-        dest: pygame.Surface,
-        src: pygame.Surface,
-        pos: tuple,
-    ) -> None:
-        dest.blit(src, pos)
+    def load_image(
+        img: str
+    ) -> pygame.Surface:
+        return Renderer.change_color(pygame.image.load(img).convert_alpha())
 
     @staticmethod
     def fill(dest: pygame.Surface, color_name: str) -> None:
-        color_hex = color_name[1:]
+        color_hex = color_name
         dest_px = pygame.surfarray.pixels2d(dest)
         dest_px.fill(int(color_hex, 16))
         del dest_px
@@ -70,11 +78,10 @@ class Renderer:
     @classmethod
     def change_color(cls, source: pygame.Surface) -> pygame.Surface:
         px = pygame.surfarray.pixels2d(source)
-        result = pygame.Surface(px.shape)
+        result = pygame.Surface(px.shape, pygame.SRCALPHA)
         result_px = pygame.surfarray.pixels2d(result)
-        result_px.fill(int(Renderer.secondary[1:], 16))
-        mask = px != 0
-        result_px[mask] = int(Renderer.primary[1:], 16)
+        mask = px == 4294967295
+        result_px[mask] = int(Renderer.primary, 16)
         del result_px, px
         return result
 
@@ -85,10 +92,8 @@ class Renderer:
 
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
 
-        idel = pygame.image.load("assets/button/idel.png")
-        idel = cls.change_color(idel)
-        hover = pygame.image.load("assets/button/hover.png")
-        hover = cls.change_color(hover)
+        idel = Renderer.load_image("assets/button/idel.png")
+        hover = Renderer.load_image("assets/button/hover.png")
 
         return (idel, hover, size)
 
@@ -199,11 +204,10 @@ class Renderer:
                 - The rendered text surface.
                 - The rendered surface size as (width, height).
         """
-        path = Asset.LETTER_PATH.value
-        color = (
-            Renderer.primary
+        bg_color, fg_color = (
+            (int(Renderer.secondary, 16), int(Renderer.primary, 16))
             if color_type == ColorType.PRIMARY
-            else Renderer.secondary
+            else (int(Renderer.primary, 16), int(Renderer.secondary, 16))
         )
         letter_width = Asset.LETTER_WIDTH.value
         letter_height = Asset.LETTER_HEIGHT.value
@@ -215,29 +219,23 @@ class Renderer:
         surface_height = letter_height
 
         result_surface = pygame.Surface(
-            (surface_width, letter_height), pygame.SRCALPHA
+            (surface_width, letter_height),
+            pygame.SRCALPHA
         )
         x_shift = 0
+        np.set_printoptions(threshold=sys.maxsize)
 
-        for letter in text:
-            if (letter.isalpha() or letter.isdigit()) and letter != " ":
-                letter_path = path + "/" + letter + ".png"
-                letter_surface = pygame.image.load(letter_path)
-
-                # copy letter surf pixel by pixel to the dest surf
-                for pixel_y in range(letter_height):
-                    for pixel_x in range(letter_width):
-                        _, _, _, alpha = letter_surface.get_at(
-                            (pixel_x, pixel_y)
-                        )
-                        if not alpha:
-                            continue
-
-                        result_surface.set_at(
-                            (x_shift + pixel_x, pixel_y),
-                            color,
-                        )
-
+        for chr in text:
+            if chr.isalnum():
+                letter_surface = Renderer.LETTER[chr]
+                letter_surf_px = pygame.surfarray.pixels2d(letter_surface)
+                letter = pygame.Surface(letter_surf_px.shape)
+                letter_px = pygame.surfarray.pixels2d(letter)
+                letter_px.fill(bg_color)
+                mask = letter_surf_px == 4294967295
+                letter_px[mask] = fg_color
+                del letter_px, letter_surf_px
+                result_surface.blit(letter, (x_shift, 0))
             x_shift += letter_width + letter_spacing
 
         return (result_surface, (surface_width, surface_height))

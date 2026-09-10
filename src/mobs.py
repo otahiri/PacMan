@@ -59,21 +59,13 @@ class Player(Character):
         self.state = PlayerState.ALIVE
         self.sprites = [
             [
-                Renderer.scale_surface(
-                    pygame.image.load(f"assets/player/alive/{i}.png"),
-                    (16, 16),
-                    scale,
-                )
+                Renderer.load_image(f"assets/player/alive/{i}.png")
                 for i in range(6)
             ]
         ]
         self.death_animation = [
             [
-                Renderer.scale_surface(
-                    pygame.image.load(f"assets/player/dead/{i}.png"),
-                    (16, 16),
-                    scale,
-                )
+                Renderer.load_image(f"assets/player/dead/{i}.png")
                 for i in range(11)
             ]
         ]
@@ -102,10 +94,10 @@ class Player(Character):
     def reset_cords(self) -> None:
         """reset the cordination to the original point of the character"""
         self.v_x = (
-            self.origin[0] * self.scaled_v_step_x + self.scaled_half_v_step_x
+            self.origin[0] * self.v_step + self.half_v_step
         )
         self.v_y = (
-            self.origin[1] * self.scaled_v_step_y + self.scaled_half_v_step_y
+            self.origin[1] * self.v_step + self.half_v_step
         )
         self.bit_y = self.origin[1]
         self.bit_x = self.origin[0]
@@ -134,9 +126,9 @@ class Player(Character):
 
     def choose_direction(self) -> None:
         """choose the new direction"""
-        self.bit_y = self.v_y // (self.scaled_v_step_y)
-        self.bit_x = self.v_x // (self.scaled_v_step_x)
-        dx, dy, shift = self.new_direction.value
+        self.bit_y = self.v_y // (self.v_step)
+        self.bit_x = self.v_x // (self.v_step)
+        _, _, shift = self.new_direction.value
         if (1 << shift) & self.maze[self.bit_y][self.bit_x].bit_value == 0:
             self.direction = (
                 self.new_direction if not self.dead else self.direction
@@ -153,7 +145,7 @@ class Player(Character):
             bool representing if the character can change direction or not
         """
         can_move = False
-        dx, dy, shift = self.direction.value
+        _, _, shift = self.direction.value
         if is_centered:
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
@@ -166,7 +158,7 @@ class Player(Character):
 
     def update_visual_cord(self) -> None:
         """update the visual cords"""
-        dx, dy, shift = self.direction.value
+        dx, dy, _ = self.direction.value
         max_x = self.max_x
         max_y = self.max_y
         new_x = ((dx * self.speed) * self.scale) + self.v_x
@@ -191,12 +183,11 @@ class Player(Character):
             self.prev_sprite = sprite
             return sprite
         is_centered = (
-            self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
-            and self.v_y % (self.scaled_v_step_y) == self.scaled_half_v_step_y
+            self.v_x % (self.v_step) == self.half_v_step
+            and self.v_y % (self.v_step) == self.half_v_step
         )
         if is_centered:
             self.choose_direction()
-        dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
@@ -254,12 +245,8 @@ class Blinky(Character):
         self.scale = scale
         self.sprites = [
             [
-                Renderer.scale_surface(
-                    pygame.image.load(
-                        f"assets/mobs/moving/{d.name.lower()}/{i}.png"
-                    ),
-                    (16, 16),
-                    scale,
+                Renderer.load_image(
+                    f"assets/mobs/moving/{d.name.lower()}/{i}.png"
                 )
                 for i in range(4)
             ]
@@ -268,12 +255,8 @@ class Blinky(Character):
         ]
         self.frightened_sprites = [
             [
-                Renderer.scale_surface(
-                    pygame.image.load(
-                        f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
-                    ),
-                    (16, 16),
-                    scale,
+                Renderer.load_image(
+                    f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
                 )
                 for i in range(4)
             ]
@@ -281,12 +264,7 @@ class Blinky(Character):
             if d is not Direction.NONE
         ]
         self.dead_sprite = [
-            Renderer.scale_surface(
-                pygame.image.load(f"assets/mobs/dead/{i}.png"),
-                (16, 16),
-                self.scale,
-            )
-            for i in range(6)
+            Renderer.load_image(f"assets/mobs/dead/{i}.png") for i in range(6)
         ]
         self.reset_cords()
         self.player = anchors[0]
@@ -300,8 +278,8 @@ class Blinky(Character):
         """reset the cords of character to the origin"""
         self.direction = Direction.NONE
         x, y = self.origin
-        self.v_x = x * self.scaled_v_step_x + self.scaled_half_v_step_x
-        self.v_y = y * self.scaled_v_step_y + self.scaled_half_v_step_y
+        self.v_x = x * self.v_step + self.half_v_step
+        self.v_y = y * self.v_step + self.half_v_step
         self.bit_y = y
         self.bit_x = x
 
@@ -379,6 +357,9 @@ class Blinky(Character):
 
     def die(self) -> None:
         self.state = GhostState.DEAD
+        self.bit_x = -1
+        self.bit_y = -1
+        self.update_visual_cord()
 
     def update_visual_cord(self) -> None:
         """change the visual cords"""
@@ -392,8 +373,8 @@ class Blinky(Character):
         if min_y <= new_y < max_y and min_x <= new_x < max_x:
             self.v_x = new_x
             self.v_y = new_y
-            self.bit_x = self.v_x // (self.scaled_v_step_x)
-            self.bit_y = self.v_y // (self.scaled_v_step_y)
+            self.bit_x = self.v_x // (self.v_step)
+            self.bit_y = self.v_y // (self.v_step)
 
     def check_movability(self, is_centered: bool) -> bool:
         """check if the character can move
@@ -436,9 +417,9 @@ class Blinky(Character):
         if self.player.dead:
             return self.prev_sprite
         is_centered = (
-            self.v_x % (self.scaled_v_step_x) == self.scaled_half_v_step_x
-            and (self.v_y) % (self.scaled_v_step_y)
-            == self.scaled_half_v_step_y
+            self.v_x % (self.v_step) == self.half_v_step
+            and (self.v_y) % (self.v_step)
+            == self.half_v_step
         )
         if is_centered:
             if self.state == GhostState.FRIGHTENED:

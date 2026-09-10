@@ -1,7 +1,7 @@
 from typing import Any
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, ColorType, DisplayInfo, SceneName
+from src.enums import Asset, ColorType, DisplayInfo
 from src.render import Renderer
 
 
@@ -53,7 +53,7 @@ class LetterButton:
         size: tuple[int, int],
         place: tuple[int, int],
     ) -> None:
-        self.surf = surf
+        self.surf = Renderer.change_color(surf)
         self.letter = letter
         self.pos = pos
         self.size = size
@@ -88,12 +88,10 @@ class Cursor:
         self.wide_size = (wide_width, wide_height)
         self.size = (width, height)
 
-        self.surf = Renderer.change_color(
-            pygame.image.load(f"{Asset.CURSOR_PATH.value}.png"),
-        )
+        self.surf = Renderer.load_image(f"{Asset.CURSOR_PATH.value}.png")
 
-        self.wide_surf = Renderer.change_color(
-            pygame.image.load(f"{Asset.CURSOR_WIDE_PATH.value}.png"),
+        self.wide_surf = Renderer.load_image(
+            f"{Asset.CURSOR_WIDE_PATH.value}.png"
         )
 
         self.size = (width, height)
@@ -114,9 +112,7 @@ class NameFrame:
             Asset.NAME_FRAME_WIDTH.value,
             Asset.NAME_FRAME_HEIGHT.value,
         )
-        self.surf = Renderer.change_color(
-            pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"),
-        )
+        self.surf = Renderer.load_image(f"{Asset.NAME_FRAME_PATH.value}.png")
         self.size = (width, height)
         self.pos = (
             DisplayInfo.SCREEN_WIDTH.value // 2,
@@ -215,12 +211,10 @@ class Character(ABC):
         self.maze = maze
         self.speed = speed
         self.scale = scale
-        self.scaled_v_step_y = 32 * scale
-        self.scaled_v_step_x = 32 * scale
-        self.scaled_half_v_step_y = 16 * scale
-        self.scaled_half_v_step_x = 16 * scale
-        self.max_y = len(self.maze) * self.scaled_v_step_y
-        self.max_x = len(self.maze[0]) * self.scaled_v_step_x
+        self.v_step = 64
+        self.half_v_step = 32
+        self.max_y = len(self.maze) * self.v_step
+        self.max_x = len(self.maze[0]) * self.v_step
         self.origin = origin
 
     @abstractmethod

@@ -17,7 +17,7 @@ class Maze:
         cell_grid: grid containing all cells
     """
 
-    def __init__(self, maze: MazeGenerator, scale: int) -> None:
+    def __init__(self, maze: MazeGenerator) -> None:
         """maze constructor
 
         Args:
@@ -25,30 +25,18 @@ class Maze:
             screen_size: the current screen size
         """
         asset_path = "assets/walls/"
-        self.scaled_v_step_y = 32 * scale
-        self.scaled_v_step_x = 32 * scale
-        self.scaled_half_v_step_y = 16 * scale
-        self.scaled_half_v_step_x = 16 * scale
-        self.max_x = maze._width * self.scaled_v_step_x
-        self.max_y = maze._height * self.scaled_v_step_y
-        self.corner_images: dict = {}
+        self.v_step = 64
+        self.half_v_step = 32
+        self.max_x = maze._width * self.v_step
+        self.max_y = maze._height * self.v_step
         self.maze = maze
         self.bit_maze = maze.maze
-        for i in range(16):
-            self.corner_images[i] = Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}{i}.png"), (16, 16), scale
-            )
+        self.corner_images = {
+            i: Renderer.load_image(f"{asset_path}{i}.png") for i in range(16)
+        }
         self.wall_images = [
-            Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}horizontanl_wall.png"),
-                (16, 16),
-                scale,
-            ),
-            Renderer.scale_surface(
-                pygame.image.load(f"{asset_path}vertical_wall.png"),
-                (16, 16),
-                scale,
-            ),
+            Renderer.load_image(f"{asset_path}horizontanl_wall.png"),
+            Renderer.load_image(f"{asset_path}vertical_wall.png"),
         ]
         corner_grid = [
             [Corner() for _ in range(len(self.bit_maze) + 1)]
@@ -71,10 +59,7 @@ class Maze:
             ]
             for y in range(len(self.bit_maze))
         ]
-        self.set_gums(scale)
-        self.empty = Renderer.scale_surface(
-            pygame.image.load(f"{asset_path}{0}.png"), (16, 16), scale
-        )
+        self.set_gums()
 
     def get_gum(self, x: int, y: int) -> Gum | SuperGum | None:
         return self.cell_grid[y][x].content
@@ -82,13 +67,9 @@ class Maze:
     def set_gum(self, x: int, y: int) -> None:
         self.cell_grid[y][x].content = None
 
-    def set_gums(self, scale: int) -> None:
-        gum = Renderer.scale_surface(
-            pygame.image.load("assets/gum.png"), (16, 16), scale
-        )
-        super_gum = Renderer.scale_surface(
-            pygame.image.load("assets/super_gum.png"), (16, 16), scale
-        )
+    def set_gums(self) -> None:
+        gum = Renderer.load_image("assets/gum.png")
+        super_gum = Renderer.load_image("assets/super_gum.png")
         max_y = self.maze._height - 1
         max_x = self.maze._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
@@ -103,97 +84,78 @@ class Maze:
                         else SuperGum(100, cell.cord, super_gum)
                     )
 
-    def render_maze(self, scale: int) -> pygame.Surface:
+    def render_maze(self) -> pygame.Surface:
         """render the maze into a pygame surface
 
         Returns:
             surface with maze rendered on it
         """
-        height = (
-            self.maze._height * self.scaled_v_step_y
-        ) + self.scaled_v_step_y
-        width = (
-            self.maze._width * self.scaled_v_step_x
-        ) + self.scaled_v_step_x
+        height = (self.maze._height * self.v_step) + self.v_step
+        width = (self.maze._width * self.v_step) + self.v_step
         maze_surface = pygame.Surface((width, height))
 
-        Renderer.fill(maze_surface, Renderer.primary)
+        Renderer.fill(maze_surface, Renderer.secondary)
         for y, row in enumerate(self.cell_grid):
-            cord_y = y * self.scaled_v_step_y
+            cord_y = y * self.v_step
             for x, cell in enumerate(row):
-                cord_x = x * self.scaled_v_step_x
+                cord_x = x * self.v_step
                 maze_surface.blit(
                     self.corner_images[cell.top_left.bit],
                     (cord_x, cord_y),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.top_right.bit],
-                    (cord_x + self.scaled_v_step_x, cord_y),
+                    (cord_x + self.v_step, cord_y),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_left.bit],
-                    (cord_x, cord_y + self.scaled_v_step_y),
+                    (cord_x, cord_y + self.v_step),
                 )
                 maze_surface.blit(
                     self.corner_images[cell.bottom_right.bit],
                     (
-                        cord_x + self.scaled_v_step_x,
-                        cord_y + self.scaled_v_step_y,
+                        cord_x + self.v_step,
+                        cord_y + self.v_step,
                     ),
                 )
-                north = (
-                    self.wall_images[0] if cell.bit_value & 1 else self.empty
-                )
-                east = (
-                    self.wall_images[1] if cell.bit_value & 2 else self.empty
-                )
-                south = (
-                    self.wall_images[0] if cell.bit_value & 4 else self.empty
-                )
-                west = (
-                    self.wall_images[1] if cell.bit_value & 8 else self.empty
-                )
-                maze_surface.blit(
-                    north,
-                    (cord_x + self.scaled_half_v_step_x, cord_y),
-                )
-                maze_surface.blit(
-                    east,
-                    (
-                        cord_x + self.scaled_v_step_x,
-                        cord_y + self.scaled_half_v_step_y,
-                    ),
-                )
-                maze_surface.blit(
-                    south,
-                    (
-                        cord_x + self.scaled_half_v_step_x,
-                        cord_y + self.scaled_v_step_y,
-                    ),
-                )
-                maze_surface.blit(
-                    west,
-                    (cord_x, cord_y + self.scaled_half_v_step_x),
-                )
-                maze_surface.blit(
-                    self.empty,
-                    (
-                        cord_x + self.scaled_half_v_step_x,
-                        cord_y + self.scaled_half_v_step_y,
-                    ),
-                )
+                if cell.bit_value & 1:
+                    maze_surface.blit(
+                        self.wall_images[0],
+                        (cord_x + self.half_v_step, cord_y),
+                    )
+                if cell.bit_value & 2:
+                    maze_surface.blit(
+                        self.wall_images[1],
+                        (
+                            cord_x + self.v_step,
+                            cord_y + self.half_v_step,
+                        ),
+                    )
+                if cell.bit_value & 4:
+                    maze_surface.blit(
+                        self.wall_images[0],
+                        (
+                            cord_x + self.half_v_step,
+                            cord_y + self.v_step,
+                        ),
+                    )
+                if cell.bit_value & 8:
+                    maze_surface.blit(
+                        self.wall_images[1],
+                        (cord_x, cord_y + self.half_v_step),
+                    )
         return maze_surface
 
     def load_gums(self, maze_surface: pygame.Surface) -> None:
         for y, row in enumerate(self.cell_grid):
-            cord_y = y * self.scaled_v_step_y
+            cord_y = y * self.v_step
             for x, cell in enumerate(row):
-                cord_x = x * self.scaled_v_step_x
+                cord_x = x * self.v_step
                 if cell.content:
                     maze_surface.blit(
                         cell.content.sprite,
                         (
-                            cord_x + self.scaled_half_v_step_x,
-                            cord_y + self.scaled_half_v_step_y,
+                            cord_x + self.half_v_step,
+                            cord_y + self.half_v_step,
                         ),
                     )
