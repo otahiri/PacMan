@@ -30,12 +30,17 @@ class Button:
 class Text:
 
     def __init__(
-        self, label: str, pos: tuple[int, int], color_type: ColorType
+        self,
+        label: str,
+        pos: tuple[int, int],
+        color_type: ColorType,
+        anchor_point: str = "center",
     ) -> None:
 
         self.label = label
         self.pos = pos
         self.surf, self.size = Renderer.get_text(label, color_type)
+        self.anchor_point = anchor_point
 
 
 class LetterButton:
@@ -124,14 +129,6 @@ class NameFrame:
     def update_name(self, letter: str) -> None:
         self.name += letter
         self.text = Text(self.name, self.pos, ColorType.PRIMARY)
-
-
-class Heart:
-    def __init__(self) -> None:
-
-        self.surf = Renderer.change_color(
-            pygame.image.load("assets/heart.png")
-        )
 
 
 class Scene(ABC):

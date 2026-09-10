@@ -13,19 +13,24 @@ from src.scenes.score_entry import ScoreEntryScene
 class MainGame:
     def __init__(self, game_config: GameConfig) -> None:
         print("initialize MainGame")
-        self.scores: dict[str, int] = {
+        self.game_config = game_config
+        self.scores: dict[str, int] = self.__sort_scores(
+            game_config.heighscores
+        )
+        self.renderer: Renderer = Renderer(game_config.color_schema)
+        self.scene_stack: list[Scene] = [MainMenuScene()]
+
+    def __sort_scores(self, scores: dict[str, int]) -> dict[str, int]:
+        return {
             k: v
             for k, v in sorted(
-                game_config.heighscores.items(),
+                scores.items(),
                 key=lambda x: x[1],
                 reverse=True,
             )[:10]
         }
-        self.game_config = game_config
-        self.renderer: Renderer = Renderer(game_config.color_schema)
-        self.scene_stack: list[Scene] = [MainMenuScene()]
 
-    def __update_score(self, new_recorder: tuple[str, int]):
+    def __update_score(self, new_recorder: tuple[str, int]) -> None:
         scores = self.scores
         name, score = new_recorder
 
@@ -36,14 +41,7 @@ class MainGame:
 
         scores[name] = score
 
-        self.scores = {
-            k: v
-            for k, v in sorted(
-                scores.items(),
-                key=lambda x: x[1],
-                reverse=True,
-            )[:10]
-        }
+        self.scores = self.__sort_scores(scores)
 
     def __navigate(self, arguments: dict[str, Any]):
         next_scene: SceneName | None = arguments.get("next_scene")

@@ -29,8 +29,11 @@ class ColorType(Enum):
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
     CURSOR_PATH = "assets/cursor"
+
     CURSOR_WIDE_PATH = "assets/cursor_wide"
     NAME_FRAME_PATH = "assets/name_frame"
+
+    HEART_PATH = "assets/heart"
 
     LETTER_WIDTH = 40
     LETTER_HEIGHT = 40

@@ -60,4 +60,4 @@ class ScoreboardScene(Scene):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     return {"pop": True, "next_scene": SceneName.MAIN_MENU}
-        return {"pop": False, "next_scene": None}
+        return {}

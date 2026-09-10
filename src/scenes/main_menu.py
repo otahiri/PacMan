@@ -57,7 +57,7 @@ class MainMenuScene(Scene):
                 pygame.quit()
                 exit()
             case _:
-                return {"next_scene": None}
+                return {}
 
     def __handle_button_selection(self, direction: str):
         match direction:
@@ -98,4 +98,4 @@ class MainMenuScene(Scene):
                     self.button_idx = new_button_idx
                     return self.__go_to_scene()
 
-        return {"next_scene": None}
+        return {}

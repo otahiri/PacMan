@@ -1,12 +1,11 @@
 from typing import Any
-
 import pygame
 import time
 from pygame.event import Event
 from src import Direction
 from src.enums import Asset, ColorType, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
-from src.models import Heart, Scene, Text
+from src.models import Scene, Text
 from src.render import Renderer
 from src.game_logic import GameLogic
 
@@ -16,91 +15,120 @@ class GameScene(Scene):
 
         scale = 2
         self.score = 0
-        self.screen_w = DisplayInfo.SCREEN_WIDTH.value
+
         self.logical_maze = MazeGenerator()
         self.game_logic = GameLogic(scale)
-        self.title_text = Text(
-            "score", (self.screen_w // 2, 10), ColorType.PRIMARY
-        )
-        self.score_text = Text(
-            str(self.score), (self.screen_w // 2, 75), ColorType.PRIMARY
-        )
-        self.heart = Heart()
         self.last_time = time.perf_counter()
+        self.text_elements: list[Text] = []
+        self.time_remaining: int = 90
+        self.__init_elements()
 
-        self.running = True
+    def __init_elements(self):
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        self.text_elements.append(
+            Text(
+                "score",
+                (screen_width // 2, 10),
+                ColorType.PRIMARY,
+                "topcenter",
+            )
+        )
+        self.text_elements.append(
+            Text(
+                str(self.score),
+                (screen_width // 2, 75),
+                ColorType.PRIMARY,
+                "topcenter",
+            )
+        )
+        self.text_elements.append(
+            Text(
+                f"time {self.time_remaining}",
+                (screen_width - 10, 10),
+                ColorType.PRIMARY,
+                "topright",
+            )
+        )
+        self.heart = Renderer.change_color(
+            pygame.image.load(f"{Asset.HEART_PATH.value}.png")
+        )
+
+    def __get_delta(self) -> float:
+
+        current_time = time.perf_counter()
+        delta = current_time - self.last_time
+        self.last_time = current_time
+        return delta
 
     def __repr__(self) -> str:
         return "GameScene"
 
     def update_score(self) -> None:
-        self.score_text = Text(
-            str(self.score), (self.screen_w // 2, 75), ColorType.PRIMARY
-        )
-
-    def render_scene(self, renderer: Renderer) -> None:
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
         if self.score != self.game_logic.score:
             self.score = self.game_logic.score
-            self.update_score()
+            self.score_text = Text(
+                str(self.score), (screen_width // 2, 75), ColorType.PRIMARY
+            )
 
-        current_time = time.perf_counter()
-        delta = current_time - self.last_time
-        self.last_time = current_time
+    def __render_gui(self, renderer: Renderer) -> None:
+
+        for text in self.text_elements:
+            renderer.render(
+                text.surf,
+                Renderer.get_pos(text.pos, text.size, text.anchor_point),
+            )
+        heart_width = Asset.HEART_WIDTH.value
+
+        for i in range(self.game_logic.hearts):
+            x = (heart_width + 2) * i
+            y = 10
+            renderer.render(self.heart, (x + 10, y))
+
+    def render_scene(self, renderer: Renderer) -> None:
+
+        self.update_score()
+
+        delta = self.__get_delta()
 
         renderer.render(
             self.game_logic.maze_engine(delta),
             self.game_logic.v_offset,
         )
+        self.__render_gui(renderer)
 
-        renderer.render(
-            self.title_text.surf,
-            Renderer.get_pos(
-                self.title_text.pos, self.title_text.size, "topcenter"
-            ),
-        )
-        renderer.render(
-            self.score_text.surf,
-            Renderer.get_pos(
-                self.score_text.pos, self.score_text.size, "topcenter"
-            ),
-        )
-        for i in range(self.game_logic.hearts):
-            x = (Asset.HEART_WIDTH.value + 2) * i
-            y = 0
-            renderer.render(self.heart.surf, (x, y))
+    def __handle_player_moves(self, key: int) -> None:
+        if key in [pygame.K_w, pygame.K_UP]:
+            self.game_logic.new_move = Direction.NORTH
+
+        elif key in [pygame.K_s, pygame.K_DOWN]:
+            self.game_logic.new_move = Direction.SOUTH
+
+        elif key in [pygame.K_d, pygame.K_RIGHT]:
+            self.game_logic.new_move = Direction.EAST
+
+        elif key in [pygame.K_a, pygame.K_LEFT]:
+            self.game_logic.new_move = Direction.WEST
+
+    def __leave_scene(self) -> dict[str, Any]:
+        return {
+            "pop": True,
+            "next_scene": SceneName.SCORE_ENTRY,
+            "score": self.score,
+        }
 
     def handle_events(self, events: list[Event]) -> dict[str, Any]:
         if self.game_logic.game_over:
-            return {
-                "pop": True,
-                "next_scene": SceneName.SCORE_ENTRY,
-                "score": self.score,
-            }
+            return self.__leave_scene()
 
         for event in events:
-            if event.type == pygame.QUIT:
-                self.running = False
-            elif event.type == pygame.KEYDOWN:
+
+            if event.type == pygame.KEYDOWN:
+
                 if event.key == pygame.K_RETURN:
-                    return {
-                        "pop": True,
-                        "next_scene": SceneName.SCORE_ENTRY,
-                        "score": self.score,
-                    }
+                    return self.__leave_scene()
 
-                elif event.key in [pygame.K_w, pygame.K_UP]:
-                    self.game_logic.new_move = Direction.NORTH
-                elif event.key in [pygame.K_s, pygame.K_DOWN]:
-                    self.game_logic.new_move = Direction.SOUTH
-                elif event.key in [pygame.K_d, pygame.K_RIGHT]:
-                    self.game_logic.new_move = Direction.EAST
-                elif event.key in [pygame.K_a, pygame.K_LEFT]:
-                    self.game_logic.new_move = Direction.WEST
+                else:
+                    self.__handle_player_moves(event.key)
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return {
-                    "pop": True,
-                    "next_scene": SceneName.SCORE_ENTRY,
-                    "score": self.score,
-                }
-        return {"pop": False, "next_scene": None}
+        return {}

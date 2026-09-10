@@ -251,4 +251,4 @@ class ScoreEntryScene(Scene):
                         "next_scene": SceneName.MAIN_MENU,
                         "new_recorder": (self.name_frame.name, self.score),
                     }
-        return {"pop": False, "next_scene": None}
+        return {}
