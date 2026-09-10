@@ -107,9 +107,7 @@ class GameLogic:
                     mob if mob.state == GhostState.FRIGHTENED else self.player
                 )
                 victim.die()
-                self.shake.erase_frame(
-                     self.working_surf, victim.id
-                )
+                self.shake.erase_frame(self.working_surf, victim.id)
                 self.shake.del_shake(victim.id)
                 return
         gum = self.maze.get_gum(p_x, p_y)
@@ -154,7 +152,7 @@ class GameLogic:
     def reset_maze(self) -> None:
         self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
-            self.shake.erase_frame( self.working_surf, mob.id)
+            self.shake.erase_frame(self.working_surf, mob.id)
             self.shake.del_shake(mob.id)
             mob.reset_cords()
             self.change_frame(self.working_surf, mob, 0)
@@ -193,7 +191,7 @@ class GameLogic:
         self.maze.load_gums(self.working_surf)
         for mob in self.mobs:
             if mob.state == GhostState.RESPAWN:
-                self.shake.erase_frame( self.working_surf, mob.id)
+                self.shake.erase_frame(self.working_surf, mob.id)
                 mob.reset_cords()
                 if frame % 60 == 0:
                     mob.respawn_timer += 1
@@ -226,9 +224,7 @@ class GameLogic:
             else:
                 Renderer.fill(self.working_surf, Renderer.secondary)
                 for mob in self.mobs:
-                    self.shake.erase_frame(
-                         self.working_surf, mob.id
-                    )
+                    self.shake.erase_frame(self.working_surf, mob.id)
                 self.shake.apply_shake(
                     2,
                     0,

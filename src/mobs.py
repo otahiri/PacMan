@@ -93,12 +93,8 @@ class Player(Character):
 
     def reset_cords(self) -> None:
         """reset the cordination to the original point of the character"""
-        self.v_x = (
-            self.origin[0] * self.v_step + self.half_v_step
-        )
-        self.v_y = (
-            self.origin[1] * self.v_step + self.half_v_step
-        )
+        self.v_x = self.origin[0] * self.v_step + self.half_v_step
+        self.v_y = self.origin[1] * self.v_step + self.half_v_step
         self.bit_y = self.origin[1]
         self.bit_x = self.origin[0]
 
@@ -342,7 +338,7 @@ class Blinky(Character):
         for d in Direction:
             if d == Direction.NONE:
                 continue
-            dx, dy, shift = d.value
+            _, _, shift = d.value
             if self.maze[self.bit_y][self.bit_x].bit_value & 1 << shift == 0:
                 possible_directions.append(d)
         valid_direction = [
@@ -363,7 +359,7 @@ class Blinky(Character):
 
     def update_visual_cord(self) -> None:
         """change the visual cords"""
-        dx, dy, shift = self.direction.value
+        dx, dy, _ = self.direction.value
         min_x = 0
         min_y = 0
         max_x = self.max_x
@@ -386,7 +382,7 @@ class Blinky(Character):
             bool representing if it is possible to change direction
         """
         can_move = False
-        dx, dy, shift = self.direction.value
+        _, _, shift = self.direction.value
         if is_centered:
             if (1 << shift) & self.maze[self.bit_y][
                 self.bit_x
@@ -418,15 +414,13 @@ class Blinky(Character):
             return self.prev_sprite
         is_centered = (
             self.v_x % (self.v_step) == self.half_v_step
-            and (self.v_y) % (self.v_step)
-            == self.half_v_step
+            and (self.v_y) % (self.v_step) == self.half_v_step
         )
         if is_centered:
             if self.state == GhostState.FRIGHTENED:
                 self.panic_direction()
             else:
                 self.choose_direction()
-        dx, dy, shift = self.direction.value
         if self.check_movability(is_centered):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)

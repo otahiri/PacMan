@@ -1,5 +1,3 @@
-from os import fdatasync
-
 import pygame
 import sys
 import numpy as np
@@ -18,7 +16,6 @@ class Renderer:
 
     def __init__(self, color_schema: int) -> None:
 
-
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
@@ -30,20 +27,20 @@ class Renderer:
             c: pygame.image.load(f"{Asset.LETTER_PATH.value}/{c}.png")
             for c in "0123456789abcdefghijklmnopqrstuvwxyz"
         }
-        Renderer.LETTER[" "] = pygame.image.load(f"{Asset.LETTER_PATH.value}/space.png")
+        Renderer.LETTER[" "] = pygame.image.load(
+            f"{Asset.LETTER_PATH.value}/space.png"
+        )
         print("initialize Renderer")
 
     def clear(self) -> None:
         Renderer.fill(self.__window, Renderer.secondary)
 
     @staticmethod
-    def load_image(
-        img: str
-    ) -> pygame.Surface:
+    def load_image(img: str) -> pygame.Surface:
         return Renderer.change_color(pygame.image.load(img).convert_alpha())
 
     @staticmethod
-    def fill(dest: pygame.Surface, color_name: str) -> None:
+    def fill(dest: pygame.surface.Surface, color_name: str) -> None:
         color_hex = color_name
         dest_px = pygame.surfarray.pixels2d(dest)
         dest_px.fill(int(color_hex, 16))
@@ -76,7 +73,7 @@ class Renderer:
         )
 
     @classmethod
-    def change_color(cls, source: pygame.Surface) -> pygame.Surface:
+    def change_color(cls, source: pygame.surface.Surface) -> pygame.Surface:
         px = pygame.surfarray.pixels2d(source)
         result = pygame.Surface(px.shape, pygame.SRCALPHA)
         result_px = pygame.surfarray.pixels2d(result)
@@ -219,8 +216,7 @@ class Renderer:
         surface_height = letter_height
 
         result_surface = pygame.Surface(
-            (surface_width, letter_height),
-            pygame.SRCALPHA
+            (surface_width, letter_height), pygame.SRCALPHA
         )
         x_shift = 0
         np.set_printoptions(threshold=sys.maxsize)
