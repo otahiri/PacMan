@@ -2,7 +2,6 @@ import pygame
 import sys
 import numpy as np
 from src.enums import Asset, ColorTheme, DisplayInfo
-from webcolors import name_to_hex
 
 
 class Renderer:
@@ -25,12 +24,10 @@ class Renderer:
         Renderer.fill(self.__window, secondary)
 
     @staticmethod
-    def custom_blit(
-        dest: pygame.Surface,
-        src: pygame.Surface,
-        pos: tuple,
-    ) -> None:
-        dest.blit(src, pos)
+    def load_image(
+        img: str
+    ) -> pygame.Surface:
+        return Renderer.change_color(pygame.image.load(img).convert_alpha())
 
     @staticmethod
     def fill(dest: pygame.Surface, color_name: str) -> None:
@@ -68,12 +65,11 @@ class Renderer:
     @classmethod
     def change_color(cls, source: pygame.Surface) -> pygame.Surface:
         secondary, primary = ColorTheme.ONE.value
-        print("here")
         px = pygame.surfarray.pixels2d(source)
         result = pygame.Surface(px.shape)
         result_px = pygame.surfarray.pixels2d(result)
         result_px.fill(int(secondary[1:], 16))
-        mask = px != 0
+        mask = px == 4294967295
         result_px[mask] = int(primary[1:], 16)
         del result_px, px
         return result

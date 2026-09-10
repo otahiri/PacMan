@@ -59,21 +59,13 @@ class Player(Character):
         self.state = PlayerState.ALIVE
         self.sprites = [
             [
-                Renderer.scale_surface(
-                    pygame.image.load(f"assets/player/alive/{i}.png"),
-                    (16, 16),
-                    scale,
-                )
+                Renderer.load_image(f"assets/player/alive/{i}.png")
                 for i in range(6)
             ]
         ]
         self.death_animation = [
             [
-                Renderer.scale_surface(
-                    pygame.image.load(f"assets/player/dead/{i}.png"),
-                    (16, 16),
-                    scale,
-                )
+                Renderer.load_image(f"assets/player/dead/{i}.png")
                 for i in range(11)
             ]
         ]
@@ -254,11 +246,9 @@ class Blinky(Character):
         self.scale = scale
         self.sprites = [
             [
-                
-                    pygame.image.load(
+                    Renderer.load_image(
                         f"assets/mobs/moving/{d.name.lower()}/{i}.png"
                     )
-                
                 for i in range(4)
             ]
             for d in Direction
@@ -267,17 +257,16 @@ class Blinky(Character):
         self.frightened_sprites = [
             [
                 
-                    pygame.image.load(
+                    Renderer.load_image(
                         f"assets/mobs/frightened/{d.name.lower()}/{i}.png"
                     )
-                
                 for i in range(4)
             ]
             for d in Direction
             if d is not Direction.NONE
         ]
         self.dead_sprite = [
-            pygame.image.load(f"assets/mobs/dead/{i}.png") for i in range(6)
+            Renderer.load_image(f"assets/mobs/dead/{i}.png") for i in range(6)
         ]
         self.reset_cords()
         self.player = anchors[0]

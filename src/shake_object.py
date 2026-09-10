@@ -1,8 +1,6 @@
-import numpy
-from pygame import Color, Surface, surfarray
+from pygame import Surface, surfarray
 import pygame
 from src.enums import ColorTheme
-from src.render import Renderer
 
 
 class ShakeInfo:
@@ -12,7 +10,6 @@ class ShakeInfo:
         max_y: int,
         steps_x: int,
         steps_y: int,
-        target_id: int,
         wait_time: int,
         max_cycles: int,
     ) -> None:
@@ -37,7 +34,7 @@ class Shake:
     def __init__(self) -> None:
         self.shake_objects: dict = {}
 
-    def erase_frame(self, scale, dest: Surface, target_id: int):
+    def erase_frame(self, dest: Surface, target_id: int):
         shake_info = self.shake_objects.get(target_id, None)
         if not shake_info:
             return
@@ -46,11 +43,11 @@ class Shake:
         mask = frame_px != int(ColorTheme.ONE.value[0][1:], 16)
         eraser = pygame.Surface(frame_px.shape)
         eraser_px = pygame.surfarray.pixels2d(eraser)
+        eraser_px.fill(int(ColorTheme.ONE.value[0][1:], 16))
         eraser_px[mask] = int(ColorTheme.ONE.value[0][1:], 16)
         del frame_px
         del eraser_px
         dest.blit(eraser, (shake_info.last_x, shake_info.last_y))
-
 
     def del_shake(self, target_id: int) -> None:
         target = self.shake_objects.get(target_id, None)
@@ -67,18 +64,16 @@ class Shake:
         target_frame: Surface,
         target_id: int,
         cords: tuple,
-        scale: int,
         working_surface: Surface,
     ) -> Surface:
         shake_info = self.shake_objects.get(target_id, None)
         if not shake_info:
-            Renderer.custom_blit(working_surface, target_frame, cords)
+            working_surface.blit(target_frame, cords)
             shake_info = ShakeInfo(
                 max_x,
                 max_y,
                 steps_x,
                 steps_y,
-                target_id,
                 wait_time,
                 max_cycles,
             )
@@ -88,7 +83,7 @@ class Shake:
             self.shake_objects[target_id] = shake_info
             return working_surface
 
-        self.erase_frame(scale, working_surface, target_id)
+        self.erase_frame(working_surface, target_id)
         shake_info.current_time += 1
         if shake_info.current_time >= shake_info.wait_time:
             shake_info.current_time = 0
