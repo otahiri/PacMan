@@ -1,6 +1,7 @@
 from typing import Any
 import pygame
 import time
+import math
 from pygame.event import Event
 from src import Direction
 from src.enums import Asset, ColorType, DisplayInfo, SceneName
@@ -20,7 +21,15 @@ class GameScene(Scene):
         self.game_logic = GameLogic(scale)
         self.last_time = time.perf_counter()
         self.text_elements: list[Text] = []
-        self.time_remaining: int = 90
+        self.time_remaining: float = 15
+        self.prev_time_remaining: float = self.time_remaining
+        self.time_text = Text(
+            f"time {self.time_remaining}",
+            (DisplayInfo.SCREEN_WIDTH.value - 10, 10),
+            ColorType.PRIMARY,
+            "topright",
+        )
+
         self.__init_elements()
 
     def __init_elements(self):
@@ -41,14 +50,6 @@ class GameScene(Scene):
                 "topcenter",
             )
         )
-        self.text_elements.append(
-            Text(
-                f"time {self.time_remaining}",
-                (screen_width - 10, 10),
-                ColorType.PRIMARY,
-                "topright",
-            )
-        )
         self.heart = Renderer.change_color(
             pygame.image.load(f"{Asset.HEART_PATH.value}.png")
         )
@@ -57,6 +58,9 @@ class GameScene(Scene):
 
         current_time = time.perf_counter()
         delta = current_time - self.last_time
+        self.time_remaining -= delta
+        if self.time_remaining < 0:
+            self.game_logic.game_over = True
         self.last_time = current_time
         return delta
 
@@ -71,13 +75,39 @@ class GameScene(Scene):
                 str(self.score), (screen_width // 2, 75), ColorType.PRIMARY
             )
 
+    def update_time(self) -> None:
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        self.time_text = Text(
+            str(math.ceil(self.time_remaining)),
+            (
+                screen_width
+                - (
+                    len(str(math.ceil(self.time_remaining)))
+                    * Asset.LETTER_WIDTH.value
+                ),
+                32,
+            ),
+            ColorType.PRIMARY,
+        )
+
     def __render_gui(self, renderer: Renderer) -> None:
 
+        if (self.time_remaining < self.prev_time_remaining):
+            self.update_time()
+            self.prev_time_remaining = self.time_remaining
         for text in self.text_elements:
             renderer.render(
                 text.surf,
                 Renderer.get_pos(text.pos, text.size, text.anchor_point),
             )
+        renderer.render(
+            self.time_text.surf,
+            Renderer.get_pos(
+                self.time_text.pos,
+                self.time_text.size,
+                self.time_text.anchor_point,
+            ),
+        )
         heart_width = Asset.HEART_WIDTH.value
 
         for i in range(self.game_logic.hearts):
