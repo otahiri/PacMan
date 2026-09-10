@@ -1,4 +1,4 @@
-from pygame import RESIZABLE, Surface, surfarray
+from pygame import Surface, surfarray
 import pygame
 from src.render import Renderer
 

@@ -138,12 +138,12 @@ class Renderer:
     @staticmethod
     def rotate_surf(surf: pygame.Surface, degree: int) -> pygame.Surface:
         surf_px = pygame.surfarray.pixels2d(surf)
-        new_array = np.rot90(surf_px, degree)
-        new_surf = pygame.Surface(new_array.shape)
-        Renderer.fill(new_surf, Renderer.primary)
-        mask = new_array != 0
+        rot_array = np.rot90(surf_px, degree)
+        new_surf = pygame.Surface(rot_array.shape, pygame.SRCALPHA)
+        Renderer.fill(new_surf, Renderer.secondary)
+        mask = rot_array != int(Renderer.secondary, 16)
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
-        new_surf_px[mask] = new_array[mask]
+        new_surf_px[mask] = rot_array[mask]
         del new_surf_px
         del surf_px
         return new_surf
