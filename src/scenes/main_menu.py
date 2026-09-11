@@ -33,7 +33,7 @@ class MainMenuScene(Scene):
         x = screen_width // 2
         spacing = 120
 
-        for i, label in enumerate(["play", "scores", "exit"]):
+        for i, label in enumerate(["play", "scores", "info", "exit"]):
 
             y = screen_height // 2 + spacing * i
             self.buttons.append(Button(label, (x, y)))
@@ -75,6 +75,8 @@ class MainMenuScene(Scene):
             case 1:
                 return {"next_scene": SceneName.SCOREBOARD}
             case 2:
+                return {"next_scene": SceneName.INFO}
+            case 3:
                 pygame.quit()
                 exit()
             case _:
