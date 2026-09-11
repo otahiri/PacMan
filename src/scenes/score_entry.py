@@ -16,7 +16,7 @@ class ScoreEntryScene(Scene):
         )
         self.heighscores_path = heighscores_path
         self.text = Text(
-            "score entry", (width // 2, height // 6), ColorType.PRIMARY
+            "score entry", (width // 2, height // 6), ColorType.SECONDARY
         )
         self.score = score
         self.score_text = Text(

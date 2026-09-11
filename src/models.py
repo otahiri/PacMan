@@ -43,6 +43,67 @@ class Text:
         self.anchor_point = anchor_point
 
 
+class AnimatedBar:
+    def __init__(
+        self, label: str, gap: int, speed: int, pos: str = "bottom"
+    ) -> None:
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        screen_height = DisplayInfo.SCREEN_HEIGHT.value
+        self.y_pos = screen_height - 10 if pos == "bottom" else 50
+        self.speed = speed
+        self.gap = gap
+        self.x1: float = screen_width + screen_width // 2
+
+        self.y = self.y_pos
+
+        self.text = Text(
+            label,
+            (self.x1, self.y_pos - 10),
+            ColorType.SECONDARY,
+            "bottom_right",
+        )
+
+        self.bar = pygame.Surface((1280, 60))
+        Renderer.fill(self.bar, Renderer.primary)
+
+        self.bar_pos = (0, self.y_pos - Asset.LETTER_HEIGHT.value - 10)
+
+        self.text_width = self.text.size[0]
+        self.x2: float = self.x1 - self.text_width - self.gap
+
+    def render(self, renderer: Renderer, delta: float):
+        self.x1 -= delta * self.speed
+        if self.x1 + self.gap <= 0:
+            self.x1 = self.x2 + self.text_width + self.gap
+
+        self.x2 -= delta * self.speed
+
+        if self.x2 + self.gap <= 0:
+            self.x2 = self.x1 + self.text_width + self.gap
+
+        renderer.render(
+            self.bar,
+            self.bar_pos,
+        )
+        renderer.render(
+            self.text.surf,
+            Renderer.get_pos(
+                (int(self.x1), self.y),
+                self.text.size,
+                self.text.anchor_point,
+            ),
+        )
+
+        renderer.render(
+            self.text.surf,
+            Renderer.get_pos(
+                (int(self.x2), self.y),
+                self.text.size,
+                self.text.anchor_point,
+            ),
+        )
+
+
 class LetterButton:
 
     def __init__(

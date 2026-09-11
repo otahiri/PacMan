@@ -1,7 +1,8 @@
+import time
 from typing import Any
 import pygame
-from src.enums import DisplayInfo, SceneName
-from src.models import Button, Scene
+from src.enums import Asset, ColorType, DisplayInfo, SceneName
+from src.models import AnimatedBar, Button, Scene, Text
 from src.render import Renderer
 
 
@@ -9,8 +10,20 @@ class MainMenuScene(Scene):
     def __init__(self) -> None:
 
         self.buttons: list[Button] = []
+
         self.button_idx = 0
         self.__init_elements()
+        self.last_time = time.perf_counter()
+        self.animated_bar = AnimatedBar(
+            "powered by otahiri and satifi", 200, 300
+        )
+
+    def __get_delta(self) -> float:
+
+        current_time = time.perf_counter()
+        delta = current_time - self.last_time
+        self.last_time = current_time
+        return delta
 
     def __init_elements(self):
 
@@ -29,6 +42,7 @@ class MainMenuScene(Scene):
         return "MainMenuScene"
 
     def render_scene(self, renderer: Renderer) -> None:
+
         for i, button in enumerate(self.buttons):
 
             if self.button_idx == i:
@@ -40,6 +54,9 @@ class MainMenuScene(Scene):
                 button.text.surf,
                 Renderer.get_pos(button.text.pos, button.text.size),
             )
+
+        delta = self.__get_delta()
+        self.animated_bar.render(renderer, delta)
 
     def __get_mouse_selected_button_idx(self) -> int | None:
         for i, button in enumerate(self.buttons):

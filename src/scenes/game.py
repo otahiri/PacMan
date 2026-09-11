@@ -53,6 +53,9 @@ class GameScene(Scene):
         self.heart = Renderer.change_color(
             pygame.image.load(f"{Asset.HEART_PATH.value}.png")
         )
+        self.timer_bar = Renderer.change_color(
+            pygame.image.load("assets/cursor_wide.png")
+        )
 
     def __get_delta(self) -> float:
 
@@ -114,6 +117,18 @@ class GameScene(Scene):
             x = (heart_width + 2) * i
             y = 10
             renderer.render(self.heart, (x + 10, y))
+        # fix me later
+        renderer.render(
+            self.timer_bar,
+            Renderer.get_pos(
+                (1280 // 2, 1280),
+                (
+                    Asset.CURSOR_WIDE_WIDTH.value,
+                    Asset.CURSOR_WIDE_HEIGHT.value,
+                ),
+                "bottomcenter",
+            ),
+        )
 
     def render_scene(self, renderer: Renderer) -> None:
 
