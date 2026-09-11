@@ -1,7 +1,7 @@
 import sys
 import json
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 from pydantic_core import PydanticCustomError
 from pydantic import (
     BaseModel,
@@ -63,7 +63,7 @@ class GameConfig(BaseModel):
     def load_scores_from_path(self) -> "GameConfig":
         file = self.heighscores_path
         try:
-            scores_data = json.loads(Parser.get_file_content(file))
+            scores_data: Any = json.loads(Parser.get_file_content(file))
             if not isinstance(scores_data, dict):
                 raise PydanticCustomError(
                     "invalid_json_root",
@@ -101,7 +101,7 @@ class GameConfig(BaseModel):
 class Parser:
 
     @staticmethod
-    def get_file_path():
+    def get_file_path() -> Path:
         if len(sys.argv) != 2:
             raise ValueError(
                 "Invalid number of arguments. "
@@ -111,7 +111,7 @@ class Parser:
         return Path(sys.argv[1])
 
     @staticmethod
-    def get_file_content(file):
+    def get_file_content(file) -> str:
         content = ""
         with open(file) as f:
             for line in f:
@@ -126,17 +126,19 @@ class Parser:
         return content
 
     @staticmethod
-    def parse():
+    def parse() -> GameConfig:
         current_file = Path()
         try:
-            file = Parser.get_file_path()
+            file: Path = Parser.get_file_path()
             current_file = file
             if file.suffix != ".json":
                 raise ValueError(
                     f"Invalid config file extension '{file}'. Must be .json"
                 )
-            file_conent = Parser.get_file_content(file)
-            game_config = GameConfig.model_validate_json(file_conent)
+            file_content: str = Parser.get_file_content(file)
+            game_config: GameConfig = GameConfig.model_validate_json(
+                file_content
+            )
 
             return game_config
 

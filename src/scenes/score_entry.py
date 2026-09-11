@@ -126,7 +126,7 @@ class ScoreEntryScene(Scene):
             ):
                 if self.cursor.is_wide:
                     width, height = Renderer.get_pos(
-                        letter.pos, (self.cursor.wide_size), "leftcenter"
+                        letter.pos, (self.cursor.wide_size), "center_left"
                     )
                     width -= letter.size[0]
                     renderer.render(self.cursor.wide_surf, (width, height))

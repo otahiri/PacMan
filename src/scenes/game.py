@@ -27,7 +27,7 @@ class GameScene(Scene):
             f"time {self.time_remaining}",
             (DisplayInfo.SCREEN_WIDTH.value - 10, 10),
             ColorType.PRIMARY,
-            "topright",
+            "top_right",
         )
 
         self.__init_elements()

@@ -14,6 +14,8 @@ lint: install
 	--ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 	uv run flake8 src
+lint-strict:
+	uv run flake8 .  && mypy . --strict
 
 clean:
 	rm -rf .mypy_cache

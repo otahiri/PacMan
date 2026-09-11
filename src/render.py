@@ -1,3 +1,7 @@
+"""render module is responsible for interacting with the main display
+and load images and edit them
+"""
+
 import pygame
 import sys
 import numpy as np
@@ -5,6 +9,21 @@ from src.enums import Asset, ColorType, DisplayInfo
 
 
 class Renderer:
+    """[TODO:description]
+
+    Attributes:
+        colors: [TODO:attribute]
+        primary, secondary: [TODO:attribute]
+        LETTER: [TODO:attribute]
+        LETTER: [TODO:attribute]
+    """
+    """Renderer class responsible for the graphics
+
+    Attributes:
+        colors: colors list containing background color and foreground color
+        primary, secondary: chosen background and foreground colors
+        LETTER: dictionary containing all lettters pre loaded
+    """
     colors = [
         ("FFEDF6D6", "003E232C"),
         ("FFD3C9A1", "00323C39"),
@@ -16,6 +35,11 @@ class Renderer:
 
     def __init__(self, color_schema: int) -> None:
 
+        """constructor for the Renderer class
+
+        Args:
+            color_schema: index for the chosen color theme
+        """
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
         )
@@ -33,47 +57,44 @@ class Renderer:
         print("initialize Renderer")
 
     def clear(self) -> None:
+        """clear main display"""
         Renderer.fill(self.__window, Renderer.secondary)
 
     @staticmethod
     def load_image(img: str) -> pygame.Surface:
+        """image loader
+
+        Args:
+            img: load image and call change color function
+
+        Returns:
+            suface object with image on it with correct colors
+        """
         return Renderer.change_color(pygame.image.load(img).convert_alpha())
 
     @staticmethod
-    def fill(dest: pygame.surface.Surface, color_name: str) -> None:
-        color_hex = color_name
+    def fill(dest: pygame.surface.Surface, color_hex: str) -> None:
+        """fill dest surface with  chosen color
+
+        Args:
+            dest: surface to fill
+            color_hex: hex value of color
+        """
+        color_hex = color_hex
         dest_px = pygame.surfarray.pixels2d(dest)
         dest_px.fill(int(color_hex, 16))
         del dest_px
 
-    def draw_debug(self) -> None:
-        pygame.draw.line(
-            self.__window,
-            "red",
-            (
-                0,
-                DisplayInfo.SCREEN_HEIGHT.value // 2,
-            ),
-            (
-                DisplayInfo.SCREEN_WIDTH.value,
-                DisplayInfo.SCREEN_HEIGHT.value // 2,
-            ),
-        )
-        pygame.draw.line(
-            self.__window,
-            "red",
-            (
-                DisplayInfo.SCREEN_WIDTH.value // 2,
-                0,
-            ),
-            (
-                DisplayInfo.SCREEN_WIDTH.value // 2,
-                DisplayInfo.SCREEN_HEIGHT.value,
-            ),
-        )
-
     @classmethod
     def change_color(cls, source: pygame.surface.Surface) -> pygame.Surface:
+        """change color of the surface to match the chosen color theme
+
+        Args:
+            source: suface with black and white
+
+        Returns:
+            new surface with appropriate colors
+        """
         px = pygame.surfarray.pixels2d(source)
         result = pygame.Surface(px.shape, pygame.SRCALPHA)
         result_px = pygame.surfarray.pixels2d(result)
@@ -87,6 +108,11 @@ class Renderer:
         cls,
     ) -> tuple[pygame.Surface, pygame.Surface, tuple[int, int]]:
 
+        """ get button both idle and hover button sprites
+
+        Returns:
+            tuple with both surfaces and the size of the buttons
+        """
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
 
         idel = Renderer.load_image("assets/button/idel.png")
@@ -102,35 +128,39 @@ class Renderer:
         anchor: str = "center",
     ) -> tuple[int, int]:
 
+        """get position offset for the
+
+        Args:
+            pos: current position
+            size: size of the surface
+            anchor: offset variable
+
+        Returns:
+            new offsetted position
+        """
         x, y = pos
         width, height = size
-        match anchor.lower():
-            # Left anchors
-            case "topleft" | "lefttop":
-                return (x, y)
-            case "centerleft" | "leftcenter":
-                return (x, y - height // 2)
-            case "bottomleft" | "leftbottom":  # includes your typo safeguard
-                return (x, y - height)
-
-            # Center anchors
-            case "topcenter" | "centertop":
-                return (x - width // 2, y)
+        match anchor:
             case "center":
                 return (x - width // 2, y - height // 2)
-            case "bottomcenter" | "centerbottom" | "bottomcenter":
-                return (x - width // 2, y - height)
-
-            # Right anchors
-            case "topright":
+            case "top_left":
+                return (x, y)
+            case "top_right":
                 return (x - width, y)
-            case "centerright" | "rightcenter":
-                return (x - width, y - height // 2)
-            case "bottomright" | "rightbottom":
+            case "bottom_left":
+                return (x, y - height)
+            case "bottom_right":
                 return (x - width, y - height)
-
+            case "center_left":
+                return (x, y - height // 2)
+            case "center_right":
+                return (x - width, y - height // 2)
+            case "top_center":
+                return (x - width // 2, y)
+            case "bottom_center":
+                return (x - width // 2, y - height)
             case _:
-                raise ValueError(f"anchor value unknown {anchor}")
+                return (x, y)
 
     @staticmethod
     def rotate_surf(surf: pygame.Surface, degree: int) -> pygame.Surface:

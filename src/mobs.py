@@ -155,11 +155,9 @@ class Player(Character):
     def update_visual_cord(self) -> None:
         """update the visual cords"""
         dx, dy, _ = self.direction.value
-        max_x = self.max_x
-        max_y = self.max_y
         new_x = ((dx * self.speed) * self.scale) + self.v_x
         new_y = ((dy * self.speed) * self.scale) + self.v_y
-        if 0 <= new_y < max_y and 0 <= new_x < max_x:
+        if 0 <= new_y < self.max_y and 0 <= new_x < self.max_x:
             self.v_x = new_x
             self.v_y = new_y
 
