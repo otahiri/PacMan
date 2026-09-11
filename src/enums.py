@@ -26,6 +26,20 @@ class ColorType(Enum):
     SECONDARY = auto()
 
 
+class AnchorPoint(Enum):
+    TOP_LEFT = auto()
+    TOP_CENTER = auto()
+    TOP_RIGHT = auto()
+
+    CENTER_LEFT = auto()
+    CENTER = auto()
+    CENTER_RIGHT = auto()
+
+    BOTTOM_LEFT = auto()
+    BOTTOM_CENTER = auto()
+    BOTTOM_RIGHT = auto()
+
+
 class Asset(Enum):
     LETTER_PATH = "assets/letters"
     CURSOR_PATH = "assets/cursor"
@@ -34,6 +48,7 @@ class Asset(Enum):
     NAME_FRAME_PATH = "assets/name_frame"
 
     HEART_PATH = "assets/heart"
+    BUTTON_PATH = "assets/button"
 
     LETTER_WIDTH = 40
     LETTER_HEIGHT = 40
@@ -41,7 +56,7 @@ class Asset(Enum):
     LETTER_SPACING = 5
 
     BUTTON_WIDTH = 320
-    BUTTON_HEIGHT = 110
+    BUTTON_HEIGHT = 80
 
     HEART_WIDTH = 80
     HEART_HEIGHT = 65

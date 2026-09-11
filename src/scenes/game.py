@@ -4,7 +4,7 @@ import time
 import math
 from pygame.event import Event
 from src import Direction
-from src.enums import Asset, ColorType, DisplayInfo, SceneName
+from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene, Text
 from src.render import Renderer
@@ -21,13 +21,13 @@ class GameScene(Scene):
         self.game_logic = GameLogic(scale)
         self.last_time = time.perf_counter()
         self.text_elements: list[Text] = []
-        self.time_remaining: float = 15
+        self.time_remaining: float = 200
         self.prev_time_remaining: float = self.time_remaining
         self.time_text = Text(
             f"time {self.time_remaining}",
             (DisplayInfo.SCREEN_WIDTH.value - 10, 10),
             ColorType.PRIMARY,
-            "top_right",
+            AnchorPoint.TOP_RIGHT,
         )
 
         self.__init_elements()
@@ -39,7 +39,7 @@ class GameScene(Scene):
                 "score",
                 (screen_width // 2, 10),
                 ColorType.PRIMARY,
-                "topcenter",
+                AnchorPoint.TOP_CENTER,
             )
         )
         self.text_elements.append(
@@ -47,7 +47,7 @@ class GameScene(Scene):
                 str(self.score),
                 (screen_width // 2, 75),
                 ColorType.PRIMARY,
-                "topcenter",
+                AnchorPoint.TOP_CENTER,
             )
         )
         self.heart = Renderer.change_color(
@@ -95,7 +95,7 @@ class GameScene(Scene):
 
     def __render_gui(self, renderer: Renderer) -> None:
 
-        if (self.time_remaining < self.prev_time_remaining):
+        if self.time_remaining < self.prev_time_remaining:
             self.update_time()
             self.prev_time_remaining = self.time_remaining
         for text in self.text_elements:
@@ -126,7 +126,7 @@ class GameScene(Scene):
                     Asset.CURSOR_WIDE_WIDTH.value,
                     Asset.CURSOR_WIDE_HEIGHT.value,
                 ),
-                "bottomcenter",
+                AnchorPoint.BOTTOM_CENTER,
             ),
         )
 

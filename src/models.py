@@ -1,7 +1,7 @@
 from typing import Any
 import pygame
 from abc import ABC, abstractmethod
-from src.enums import Asset, ColorType, DisplayInfo
+from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 from src.render import Renderer
 
 
@@ -11,13 +11,14 @@ class Button:
         self.name = name
         x, y = pos
 
-        self.idel, self.hover, size = Renderer.get_button()
+        self.surf, size = Renderer.get_button()
 
         self.width, self.height = size
 
         self.pos = (x - self.width // 2, y - self.height // 2)
 
-        self.text = Text(name, pos, ColorType.SECONDARY)
+        self.text_on = Text(name, pos, ColorType.SECONDARY)
+        self.text_off = Text(name, pos, ColorType.PRIMARY)
 
     def is_collide(self, pos: tuple[int, int]) -> bool:
         my_x, my_y = self.pos
@@ -34,7 +35,7 @@ class Text:
         label: str,
         pos: tuple[int, int],
         color_type: ColorType,
-        anchor_point: str = "center",
+        anchor_point: AnchorPoint = AnchorPoint.CENTER,
     ) -> None:
 
         self.label = label
@@ -60,7 +61,7 @@ class AnimatedBar:
             label,
             (self.x1, self.y_pos - 10),
             ColorType.SECONDARY,
-            "bottom_right",
+            AnchorPoint.BOTTOM_RIGHT,
         )
 
         self.bar = pygame.Surface((1280, 60))

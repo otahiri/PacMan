@@ -1,8 +1,8 @@
 import time
 from typing import Any
 import pygame
-from src.enums import Asset, ColorType, DisplayInfo, SceneName
-from src.models import AnimatedBar, Button, Scene, Text
+from src.enums import DisplayInfo, SceneName
+from src.models import AnimatedBar, Button, Scene
 from src.render import Renderer
 
 
@@ -46,14 +46,18 @@ class MainMenuScene(Scene):
         for i, button in enumerate(self.buttons):
 
             if self.button_idx == i:
-                renderer.render(button.hover, button.pos)
+                renderer.render(button.surf, button.pos)
+                renderer.render(
+                    button.text_on.surf,
+                    Renderer.get_pos(button.text_on.pos, button.text_on.size),
+                )
             else:
-                renderer.render(button.idel, button.pos)
-
-            renderer.render(
-                button.text.surf,
-                Renderer.get_pos(button.text.pos, button.text.size),
-            )
+                renderer.render(
+                    button.text_off.surf,
+                    Renderer.get_pos(
+                        button.text_off.pos, button.text_off.size
+                    ),
+                )
 
         delta = self.__get_delta()
         self.animated_bar.render(renderer, delta)

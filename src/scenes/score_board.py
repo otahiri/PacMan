@@ -1,7 +1,6 @@
 from typing import Any
-
 import pygame
-from src.enums import ColorType, DisplayInfo, SceneName
+from src.enums import AnchorPoint, ColorType, DisplayInfo, SceneName
 from src.models import Scene, Text
 from src.render import Renderer
 
@@ -45,11 +44,14 @@ class ScoreboardScene(Scene):
         )
         for name, score in self.scores:
             renderer.render(
-                name.surf, Renderer.get_pos(name.pos, name.size, "center_left")
+                name.surf,
+                Renderer.get_pos(name.pos, name.size, AnchorPoint.CENTER_LEFT),
             )
             renderer.render(
                 score.surf,
-                Renderer.get_pos(score.pos, score.size, "center_right"),
+                Renderer.get_pos(
+                    score.pos, score.size, AnchorPoint.CENTER_RIGHT
+                ),
             )
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:

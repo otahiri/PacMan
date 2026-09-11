@@ -5,7 +5,7 @@ and load images and edit them
 import pygame
 import sys
 import numpy as np
-from src.enums import Asset, ColorType, DisplayInfo
+from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 
 
 class Renderer:
@@ -17,6 +17,7 @@ class Renderer:
         LETTER: [TODO:attribute]
         LETTER: [TODO:attribute]
     """
+
     """Renderer class responsible for the graphics
 
     Attributes:
@@ -34,7 +35,6 @@ class Renderer:
     LETTER: dict = dict()
 
     def __init__(self, color_schema: int) -> None:
-
         """constructor for the Renderer class
 
         Args:
@@ -106,28 +106,25 @@ class Renderer:
     @classmethod
     def get_button(
         cls,
-    ) -> tuple[pygame.Surface, pygame.Surface, tuple[int, int]]:
-
-        """ get button both idle and hover button sprites
+    ) -> tuple[pygame.Surface, tuple[int, int]]:
+        """get button sprite
 
         Returns:
-            tuple with both surfaces and the size of the buttons
+            tuple with surface and the size of the button
         """
         size = (Asset.BUTTON_WIDTH.value, Asset.BUTTON_HEIGHT.value)
 
-        idel = Renderer.load_image("assets/button/idel.png")
-        hover = Renderer.load_image("assets/button/hover.png")
+        surf = Renderer.load_image(f"{Asset.BUTTON_PATH.value}.png")
 
-        return (idel, hover, size)
+        return (surf, size)
 
     @classmethod
     def get_pos(
         cls,
         pos: tuple[int, int],
         size: tuple[int, int],
-        anchor: str = "center",
+        anchor: AnchorPoint = AnchorPoint.CENTER,
     ) -> tuple[int, int]:
-
         """get position offset for the
 
         Args:
@@ -141,26 +138,26 @@ class Renderer:
         x, y = pos
         width, height = size
         match anchor:
-            case "center":
+            case AnchorPoint.CENTER:
                 return (x - width // 2, y - height // 2)
-            case "top_left":
+            case AnchorPoint.TOP_LEFT:
                 return (x, y)
-            case "top_right":
+            case AnchorPoint.TOP_RIGHT:
                 return (x - width, y)
-            case "bottom_left":
+            case AnchorPoint.BOTTOM_LEFT:
                 return (x, y - height)
-            case "bottom_right":
+            case AnchorPoint.BOTTOM_RIGHT:
                 return (x - width, y - height)
-            case "center_left":
+            case AnchorPoint.CENTER_LEFT:
                 return (x, y - height // 2)
-            case "center_right":
+            case AnchorPoint.CENTER_RIGHT:
                 return (x - width, y - height // 2)
-            case "top_center":
+            case AnchorPoint.TOP_CENTER:
                 return (x - width // 2, y)
-            case "bottom_center":
+            case AnchorPoint.BOTTOM_CENTER:
                 return (x - width // 2, y - height)
             case _:
-                return (x, y)
+                raise ValueError(f"Unknown point {anchor}")
 
     @staticmethod
     def rotate_surf(surf: pygame.Surface, degree: int) -> pygame.Surface:

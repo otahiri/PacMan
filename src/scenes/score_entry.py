@@ -4,7 +4,7 @@ from typing import Any
 from pathlib import Path
 from src.parsing import Parser
 from src.render import Renderer
-from src.enums import Asset, ColorType, DisplayInfo, SceneName
+from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
 from src.models import Cursor, LetterButton, NameFrame, Scene, Text
 
 
@@ -16,7 +16,7 @@ class ScoreEntryScene(Scene):
         )
         self.heighscores_path = heighscores_path
         self.text = Text(
-            "score entry", (width // 2, height // 6), ColorType.SECONDARY
+            "score entry", (width // 2, height // 6), ColorType.PRIMARY
         )
         self.score = score
         self.score_text = Text(
@@ -126,7 +126,9 @@ class ScoreEntryScene(Scene):
             ):
                 if self.cursor.is_wide:
                     width, height = Renderer.get_pos(
-                        letter.pos, (self.cursor.wide_size), "center_left"
+                        letter.pos,
+                        (self.cursor.wide_size),
+                        AnchorPoint.CENTER_LEFT,
                     )
                     width -= letter.size[0]
                     renderer.render(self.cursor.wide_surf, (width, height))
