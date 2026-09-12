@@ -65,7 +65,7 @@ class AnimatedBar:
         )
 
         self.bar = pygame.Surface((1280, 60))
-        Renderer.fill(self.bar, Renderer.primary)
+        Renderer.fill(self.bar, ColorType.PRIMARY)
 
         self.bar_pos = (0, self.y_pos - Asset.LETTER_HEIGHT.value - 10)
 
@@ -174,7 +174,7 @@ class NameFrame:
             Asset.NAME_FRAME_WIDTH.value,
             Asset.NAME_FRAME_HEIGHT.value,
         )
-        self.surf = Renderer.load_image(f"{Asset.NAME_FRAME_PATH.value}.png")
+        self.surf = Renderer.change_color(pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"))
         self.size = (width, height)
         self.pos = (
             DisplayInfo.SCREEN_WIDTH.value // 2,
@@ -264,7 +264,6 @@ class Character(ABC):
     def __init__(
         self,
         speed: int,
-        scale: int,
         origin: tuple,
         maze: list[list[Cell]],
         anchors: list = [],
@@ -272,7 +271,6 @@ class Character(ABC):
         self.id = 0
         self.maze = maze
         self.speed = speed
-        self.scale = scale
         self.v_step = 64
         self.half_v_step = 32
         self.max_y = len(self.maze) * self.v_step

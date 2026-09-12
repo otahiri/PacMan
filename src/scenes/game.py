@@ -7,18 +7,17 @@ from src import Direction
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
 from mazegenerator import MazeGenerator
 from src.models import Scene, Text
+from src.parsing import GameConfig
 from src.render import Renderer
 from src.game_logic import GameLogic
 
 
 class GameScene(Scene):
-    def __init__(self) -> None:
+    def __init__(self, game_config: GameConfig) -> None:
 
-        scale = 2
         self.score = 0
 
-        self.logical_maze = MazeGenerator()
-        self.game_logic = GameLogic(scale)
+        self.game_logic = GameLogic(game_config)
         self.last_time = time.perf_counter()
         self.text_elements: list[Text] = []
         self.time_remaining: float = 200
@@ -72,8 +71,8 @@ class GameScene(Scene):
 
     def update_score(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
-        if self.score != self.game_logic.score:
-            self.score = self.game_logic.score
+        if self.score != self.game_logic.get_score():
+            self.score = self.game_logic.get_score()
             self.score_text = Text(
                 str(self.score), (screen_width // 2, 75), ColorType.PRIMARY
             )
@@ -154,6 +153,8 @@ class GameScene(Scene):
 
         elif key in [pygame.K_a, pygame.K_LEFT]:
             self.game_logic.new_move = Direction.WEST
+        if key in [pygame.K_n]:
+            self.game_logic.maze.gum_count = 0
 
     def __leave_scene(self) -> dict[str, Any]:
         return {

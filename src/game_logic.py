@@ -1,4 +1,5 @@
 from typing import Union
+from src.parsing import GameConfig
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import (
@@ -54,10 +55,10 @@ class GameLogic:
 
     def __init__(
         self,
-        scale: int,
+        game_config: GameConfig
     ) -> None:
-        self.scale = scale
         self.maze = Maze(MazeGenerator())
+        self.game_config = game_config
         self.game_over = False
         self.shake = Shake()
         self.frame = 0
@@ -70,23 +71,24 @@ class GameLogic:
         self.global_mode = GhostState.SCATTER
         self.MS_PER_FRAME = 0.016
         self.score = 0
-        self.hearts = 3
+        self.hearts = 0
+        self.__set_hearts()
         self.v_offset = (
             (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
             (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
         )
-        self.player = Player(2, scale, self.maze.cell_grid)
-        self.blinky = Blinky(1, scale, self.maze.cell_grid, [self.player])
-        self.pinky = Pinky(1, scale, self.maze.cell_grid, [self.player])
-        self.clyde = Clyde(1, scale, self.maze.cell_grid, [self.player])
+        self.player = Player(2, self.maze.cell_grid)
+        self.blinky = Blinky(1, self.maze.cell_grid, [self.player])
+        self.pinky = Pinky(1, self.maze.cell_grid, [self.player])
+        self.clyde = Clyde(1, self.maze.cell_grid, [self.player])
         self.inky = Inky(
-            1, scale, self.maze.cell_grid, [self.player, self.blinky]
+            1, self.maze.cell_grid, [self.player, self.blinky]
         )
         self.mobs = [self.blinky, self.pinky, self.clyde, self.inky]
         self.working_surf = pygame.Surface(
             (
-                self.maze.max_x + 32 * self.scale,
-                self.maze.max_y + 32 * self.scale,
+                self.maze.max_x + 64,
+                self.maze.max_y + 64
             )
         )
         self.maze_surf = self.maze.render_maze()
@@ -94,14 +96,23 @@ class GameLogic:
         self.maze.load_gums(self.working_surf)
         self.new_move = Direction.NONE
 
+    def __set_hearts(self):
+        if self.game_config.mode == "normal":
+            self.hearts = 3
+        elif self.game_config.mode == "hardcore":
+            self.hearts = 1
+        else:
+            self.hearts = 3
+
+
     def handle_collision(self) -> None:
         p_x, p_y = self.player.bit_x, self.player.bit_y
         for mob in self.mobs:
             if mob.state in [GhostState.DEAD, GhostState.RESPAWN]:
                 continue
             if (
-                abs(mob.v_x - self.player.v_x) < (8 * self.scale)
-                and abs(mob.v_y - self.player.v_y) < (8 * self.scale)
+                abs(mob.v_x - self.player.v_x) < 16
+                and abs(mob.v_y - self.player.v_y) < 16
                 and not self.player.dead
             ):
                 victim = (
@@ -117,10 +128,17 @@ class GameLogic:
                 self.global_mode = GhostState.FRIGHTENED
                 self.change_mode()
             self.score += gum.score
+            print(self.score)
             self.maze.set_gum(p_x, p_y)
 
     def get_score(self) -> int:
         return self.score
+
+    def get_ghost_mode(self) -> GhostState:
+        return self.global_mode
+
+    def get_level(self) -> int:
+        return self.level
 
     def set_global_mode(self, delta: float):
         if self.global_mode == GhostState.FRIGHTENED:
@@ -163,7 +181,6 @@ class GameLogic:
         self.player.reset_cords()
         self.change_frame(self.working_surf, self.player, 0)
         self.player.dead = False
-        self.hearts -= 1
         self.player.death_frame = 0
         self.player.state = PlayerState.ALIVE
         self.death_timer = 0
@@ -175,6 +192,12 @@ class GameLogic:
             mob.state = self.global_mode
 
     def maze_engine(self, delta: float) -> pygame.Surface:
+        if self.maze.get_gum_count() <= 0:
+            self.level += 1
+            if self.level > self.game_config.levels_number:
+                self.game_over = True
+            self.reset_maze()
+            self.maze.set_gums()
         self.set_global_mode(delta)
         self.accumulator += delta
         while self.accumulator > self.MS_PER_FRAME:
@@ -257,6 +280,7 @@ class GameLogic:
                 return
             self.change_frame(self.working_surf, self.player, frame)
             if self.player.death_frame >= 9:
+                self.hearts -= 1
                 self.reset_maze()
 
     def erase_frame(

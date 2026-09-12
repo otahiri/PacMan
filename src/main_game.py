@@ -58,7 +58,7 @@ class MainGame:
 
         match next_scene:
             case SceneName.GAME:
-                self.scene_stack.append(GameScene())
+                self.scene_stack.append(GameScene(self.game_config))
                 print("insert:", self.scene_stack[-1])
 
             case SceneName.SCOREBOARD:

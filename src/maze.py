@@ -60,7 +60,11 @@ class Maze:
             ]
             for y in range(len(self.bit_maze))
         ]
+        self.gum_count = 0
         self.set_gums()
+
+    def get_gum_count(self) -> int:
+        return self.gum_count
 
     def get_gum(self, x: int, y: int) -> Gum | SuperGum | None:
         return self.cell_grid[y][x].content
@@ -79,6 +83,7 @@ class Maze:
                 if (x, y) == (max_x // 2, max_y // 2):
                     continue
                 if cell.bit_value != 15:
+                    self.gum_count += 1
                     cell.content = (
                         Gum(10, cell.cord, gum)
                         if cell.cord not in corners

@@ -3,21 +3,11 @@ and load images and edit them
 """
 
 import pygame
-import sys
 import numpy as np
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 
 
 class Renderer:
-    """[TODO:description]
-
-    Attributes:
-        colors: [TODO:attribute]
-        primary, secondary: [TODO:attribute]
-        LETTER: [TODO:attribute]
-        LETTER: [TODO:attribute]
-    """
-
     """Renderer class responsible for the graphics
 
     Attributes:
@@ -156,18 +146,16 @@ class Renderer:
                 return (x - width // 2, y)
             case AnchorPoint.BOTTOM_CENTER:
                 return (x - width // 2, y - height)
-            case _:
-                raise ValueError(f"Unknown point {anchor}")
 
     @staticmethod
     def rotate_surf(surf: pygame.Surface, degree: int) -> pygame.Surface:
         surf_px = pygame.surfarray.pixels2d(surf)
-        rot_array = np.rot90(surf_px, degree)
-        new_surf = pygame.Surface(rot_array.shape, pygame.SRCALPHA)
+        rotated_array = np.rot90(surf_px, degree)
+        new_surf = pygame.Surface(rotated_array.shape, pygame.SRCALPHA)
         Renderer.fill(new_surf, ColorType.SECONDARY)
-        mask = rot_array != int(Renderer.secondary, 16)
+        mask = rotated_array != int(Renderer.secondary, 16)
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
-        new_surf_px[mask] = rot_array[mask]
+        new_surf_px[mask] = rotated_array[mask]
         del new_surf_px
         del surf_px
         return new_surf

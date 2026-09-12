@@ -29,7 +29,6 @@ class Player(Character):
     def __init__(
         self,
         speed: int,
-        scale: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
@@ -42,7 +41,6 @@ class Player(Character):
         """
         super().__init__(
             speed,
-            scale,
             (len(maze) // 2, len(maze[0]) // 2),
             maze,
             anchors,
@@ -155,8 +153,8 @@ class Player(Character):
     def update_visual_cord(self) -> None:
         """update the visual cords"""
         dx, dy, _ = self.direction.value
-        new_x = ((dx * self.speed) * self.scale) + self.v_x
-        new_y = ((dy * self.speed) * self.scale) + self.v_y
+        new_x = ((dx * self.speed) * 2) + self.v_x
+        new_y = ((dy * self.speed) * 2) + self.v_y
         if 0 <= new_y < self.max_y and 0 <= new_x < self.max_x:
             self.v_x = new_x
             self.v_y = new_y
@@ -211,7 +209,6 @@ class Blinky(Character):
     def __init__(
         self,
         speed: int,
-        scale: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
@@ -224,7 +221,6 @@ class Blinky(Character):
         """
         super().__init__(
             speed,
-            scale,
             (0, 0),
             maze,
             anchors,
@@ -236,7 +232,6 @@ class Blinky(Character):
         self.state = GhostState.CHASE
         self.power = 0
         self.direction = Direction.NONE
-        self.scale = scale
         self.sprites = [
             [
                 Renderer.load_image(
@@ -362,8 +357,8 @@ class Blinky(Character):
         min_y = 0
         max_x = self.max_x
         max_y = self.max_y
-        new_x = ((dx * self.speed) * self.scale) + self.v_x
-        new_y = ((dy * self.speed) * self.scale) + self.v_y
+        new_x = ((dx * self.speed) * 2) + self.v_x
+        new_y = ((dy * self.speed) * 2) + self.v_y
         if min_y <= new_y < max_y and min_x <= new_x < max_x:
             self.v_x = new_x
             self.v_y = new_y
@@ -461,11 +456,10 @@ class Pinky(Blinky):
     def __init__(
         self,
         speed: int,
-        scale: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
-        super().__init__(speed, scale, maze, anchors)
+        super().__init__(speed, maze, anchors)
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
         self.id = 2
@@ -498,7 +492,6 @@ class Clyde(Blinky):
     def __init__(
         self,
         speed: int,
-        scale: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
@@ -510,7 +503,7 @@ class Clyde(Blinky):
             maze: the cell grid representing the maze
             anchors: the anchors used to choose the new direction
         """
-        super().__init__(speed, scale, maze, anchors)
+        super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.reset_cords()
         self.id = 3
@@ -547,11 +540,10 @@ class Inky(Blinky):
     def __init__(
         self,
         speed: int,
-        scale: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
-        super().__init__(speed, scale, maze, anchors)
+        super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, 0)
         self.id = 4
         self.reset_cords()
