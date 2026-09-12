@@ -71,6 +71,7 @@ class Maze:
 
     def set_gum(self, x: int, y: int) -> None:
         self.cell_grid[y][x].content = None
+        self.gum_count -= 1
 
     def set_gums(self) -> None:
         gum = Renderer.load_image("assets/gum.png")
@@ -98,7 +99,7 @@ class Maze:
         """
         height = (self.maze._height * self.v_step) + self.v_step
         width = (self.maze._width * self.v_step) + self.v_step
-        maze_surface = pygame.Surface((width, height))
+        maze_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
         Renderer.fill(maze_surface, ColorType.SECONDARY)
         for y, row in enumerate(self.cell_grid):
