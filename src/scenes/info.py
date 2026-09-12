@@ -1,27 +1,19 @@
 from typing import Any
-
 import pygame
-
-from src.enums import ColorType, DisplayInfo, SceneName
-from src.models import Scene, Text
+from src.enums import ColorType, DisplayInfo
+from src.models import Scene, SceneTitle, Text
 from src.render import Renderer
 
 
 class InfoScene(Scene):
     def __init__(self) -> None:
+        self.__init_elements()
 
+    def __init_elements(self):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
-        self.text = Text(
-            "instrucions",
-            (
-                DisplayInfo.SCREEN_WIDTH.value // 2,
-                DisplayInfo.SCREEN_HEIGHT.value // 6,
-            ),
-            ColorType.PRIMARY,
-        )
-
+        self.title = SceneTitle("instrucions")
         self.body_text: list[Text] = []
 
         x = screen_width // 2
@@ -52,9 +44,7 @@ class InfoScene(Scene):
         return "InfoScene"
 
     def render_scene(self, renderer: Renderer) -> None:
-        renderer.render(
-            self.text.surf, Renderer.get_pos(self.text.pos, self.text.size)
-        )
+        self.title.render(renderer)
         for text in self.body_text:
             renderer.render(
                 text.surf,

@@ -5,26 +5,27 @@ from pathlib import Path
 from src.parsing import Parser
 from src.render import Renderer
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
-from src.models import Cursor, LetterButton, NameFrame, Scene, Text
+from src.models import SceneTitle, Cursor, LetterButton, NameFrame, Scene, Text
 
 
 class ScoreEntryScene(Scene):
     def __init__(self, heighscores_path: Path, score: int) -> None:
-        width, height = (
-            DisplayInfo.SCREEN_WIDTH.value,
-            DisplayInfo.SCREEN_HEIGHT.value,
-        )
         self.heighscores_path = heighscores_path
-        self.text = Text(
-            "score entry", (width // 2, height // 6), ColorType.PRIMARY
-        )
         self.score = score
+        self.__init_elements()
+
+    def __init_elements(self):
+
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        screen_height = DisplayInfo.SCREEN_HEIGHT.value
+
         self.score_text = Text(
-            f"your score is {score}",
-            (width // 2, height // 2 - 200),
+            f"your score is {self.score}",
+            (screen_width // 2, screen_height // 2 - 200),
             ColorType.PRIMARY,
         )
 
+        self.title = SceneTitle("score entry")
         self.keyboard = self.__get_keyboard_letters()
         self.cursor = Cursor()
         self.name_frame = NameFrame()
@@ -92,11 +93,7 @@ class ScoreEntryScene(Scene):
 
     def render_scene(self, renderer: Renderer) -> None:
 
-        renderer.render(
-            self.text.surf,
-            Renderer.get_pos(self.text.pos, self.text.size),
-        )
-
+        self.title.render(renderer)
         renderer.render(
             self.score_text.surf,
             Renderer.get_pos(self.score_text.pos, self.score_text.size),

@@ -1,8 +1,8 @@
 import time
 from typing import Any
 import pygame
-from src.enums import DisplayInfo, SceneName
-from src.models import AnimatedBar, Button, Scene
+from src.enums import ColorType, DisplayInfo, SceneName
+from src.models import AnimatedBar, Button, Scene, SceneTitle, Text
 from src.render import Renderer
 
 
@@ -30,6 +30,8 @@ class MainMenuScene(Scene):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
+        self.title = SceneTitle("main menu")
+
         x = screen_width // 2
         spacing = 120
 
@@ -42,7 +44,7 @@ class MainMenuScene(Scene):
         return "MainMenuScene"
 
     def render_scene(self, renderer: Renderer) -> None:
-
+        self.title.render(renderer)
         for i, button in enumerate(self.buttons):
 
             if self.button_idx == i:

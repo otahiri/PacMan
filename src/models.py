@@ -44,6 +44,37 @@ class Text:
         self.anchor_point = anchor_point
 
 
+class SceneTitle:
+
+    def __init__(self, label: str) -> None:
+
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        screen_height = DisplayInfo.SCREEN_HEIGHT.value
+
+        y_pos = screen_height // 6
+
+        self.text = Text(
+            label,
+            (screen_width // 2, y_pos),
+            ColorType.SECONDARY,
+        )
+
+        bar_size = (screen_width, 60)
+
+        self.bar_surf = pygame.Surface(bar_size)
+        Renderer.fill(self.bar_surf, ColorType.PRIMARY)
+        self.bar_pos = Renderer.get_pos(
+            (0, y_pos), bar_size, AnchorPoint.CENTER_LEFT
+        )
+
+    def render(self, renderer: Renderer):
+        renderer.render(self.bar_surf, self.bar_pos)
+        renderer.render(
+            self.text.surf,
+            Renderer.get_pos(self.text.pos, self.text.size),
+        )
+
+
 class AnimatedBar:
     def __init__(
         self, label: str, gap: int, speed: int, pos: str = "bottom"
@@ -64,9 +95,8 @@ class AnimatedBar:
             AnchorPoint.BOTTOM_RIGHT,
         )
 
-        self.bar = pygame.Surface((1280, 60))
+        self.bar = pygame.Surface((screen_width, 60))
         Renderer.fill(self.bar, ColorType.PRIMARY)
-
         self.bar_pos = (0, self.y_pos - Asset.LETTER_HEIGHT.value - 10)
 
         self.text_width = self.text.size[0]
@@ -174,7 +204,9 @@ class NameFrame:
             Asset.NAME_FRAME_WIDTH.value,
             Asset.NAME_FRAME_HEIGHT.value,
         )
-        self.surf = Renderer.change_color(pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png"))
+        self.surf = Renderer.change_color(
+            pygame.image.load(f"{Asset.NAME_FRAME_PATH.value}.png")
+        )
         self.size = (width, height)
         self.pos = (
             DisplayInfo.SCREEN_WIDTH.value // 2,

@@ -5,7 +5,6 @@ import math
 from pygame.event import Event
 from src import Direction
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
-from mazegenerator import MazeGenerator
 from src.models import Scene, Text
 from src.parsing import GameConfig
 from src.render import Renderer
@@ -19,9 +18,24 @@ class GameScene(Scene):
 
         self.game_logic = GameLogic(game_config)
         self.last_time = time.perf_counter()
-        self.text_elements: list[Text] = []
         self.time_remaining: float = 200
         self.prev_time_remaining: float = self.time_remaining
+
+        self.__init_elements()
+
+    def __init_elements(self):
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        self.score_text = Text(
+            "score",
+            (screen_width // 2, 10),
+            ColorType.PRIMARY,
+            AnchorPoint.TOP_CENTER,
+        )
+
+        self.score_number = Text(
+            str(self.score), (screen_width // 2, 100), ColorType.PRIMARY
+        )
+
         self.time_text = Text(
             f"time {self.time_remaining}",
             (DisplayInfo.SCREEN_WIDTH.value - 10, 10),
@@ -29,32 +43,12 @@ class GameScene(Scene):
             AnchorPoint.TOP_RIGHT,
         )
 
-        self.__init_elements()
-
-    def __init_elements(self):
-        screen_width = DisplayInfo.SCREEN_WIDTH.value
-        self.text_elements.append(
-            Text(
-                "score",
-                (screen_width // 2, 10),
-                ColorType.PRIMARY,
-                AnchorPoint.TOP_CENTER,
-            )
-        )
-        self.text_elements.append(
-            Text(
-                str(self.score),
-                (screen_width // 2, 75),
-                ColorType.PRIMARY,
-                AnchorPoint.TOP_CENTER,
-            )
-        )
         self.heart = Renderer.change_color(
             pygame.image.load(f"{Asset.HEART_PATH.value}.png")
         )
-        self.timer_bar = Renderer.change_color(
-            pygame.image.load("assets/cursor_wide.png")
-        )
+        # self.timer_bar = Renderer.change_color(
+        #     pygame.image.load("assets/cursor_wide.png")
+        # )
 
     def __get_delta(self) -> float:
 
@@ -69,12 +63,12 @@ class GameScene(Scene):
     def __repr__(self) -> str:
         return "GameScene"
 
-    def update_score(self) -> None:
+    def __update_score(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         if self.score != self.game_logic.get_score():
             self.score = self.game_logic.get_score()
-            self.score_text = Text(
-                str(self.score), (screen_width // 2, 75), ColorType.PRIMARY
+            self.score_number = Text(
+                str(self.score), (screen_width // 2, 100), ColorType.PRIMARY
             )
 
     def update_time(self) -> None:
@@ -92,16 +86,24 @@ class GameScene(Scene):
             ColorType.PRIMARY,
         )
 
-    def __render_gui(self, renderer: Renderer) -> None:
+    def __render_text(self, renderer: Renderer):
 
-        if self.time_remaining < self.prev_time_remaining:
-            self.update_time()
-            self.prev_time_remaining = self.time_remaining
-        for text in self.text_elements:
-            renderer.render(
-                text.surf,
-                Renderer.get_pos(text.pos, text.size, text.anchor_point),
-            )
+        renderer.render(
+            self.score_text.surf,
+            Renderer.get_pos(
+                self.score_text.pos,
+                self.score_text.size,
+                self.score_text.anchor_point,
+            ),
+        )
+        renderer.render(
+            self.score_number.surf,
+            Renderer.get_pos(
+                self.score_number.pos,
+                self.score_number.size,
+                self.score_number.anchor_point,
+            ),
+        )
         renderer.render(
             self.time_text.surf,
             Renderer.get_pos(
@@ -110,28 +112,25 @@ class GameScene(Scene):
                 self.time_text.anchor_point,
             ),
         )
+
+    def __render_gui(self, renderer: Renderer) -> None:
+
+        if self.time_remaining < self.prev_time_remaining:
+            self.update_time()
+            self.prev_time_remaining = self.time_remaining
+
+        self.__render_text(renderer)
+
         heart_width = Asset.HEART_WIDTH.value
 
         for i in range(self.game_logic.hearts):
             x = (heart_width + 2) * i
             y = 10
             renderer.render(self.heart, (x + 10, y))
-        # fix me later
-        renderer.render(
-            self.timer_bar,
-            Renderer.get_pos(
-                (1280 // 2, 1280),
-                (
-                    Asset.CURSOR_WIDE_WIDTH.value,
-                    Asset.CURSOR_WIDE_HEIGHT.value,
-                ),
-                AnchorPoint.BOTTOM_CENTER,
-            ),
-        )
 
     def render_scene(self, renderer: Renderer) -> None:
 
-        self.update_score()
+        self.__update_score()
 
         delta = self.__get_delta()
 
