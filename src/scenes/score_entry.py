@@ -70,7 +70,7 @@ class ScoreEntryScene(Scene):
                 place_x = 0
                 place_y += 1
             if c == "E":
-                surf = Text("enter", (x, y), ColorType.PRIMARY).surf
+                surf = Renderer.LETTER[c]
             else:
                 surf = Renderer.LETTER[c]
 

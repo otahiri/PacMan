@@ -1,4 +1,5 @@
 import pygame
+from src.enums import ColorType
 from src.models import Gum, SuperGum, Cell, Corner
 from mazegenerator import MazeGenerator
 from src.render import Renderer
@@ -94,7 +95,7 @@ class Maze:
         width = (self.maze._width * self.v_step) + self.v_step
         maze_surface = pygame.Surface((width, height))
 
-        Renderer.fill(maze_surface, Renderer.secondary)
+        Renderer.fill(maze_surface, ColorType.SECONDARY)
         for y, row in enumerate(self.cell_grid):
             cord_y = y * self.v_step
             for x, cell in enumerate(row):

@@ -49,7 +49,7 @@ class Renderer:
         Renderer.primary, Renderer.secondary = Renderer.colors[color_schema]
         Renderer.LETTER = {
             c: pygame.image.load(f"{Asset.LETTER_PATH.value}/{c}.png")
-            for c in "0123456789abcdefghijklmnopqrstuvwxyz"
+            for c in "0123456789abcdefghijklmnopqrstuvwxyz-E"
         }
         Renderer.LETTER[" "] = pygame.image.load(
             f"{Asset.LETTER_PATH.value}/space.png"
@@ -58,7 +58,7 @@ class Renderer:
 
     def clear(self) -> None:
         """clear main display"""
-        Renderer.fill(self.__window, Renderer.secondary)
+        Renderer.fill(self.__window, ColorType.SECONDARY)
 
     @staticmethod
     def load_image(img: str) -> pygame.Surface:
@@ -73,14 +73,14 @@ class Renderer:
         return Renderer.change_color(pygame.image.load(img).convert_alpha())
 
     @staticmethod
-    def fill(dest: pygame.surface.Surface, color_hex: str) -> None:
+    def fill(dest: pygame.surface.Surface, color: ColorType) -> None:
         """fill dest surface with  chosen color
 
         Args:
             dest: surface to fill
             color_hex: hex value of color
         """
-        color_hex = color_hex
+        color_hex = Renderer.primary if color is ColorType.PRIMARY else Renderer.secondary
         dest_px = pygame.surfarray.pixels2d(dest)
         dest_px.fill(int(color_hex, 16))
         del dest_px
@@ -164,7 +164,7 @@ class Renderer:
         surf_px = pygame.surfarray.pixels2d(surf)
         rot_array = np.rot90(surf_px, degree)
         new_surf = pygame.Surface(rot_array.shape, pygame.SRCALPHA)
-        Renderer.fill(new_surf, Renderer.secondary)
+        Renderer.fill(new_surf, ColorType.SECONDARY)
         mask = rot_array != int(Renderer.secondary, 16)
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
         new_surf_px[mask] = rot_array[mask]
@@ -178,38 +178,6 @@ class Renderer:
         pos: tuple[int, int],
     ) -> None:
         self.__window.blit(source, pos)
-
-    @classmethod
-    def scale_surface(
-        cls,
-        src_image: pygame.Surface,
-        size: tuple[int, int],
-        scale: int,
-    ) -> pygame.Surface:
-        orig_w, orig_h = size
-        new_w = orig_w * scale
-        new_h = orig_h * scale
-
-        scaled_surface = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
-
-        for y in range(new_h):
-            for x in range(new_w):
-                src_x = int(x * (orig_w / new_w))
-                src_y = int(y * (orig_h / new_h))
-
-                r, g, b, a = src_image.get_at((src_x, src_y))
-
-                if a == 0:  # skip transparent pixels
-                    continue
-                if (r + g + b) / 3 >= 128:
-                    scaled_surface.set_at(
-                        (x, y),
-                        Renderer.primary,
-                    )
-                else:
-                    scaled_surface.set_at((x, y), Renderer.secondary)
-
-        return scaled_surface
 
     def update_window(self) -> None:
         pygame.display.flip()
@@ -246,7 +214,6 @@ class Renderer:
             (surface_width, letter_height), pygame.SRCALPHA
         )
         x_shift = 0
-        np.set_printoptions(threshold=sys.maxsize)
 
         for chr in text:
             if chr.isalnum():

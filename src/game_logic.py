@@ -2,6 +2,7 @@ from typing import Union
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
 from src.enums import (
+    ColorType,
     Direction,
     DisplayInfo,
     GhostState,
@@ -222,7 +223,7 @@ class GameLogic:
                 return
 
             else:
-                Renderer.fill(self.working_surf, Renderer.secondary)
+                Renderer.fill(self.working_surf, ColorType.SECONDARY)
                 for mob in self.mobs:
                     self.shake.erase_frame(self.working_surf, mob.id)
                 self.shake.apply_shake(
