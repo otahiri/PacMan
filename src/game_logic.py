@@ -187,7 +187,7 @@ class GameLogic:
             mob.state = self.global_mode
 
     def render_pause(self) -> pygame.Surface:
-        self.maze.load_gums(self.maze_surf)
+        self.maze.load_gums(self.working_surf)
         self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
             mob_shake = self.shake.shake_objects[mob.id]
