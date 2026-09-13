@@ -19,10 +19,7 @@ class MainGame:
             game_config.heighscores
         )
         self.renderer: Renderer = Renderer(game_config.color_schema)
-        self.scene_stack: list[Scene] = [
-            MainMenuScene(),
-            GameScene(game_config),
-        ]
+        self.scene_stack: list[Scene] = [MainMenuScene()]
 
     def __sort_scores(self, scores: dict[str, int]) -> dict[str, int]:
         return {

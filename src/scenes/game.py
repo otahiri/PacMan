@@ -1,7 +1,6 @@
 from typing import Any
 import pygame
 import time
-import math
 from pygame.event import Event
 from src import Direction
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
@@ -15,18 +14,25 @@ class GameScene(Scene):
     def __init__(self, game_config: GameConfig) -> None:
 
         self.score = 0
-
+        self.game_config = game_config
         self.game_logic = GameLogic(game_config)
-        self.last_time = time.perf_counter()
-        self.time_remaining: float = 200
-        self.prev_time_remaining: float = self.time_remaining
+        self.game_over = False
         self.pause = False
+        self.time_remaining = 0
         self.__init_elements()
+        self.last_time = time.perf_counter()
 
     def __init_elements(self):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
+        screen_height = DisplayInfo.SCREEN_HEIGHT.value
+
         self.pause_bar = SceneTitle("pause", "center")
 
+        match self.game_config.mode:
+            case "hardcore":
+                self.time_remaining = 90
+            case "normal":
+                self.time_remaining = 120
         self.score_text = Text(
             "score",
             (screen_width // 2, 10),
@@ -39,10 +45,17 @@ class GameScene(Scene):
         )
 
         self.time_text = Text(
-            f"time {self.time_remaining}",
-            (DisplayInfo.SCREEN_WIDTH.value - 10, 10),
+            "time",
+            (screen_width // 2, screen_height - 80),
             ColorType.PRIMARY,
-            AnchorPoint.TOP_RIGHT,
+            AnchorPoint.BOTTOM_CENTER,
+        )
+
+        self.time_value = Text(
+            str(int(self.time_remaining)),
+            (screen_width // 2, screen_height - 10),
+            ColorType.PRIMARY,
+            AnchorPoint.BOTTOM_CENTER,
         )
 
         self.heart = Renderer.change_color(
@@ -53,9 +66,6 @@ class GameScene(Scene):
 
         current_time = time.perf_counter()
         delta = current_time - self.last_time
-        self.time_remaining -= delta if not self.pause else 0
-        if self.time_remaining < 0:
-            self.game_logic.game_over = True
         self.last_time = current_time
         return delta
 
@@ -70,25 +80,25 @@ class GameScene(Scene):
                 str(self.score), (screen_width // 2, 100), ColorType.PRIMARY
             )
 
-    def update_time(self) -> None:
+    def __update_time(self, delta: float):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
-        self.time_text = Text(
-            str(math.ceil(self.time_remaining)),
-            (
-                screen_width
-                - (
-                    len(str(math.ceil(self.time_remaining)))
-                    * Asset.LETTER_WIDTH.value
-                ),
-                32,
-            ),
+        screen_height = DisplayInfo.SCREEN_HEIGHT.value
+
+        if self.game_config.mode == "cheat" or self.pause:
+            return
+
+        self.time_remaining -= delta
+
+        self.time_value = Text(
+            str(int(self.time_remaining)),
+            (screen_width // 2, screen_height - 10),
             ColorType.PRIMARY,
+            AnchorPoint.BOTTOM_CENTER,
         )
 
     def __render_text(self, renderer: Renderer):
         if self.pause:
             self.pause_bar.render(renderer)
-
         renderer.render(
             self.score_text.surf,
             Renderer.get_pos(
@@ -114,12 +124,17 @@ class GameScene(Scene):
             ),
         )
 
-    def __render_gui(self, renderer: Renderer) -> None:
+        renderer.render(
+            self.time_value.surf,
+            Renderer.get_pos(
+                self.time_value.pos,
+                self.time_value.size,
+                self.time_value.anchor_point,
+            ),
+        )
 
-        if self.time_remaining < self.prev_time_remaining:
-            self.update_time()
-            self.prev_time_remaining = self.time_remaining
-
+    def __render_gui(self, renderer: Renderer, delta: float) -> None:
+        self.__update_time(delta)
         self.__render_text(renderer)
 
         heart_width = Asset.HEART_WIDTH.value
@@ -139,7 +154,7 @@ class GameScene(Scene):
             self.game_logic.maze_engine(delta, self.pause),
             self.game_logic.v_offset,
         )
-        self.__render_gui(renderer)
+        self.__render_gui(renderer, delta)
 
     def __handle_keydown(self, key: int) -> None:
         if key in [pygame.K_w, pygame.K_UP]:
@@ -168,7 +183,10 @@ class GameScene(Scene):
         }
 
     def handle_events(self, events: list[Event]) -> dict[str, Any]:
+
         if self.game_logic.game_over:
+            return self.__leave_scene()
+        if self.time_remaining <= 0 and self.game_config.mode != "cheat":
             return self.__leave_scene()
 
         for event in events:

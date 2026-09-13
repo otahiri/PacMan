@@ -76,12 +76,10 @@ class SceneTitle:
 
 
 class AnimatedBar:
-    def __init__(
-        self, label: str, gap: int, speed: int, pos: str = "bottom"
-    ) -> None:
+    def __init__(self, label: str, gap: int, speed: int) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
-        self.y_pos = screen_height - 10 if pos == "bottom" else 50
+        self.y_pos = screen_height - 10
         self.speed = speed
         self.gap = gap
         self.x1: float = screen_width + screen_width // 2
