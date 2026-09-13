@@ -239,6 +239,9 @@ class GameLogic:
         self.new_move = Direction.NONE
         if self.death_timer < wait_timer:
             if self.death_timer < 20:
+                self.working_surf.blit(
+                    self.player.prev_sprite, (self.player.v_x, self.player.v_y)
+                )
                 self.death_timer += 1
                 return
 
