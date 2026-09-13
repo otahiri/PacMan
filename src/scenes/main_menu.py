@@ -15,7 +15,7 @@ class MainMenuScene(Scene):
         self.__init_elements()
         self.last_time = time.perf_counter()
         self.animated_bar = AnimatedBar(
-            "powered by otahiri and satifi", 200, 300
+            "powered by otahiri- and satifi", 200, 300
         )
 
     def __get_delta(self) -> float:

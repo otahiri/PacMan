@@ -5,7 +5,7 @@ import math
 from pygame.event import Event
 from src import Direction
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
-from src.models import Scene, Text
+from src.models import Scene, SceneTitle, Text
 from src.parsing import GameConfig
 from src.render import Renderer
 from src.game_logic import GameLogic
@@ -20,11 +20,13 @@ class GameScene(Scene):
         self.last_time = time.perf_counter()
         self.time_remaining: float = 200
         self.prev_time_remaining: float = self.time_remaining
-
+        self.pause = False
         self.__init_elements()
 
     def __init_elements(self):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
+        self.pause_bar = SceneTitle("pause", "center")
+
         self.score_text = Text(
             "score",
             (screen_width // 2, 10),
@@ -46,9 +48,6 @@ class GameScene(Scene):
         self.heart = Renderer.change_color(
             pygame.image.load(f"{Asset.HEART_PATH.value}.png")
         )
-        # self.timer_bar = Renderer.change_color(
-        #     pygame.image.load("assets/cursor_wide.png")
-        # )
 
     def __get_delta(self) -> float:
 
@@ -87,6 +86,8 @@ class GameScene(Scene):
         )
 
     def __render_text(self, renderer: Renderer):
+        if self.pause:
+            self.pause_bar.render(renderer)
 
         renderer.render(
             self.score_text.surf,
@@ -140,7 +141,7 @@ class GameScene(Scene):
         )
         self.__render_gui(renderer)
 
-    def __handle_player_moves(self, key: int) -> None:
+    def __handle_keydown(self, key: int) -> None:
         if key in [pygame.K_w, pygame.K_UP]:
             self.game_logic.new_move = Direction.NORTH
 
@@ -152,8 +153,12 @@ class GameScene(Scene):
 
         elif key in [pygame.K_a, pygame.K_LEFT]:
             self.game_logic.new_move = Direction.WEST
-        if key in [pygame.K_n]:
+
+        elif key in [pygame.K_n]:
             self.game_logic.maze.gum_count = 0
+
+        elif key in [pygame.K_ESCAPE]:
+            self.pause = not self.pause
 
     def __leave_scene(self) -> dict[str, Any]:
         return {
@@ -174,6 +179,6 @@ class GameScene(Scene):
                     return self.__leave_scene()
 
                 else:
-                    self.__handle_player_moves(event.key)
+                    self.__handle_keydown(event.key)
 
         return {}

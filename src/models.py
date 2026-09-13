@@ -46,12 +46,12 @@ class Text:
 
 class SceneTitle:
 
-    def __init__(self, label: str) -> None:
+    def __init__(self, label: str, pos: str = "top") -> None:
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
-        y_pos = screen_height // 6
+        y_pos = screen_height // 6 if pos == "top" else screen_height // 2
 
         self.text = Text(
             label,

@@ -15,6 +15,7 @@ class Renderer:
         primary, secondary: chosen background and foreground colors
         LETTER: dictionary containing all lettters pre loaded
     """
+
     colors = [
         ("FFEDF6D6", "003E232C"),
         ("FFD3C9A1", "00323C39"),
@@ -70,7 +71,11 @@ class Renderer:
             dest: surface to fill
             color_hex: hex value of color
         """
-        color_hex = Renderer.primary if color is ColorType.PRIMARY else Renderer.secondary
+        color_hex = (
+            Renderer.primary
+            if color is ColorType.PRIMARY
+            else Renderer.secondary
+        )
         dest_px = pygame.surfarray.pixels2d(dest)
         dest_px.fill(int(color_hex, 16))
         del dest_px
@@ -204,7 +209,7 @@ class Renderer:
         x_shift = 0
 
         for chr in text:
-            if chr.isalnum():
+            if chr.isalnum() or chr == "-":
                 letter_surface = Renderer.LETTER[chr]
                 letter_surf_px = pygame.surfarray.pixels2d(letter_surface)
                 letter = pygame.Surface(letter_surf_px.shape)
