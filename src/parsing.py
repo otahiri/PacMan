@@ -26,9 +26,6 @@ class GameConfig(BaseModel):
     heighscores_path: Path
     color_schema: NonNegativeInt
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
-    points_per_pacgum: NonNegativeInt = 10
-    points_per_ghost: NonNegativeInt = 200
-    points_per_super_pacgum: NonNegativeInt = 100
     seed: NonNegativeInt | None = None
     levels_number: NonNegativeInt = 10
 
@@ -73,9 +70,13 @@ class GameConfig(BaseModel):
             scores = {}
 
             for name, score in scores_data.items():
-                if not isinstance(score, int) or score < 0:
+                if (
+                    not isinstance(score, int)
+                    or score < 0
+                    or score > 2147483647
+                ):
                     raise PydanticCustomError(
-                        "invalid_score_type",
+                        "invalid_score",
                         "score value must be a non negative integer, "
                         "for '{player}' got '{val}'",
                         {"player": name, "val": score},
@@ -105,7 +106,7 @@ class Parser:
         if len(sys.argv) != 2:
             raise ValueError(
                 "Invalid number of arguments. "
-                "Usage: python main.py <config.json>"
+                "Usage: python3 pac-man.py <config.json>"
             )
 
         return Path(sys.argv[1])
