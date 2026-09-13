@@ -6,24 +6,26 @@ from src.render import Renderer
 
 
 class Maze:
-    """maze class containing all info about the map
+
+    """maze class resposible for constructing the maze
 
     Attributes:
-        max_x: the max x value of the maze
-        max_y: the max y value of the maze
-        corner_images: every possible corner image
-        maze: the object from the MazeGenerator model
-        bit_maze: the bit maze from the maze
-        wall_images: all possible wall images
-        cell_grid: grid containing all cells
+        v_step: one visual step
+        half_v_step: half visual step
+        max_x: maximum x a character can get to
+        max_y: maximum y a character can get to
+        maze: result from the MazeGenerator model
+        bit_maze: list containing integer to show which wall is up
+        corner_images: all possible corner sprite
+        wall_images: vertical and horizontal walls
+        cell_grid: list of all the cell of the maze
+        gum_count: number of gums in the maze
     """
-
     def __init__(self, maze: MazeGenerator) -> None:
-        """maze constructor
-
+        """
+            maze object constructor
         Args:
-            maze: the maze object
-            screen_size: the current screen size
+            maze: maze object created by MazeGenerator
         """
         asset_path = "assets/walls/"
         self.v_step = 64
@@ -61,19 +63,40 @@ class Maze:
             for y in range(len(self.bit_maze))
         ]
         self.gum_count = 0
-        self.set_gums()
+        self.set_maze_content()
 
     def get_gum_count(self) -> int:
+        """return the number of gums left in the maze
+
+        Returns:
+            the count of gum
+        """
         return self.gum_count
 
-    def get_gum(self, x: int, y: int) -> Gum | SuperGum | None:
+    def get_content(self, x: int, y: int) -> Gum | None:
+        """get content of cell at x, y
+
+        Args:
+            x: x cord inside the grid
+            y: y cord inside the grid
+
+        Returns:
+            content of the cell
+        """
         return self.cell_grid[y][x].content
 
-    def set_gum(self, x: int, y: int) -> None:
+    def set_content(self, x: int, y: int) -> None:
+        """set cell content
+
+        Args:
+            x: x cord inside the grid
+            y: y cord inside the grid
+        """
         self.cell_grid[y][x].content = None
         self.gum_count -= 1
 
-    def set_gums(self) -> None:
+    def set_maze_content(self) -> None:
+        """set the content of each cell"""
         gum = Renderer.load_image("assets/gum.png")
         super_gum = Renderer.load_image("assets/super_gum.png")
         max_y = self.maze._height - 1
@@ -92,10 +115,10 @@ class Maze:
                     )
 
     def render_maze(self) -> pygame.Surface:
-        """render the maze into a pygame surface
+        """render the maze on a surface
 
         Returns:
-            surface with maze rendered on it
+            the result surface with maze on it
         """
         height = (self.maze._height * self.v_step) + self.v_step
         width = (self.maze._width * self.v_step) + self.v_step
@@ -153,7 +176,12 @@ class Maze:
                     )
         return maze_surface
 
-    def load_gums(self, maze_surface: pygame.Surface) -> None:
+    def render_gums(self, maze_surface: pygame.Surface) -> None:
+        """
+        render gums on the maze surface
+        Args:
+            maze_surface: result maze surface
+        """
         for y, row in enumerate(self.cell_grid):
             cord_y = y * self.v_step
             for x, cell in enumerate(row):

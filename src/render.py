@@ -8,6 +8,14 @@ from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 
 
 class Renderer:
+    """[TODO:description]
+
+    Attributes:
+        colors: [TODO:attribute]
+        primary, secondary: [TODO:attribute]
+        LETTER: [TODO:attribute]
+        LETTER: [TODO:attribute]
+    """
     """Renderer class responsible for the graphics
 
     Attributes:
@@ -159,6 +167,15 @@ class Renderer:
 
     @staticmethod
     def rotate_surf(surf: pygame.Surface, degree: int) -> pygame.Surface:
+        """rotate loaded image by 90 degrees but degree amount
+
+        Args:
+            surf: the surface to rotate
+            degree: the number of rotations
+
+        Returns:
+            rotated surface
+        """
         surf_px = pygame.surfarray.pixels2d(surf)
         rotated_array = np.rot90(surf_px, degree)
         new_surf = pygame.Surface(rotated_array.shape, pygame.SRCALPHA)
@@ -174,9 +191,16 @@ class Renderer:
         source: pygame.Surface,
         pos: tuple[int, int],
     ) -> None:
+        """paint the finished scene on the main display
+
+        Args:
+            source: the final scene
+            pos: the position of the scene
+        """
         self.__window.blit(source, pos)
 
     def update_window(self) -> None:
+        """update the pygame main display"""
         pygame.display.flip()
 
     @classmethod

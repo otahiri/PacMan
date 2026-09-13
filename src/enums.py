@@ -9,11 +9,6 @@ class SceneName(Enum):
     INFO = auto()
 
 
-class PlayerState(Enum):
-    ALIVE = auto()
-    DEAD = auto()
-
-
 class GhostState(Enum):
     CHASE = auto()
     SCATTER = auto()
