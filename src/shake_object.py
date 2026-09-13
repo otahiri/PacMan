@@ -1,6 +1,4 @@
-from pygame import Surface, surfarray
-import pygame
-from src.render import Renderer
+from pygame import  Surface
 
 
 class ShakeInfo:
@@ -27,26 +25,12 @@ class ShakeInfo:
         self.last_y = 0
         self.last_frame: Surface
         self.current_time: int = 0
-        self.half = 0
+        self.accumelated_total = 0
 
 
 class Shake:
     def __init__(self) -> None:
         self.shake_objects: dict = {}
-
-    def erase_frame(self, dest: Surface, target_id: int):
-        bg_color = int(Renderer.secondary, 16)
-        shake_info = self.shake_objects.get(target_id, None)
-        if not shake_info:
-            return
-        src = shake_info.last_frame
-        frame_px = surfarray.pixels2d(src)
-        eraser = pygame.Surface(frame_px.shape)
-        eraser_px = pygame.surfarray.pixels2d(eraser)
-        eraser_px.fill(bg_color)
-        del frame_px
-        del eraser_px
-        dest.blit(eraser, (shake_info.last_x, shake_info.last_y))
 
     def del_shake(self, target_id: int) -> None:
         target = self.shake_objects.get(target_id, None)
@@ -82,7 +66,6 @@ class Shake:
             self.shake_objects[target_id] = shake_info
             return working_surface
 
-        self.erase_frame(working_surface, target_id)
         shake_info.current_time += 1
         if shake_info.current_time >= shake_info.wait_time:
             shake_info.current_time = 0
@@ -94,8 +77,8 @@ class Shake:
             ):
                 shake_info.steps_x = -shake_info.steps_x
                 shake_info.steps_y = -shake_info.steps_y
-                shake_info.half += 1
-                shake_info.cycles = shake_info.half // 2
+                shake_info.accumelated_total += 1
+                shake_info.cycles = shake_info.accumelated_total // 2
 
             if shake_info.cycles >= shake_info.max_cycles:
                 del self.shake_objects[target_id]

@@ -96,6 +96,5 @@ class MainGame:
             self.__navigate(scene_arguments)
             self.renderer.clear()
             scene.render_scene(self.renderer)
-            # self.renderer.draw_debug()
 
             self.renderer.update_window()

@@ -33,13 +33,16 @@ class Renderer:
         """
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
+            pygame.SRCALPHA,
         )
 
         if color_schema >= len(self.colors):
             color_schema = len(self.colors) - 1
         Renderer.primary, Renderer.secondary = Renderer.colors[color_schema]
         Renderer.LETTER = {
-            c: pygame.image.load(f"{Asset.LETTER_PATH.value}/{c}.png")
+            c: pygame.image.load(
+                f"{Asset.LETTER_PATH.value}/{c}.png"
+            ).convert_alpha()
             for c in "0123456789abcdefghijklmnopqrstuvwxyz-E"
         }
         Renderer.LETTER[" "] = pygame.image.load(
@@ -94,7 +97,9 @@ class Renderer:
         result = pygame.Surface(px.shape, pygame.SRCALPHA)
         result_px = pygame.surfarray.pixels2d(result)
         mask = px == 4294967295
+        dark_mask = px == 4278190080
         result_px[mask] = int(Renderer.primary, 16)
+        result_px[dark_mask] = int(Renderer.secondary, 16)
         del result_px, px
         return result
 
@@ -157,7 +162,6 @@ class Renderer:
         surf_px = pygame.surfarray.pixels2d(surf)
         rotated_array = np.rot90(surf_px, degree)
         new_surf = pygame.Surface(rotated_array.shape, pygame.SRCALPHA)
-        Renderer.fill(new_surf, ColorType.SECONDARY)
         mask = rotated_array != int(Renderer.secondary, 16)
         new_surf_px = pygame.surfarray.pixels2d(new_surf)
         new_surf_px[mask] = rotated_array[mask]

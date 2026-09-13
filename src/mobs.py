@@ -76,7 +76,7 @@ class Player(Character):
                     Renderer.rotate_surf(s, i + 1)
                     for s in self.death_animation[0]
                 ]
-            )
+                )
 
         self.frame = 0
         self.death_frame = 0

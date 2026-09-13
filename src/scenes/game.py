@@ -174,10 +174,8 @@ class GameScene(Scene):
         for event in events:
 
             if event.type == pygame.KEYDOWN:
-
                 if event.key == pygame.K_RETURN:
                     return self.__leave_scene()
-
                 else:
                     self.__handle_keydown(event.key)
 
