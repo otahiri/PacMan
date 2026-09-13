@@ -53,7 +53,7 @@ class GameScene(Scene):
 
         current_time = time.perf_counter()
         delta = current_time - self.last_time
-        self.time_remaining -= delta
+        self.time_remaining -= delta if not self.pause else 0
         if self.time_remaining < 0:
             self.game_logic.game_over = True
         self.last_time = current_time
@@ -136,7 +136,7 @@ class GameScene(Scene):
         delta = self.__get_delta()
 
         renderer.render(
-            self.game_logic.maze_engine(delta),
+            self.game_logic.maze_engine(delta, self.pause),
             self.game_logic.v_offset,
         )
         self.__render_gui(renderer)

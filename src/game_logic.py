@@ -1,4 +1,6 @@
 from typing import Union
+
+from pygame.version import PygameVersion
 from src.parsing import GameConfig
 from src.render import Renderer
 from src import Player, Maze, Blinky, Pinky, Clyde, Inky
@@ -53,10 +55,7 @@ class GameLogic:
         (61, GhostState.CHASE),
     ]
 
-    def __init__(
-        self,
-        game_config: GameConfig
-    ) -> None:
+    def __init__(self, game_config: GameConfig) -> None:
         self.maze = Maze(MazeGenerator())
         self.game_config = game_config
         self.game_over = False
@@ -81,15 +80,10 @@ class GameLogic:
         self.blinky = Blinky(1, self.maze.cell_grid, [self.player])
         self.pinky = Pinky(1, self.maze.cell_grid, [self.player])
         self.clyde = Clyde(1, self.maze.cell_grid, [self.player])
-        self.inky = Inky(
-            1, self.maze.cell_grid, [self.player, self.blinky]
-        )
+        self.inky = Inky(1, self.maze.cell_grid, [self.player, self.blinky])
         self.mobs = [self.blinky, self.pinky, self.clyde, self.inky]
         self.working_surf = pygame.Surface(
-            (
-                self.maze.max_x + 64,
-                self.maze.max_y + 64
-            )
+            (self.maze.max_x + 64, self.maze.max_y + 64)
         )
         self.maze_surf = self.maze.render_maze()
         self.working_surf.blit(self.maze_surf, (0, 0))
@@ -103,7 +97,6 @@ class GameLogic:
             self.hearts = 1
         else:
             self.hearts = 3
-
 
     def handle_collision(self) -> None:
         p_x, p_y = self.player.bit_x, self.player.bit_y
@@ -191,7 +184,22 @@ class GameLogic:
                 continue
             mob.state = self.global_mode
 
-    def maze_engine(self, delta: float) -> pygame.Surface:
+    def render_pause(self) -> pygame.Surface:
+        self.maze.load_gums(self.maze_surf)
+        self.working_surf.blit(self.maze_surf, (0, 0))
+        for mob in self.mobs:
+            mob_shake = self.shake.shake_objects[mob.id]
+            self.working_surf.blit(
+                mob_shake.last_frame, (mob_shake.last_x, mob_shake.last_y)
+            )
+        self.working_surf.blit(
+            self.player.prev_sprite, (self.player.v_x, self.player.v_y)
+        )
+        return self.working_surf
+
+    def maze_engine(self, delta: float, pause: bool) -> pygame.Surface:
+        if pause:
+            return self.render_pause()
         if self.maze.get_gum_count() <= 0:
             self.level += 1
             if self.level > self.game_config.levels_number:
