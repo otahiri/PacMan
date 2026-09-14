@@ -1,21 +1,58 @@
+"""game logic module handle all the game logics for
+characters consumables and maze
+"""
+
 from typing import Union
 
 from src.parsing import GameConfig
 from src.render import Renderer
-from src import Player, Maze, Blinky, Pinky, Clyde, Inky
+from src import Player, MazeInterface, Blinky, Pinky, Clyde, Inky
 from src.enums import (
     ColorType,
     Direction,
     DisplayInfo,
     GhostState,
-    PlayerState,
 )
-from mazegenerator import MazeGenerator
 import pygame
 from src.shake_object import Shake
 
 
 class GameLogic:
+    """the main game logic class that handles everything that happens
+    inside the game
+
+    Attributes:
+        FRIGHTENED_DURATIONS: the super gum duration according to the wave
+        WAVES_AFTER_FIFTH: scatter / chase timing post wave 5
+        WAVES_BEFORE_FIFTH: scatter / chase timing pre wave 5
+        maze: the maze object handling maze logic
+        game_config: game config object containing the options extracted
+        from the config file
+        game_over: boolean flag to show if the game is over
+        shake: shake object responsible for shaking sprites
+        frame: current frame of the game
+        level: the current level
+        death_timer: duration passed since the start of the death animation
+        accumulator: the accumulated ms from last frame
+        time_stamp: current time stamp
+        super_gum_timer: the duration passed since the consumtion of
+        the super gum
+        global_mode: current global ghost mode
+        MS_PER_FRAME: ms each frame spans
+        score: current player score
+        hearts: current heart left the player has
+        v_offset: visual offset to paint sprite in the correct position
+        player: player object
+        blinky: blinky ghost object
+        pinky: pinky ghost object
+        clyde: clyde ghost object
+        inky: inky ghost object
+        mobs: list containing all ghosts
+        working_surf: surface to paint the actual game
+        maze_surf: preloaded maze surface
+        new_move: player next move
+    """
+
     FRIGHTENED_DURATIONS = (
         6.0,
         5.0,
@@ -55,9 +92,16 @@ class GameLogic:
     ]
 
     def __init__(self, game_config: GameConfig) -> None:
-        self.maze = Maze(MazeGenerator())
+        """game logic constructor
+
+        Args:
+            game_config: game config object containing info extracted
+            from config file
+        """
+        self.maze_interface = MazeInterface()
         self.game_config = game_config
         self.game_over = False
+        self.reset_level = False
         self.shake = Shake()
         self.frame = 0
         self.level = 1
@@ -72,24 +116,28 @@ class GameLogic:
         self.hearts = 0
         self.__set_hearts()
         self.v_offset = (
-            (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
-            (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
+            (DisplayInfo.SCREEN_WIDTH.value - self.maze_interface.max_x) // 2,
+            (DisplayInfo.SCREEN_HEIGHT.value - self.maze_interface.max_y) // 2,
         )
-        self.player = Player(2, self.maze.cell_grid)
-        self.blinky = Blinky(1, self.maze.cell_grid, [self.player])
-        self.pinky = Pinky(1, self.maze.cell_grid, [self.player])
-        self.clyde = Clyde(1, self.maze.cell_grid, [self.player])
-        self.inky = Inky(1, self.maze.cell_grid, [self.player, self.blinky])
+        self.player = Player(2, self.maze_interface.cell_grid)
+        self.blinky = Blinky(1, self.maze_interface.cell_grid, [self.player])
+        self.pinky = Pinky(1, self.maze_interface.cell_grid, [self.player])
+        self.clyde = Clyde(1, self.maze_interface.cell_grid, [self.player])
+        self.inky = Inky(
+            1, self.maze_interface.cell_grid, [self.player, self.blinky]
+        )
         self.mobs = [self.blinky, self.pinky, self.clyde, self.inky]
         self.working_surf = pygame.Surface(
-            (self.maze.max_x + 64, self.maze.max_y + 64), pygame.SRCALPHA
+            (self.maze_interface.max_x + 64, self.maze_interface.max_y + 64),
+            pygame.SRCALPHA,
         )
-        self.maze_surf = self.maze.render_maze()
+        self.maze_surf = self.maze_interface.render_maze()
         self.working_surf.blit(self.maze_surf, (0, 0))
-        self.maze.load_gums(self.working_surf)
+        self.maze_interface.render_gums(self.working_surf)
         self.new_move = Direction.NONE
 
     def __set_hearts(self):
+        """set heart count according to mode"""
         if self.game_config.mode == "normal":
             self.hearts = 3
         elif self.game_config.mode == "hardcore":
@@ -98,6 +146,7 @@ class GameLogic:
             self.hearts = 3
 
     def handle_collision(self) -> None:
+        """handle player collisions with other object"""
         p_x, p_y = self.player.bit_x, self.player.bit_y
         for mob in self.mobs:
             if mob.state in [GhostState.DEAD, GhostState.RESPAWN]:
@@ -115,28 +164,51 @@ class GameLogic:
                     and self.game_config.mode == "cheat"
                 ):
                     continue
+                elif isinstance(victim, Blinky):
+                    self.score += 200
 
                 victim.die()
                 self.shake.del_shake(victim.id)
                 return
-        gum = self.maze.get_gum(p_x, p_y)
+        gum = self.maze_interface.get_content(p_x, p_y)
         if gum:
             if gum.is_super:
                 self.global_mode = GhostState.FRIGHTENED
                 self.change_mode()
             self.score += gum.score
-            self.maze.set_gum(p_x, p_y)
+            self.maze_interface.set_content(p_x, p_y)
+            print(self.maze_interface.get_gum_count())
 
     def get_score(self) -> int:
+        """get current score
+
+        Returns:
+            current score
+        """
         return self.score
 
     def get_ghost_mode(self) -> GhostState:
+        """get the ghosts global mode
+
+        Returns:
+            ghost global mode
+        """
         return self.global_mode
 
     def get_level(self) -> int:
+        """get current level
+
+        Returns:
+            the current level
+        """
         return self.level
 
     def set_global_mode(self, delta: float):
+        """set global mode according to the current wave
+
+        Args:
+            delta: current delta time
+        """
         if self.global_mode == GhostState.FRIGHTENED:
             self.super_gum_timer += delta
             if (
@@ -146,7 +218,6 @@ class GameLogic:
                 return
             else:
                 self.super_gum_timer = 0
-                self.player.power = -self.player.power
         self.time_stamp += delta
         waves = (
             GameLogic.WAVES_BEFORE_FIFTH
@@ -164,30 +235,53 @@ class GameLogic:
             self.global_mode = new_mode
             self.change_mode()
 
-    def reset_maze(self) -> None:
+    def death_reset(self) -> None:
+        """reset the maze and characters"""
+        self.reset_characters()
+        self.working_surf.blit(self.maze_surf, (0, 0))
+
+    def reset_game(self) -> None:
+        """reset the game when next level is triggered"""
+        self.time_stamp = 0.0
+        self.maze_interface.reset_maze()
+        self.death_logic(self.frame)
+        self.maze_interface.render_gums(self.working_surf)
+        self.reset_characters()
+        self.maze_surf = self.maze_interface.render_maze()
+
+    def reset_characters(self) -> None:
+        """reset the characters to their original cords"""
+        self.player.reset_cords()
+        self.player.maze = self.maze_interface.cell_grid
+        self.change_frame(self.player, self.frame)
+        self.player.dead = False
+        self.player.death_frame = 0
+        self.death_timer = 0
         for mob in self.mobs:
+            mob.maze = self.maze_interface.cell_grid
             self.shake.del_shake(mob.id)
             mob.reset_cords()
             self.change_frame(mob, 0)
             mob.state = self.global_mode
             mob.respawn_timer = 0
             mob.death_frame = 0
-        self.working_surf.blit(self.maze_surf, (0, 0))
-        self.player.reset_cords()
-        self.change_frame(self.player, 0)
-        self.player.dead = False
-        self.player.death_frame = 0
-        self.player.state = PlayerState.ALIVE
-        self.death_timer = 0
+            mob.state = self.global_mode
 
     def change_mode(self):
+        """change the mode of all ghost to the current global mode unless
+        they are in respawn"""
         for mob in self.mobs:
             if mob.state == GhostState.RESPAWN:
                 continue
             mob.state = self.global_mode
 
     def render_pause(self) -> pygame.Surface:
-        self.maze.load_gums(self.working_surf)
+        """render paused scene
+
+        Returns:
+            working_surf surface with paused game on it
+        """
+        self.maze_interface.render_gums(self.working_surf)
         self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
             mob_shake = self.shake.shake_objects[mob.id]
@@ -200,14 +294,25 @@ class GameLogic:
         return self.working_surf
 
     def maze_engine(self, delta: float, pause: bool) -> pygame.Surface:
+        """main engine behind the game logic
+
+        Args:
+            delta: the current delta time
+            pause: is game in pause state
+
+        Returns:
+            the constructed surface
+        """
         if pause:
             return self.render_pause()
-        if self.maze.get_gum_count() <= 0:
+        if self.maze_interface.get_gum_count() <= 0:
+            Renderer.fill(self.working_surf, ColorType.SECONDARY)
             self.level += 1
+            self.reset_level = True
+            self.reset_game()
             if self.level > 10:
                 self.game_over = True
-            self.reset_maze()
-            self.maze.set_gums()
+            return self.working_surf
         self.set_global_mode(delta)
         self.accumulator += delta
         while self.accumulator > self.MS_PER_FRAME:
@@ -223,7 +328,12 @@ class GameLogic:
         return self.working_surf
 
     def alive_logic(self, frame: int) -> None:
-        self.maze.load_gums(self.working_surf)
+        """apply logic when the player is alive
+
+        Args:
+            frame: current frame of the game
+        """
+        self.maze_interface.render_gums(self.working_surf)
         self.player.new_direction = self.new_move
         self.change_frame(self.player, frame)
         for mob in self.mobs:
@@ -249,6 +359,11 @@ class GameLogic:
             )
 
     def death_logic(self, frame: int) -> None:
+        """apply logic of when the player is dead
+
+        Args:
+            frame: current frame of the game
+        """
         wait_timer = 60
         self.new_move = Direction.NONE
         if self.death_timer < wait_timer:
@@ -293,13 +408,19 @@ class GameLogic:
             self.change_frame(self.player, frame)
             if self.player.death_frame >= 9:
                 self.hearts -= 1
-                self.reset_maze()
+                self.death_reset()
 
     def change_frame(
         self,
         character: Union[Player, Blinky],
         frame: int,
     ):
+        """change the position of the sprite of character
+
+        Args:
+            character: either player of ghost object
+            frame: current frame of the game
+        """
         if isinstance(character, Player):
             self.working_surf.blit(
                 character.move(frame),

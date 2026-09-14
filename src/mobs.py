@@ -1,5 +1,5 @@
 import random
-from src.enums import Direction, PlayerState, GhostState
+from src.enums import Direction, GhostState
 from src.models import Character
 from src import Cell
 import pygame
@@ -8,36 +8,39 @@ from src.render import Renderer
 
 
 class Player(Character):
+
     """player class
 
     Attributes:
-        maze: the cell grid representing the maze
-        speed: the movement speed of the player
-        max_y: the maximum y cord the player can reach
-        max_x: the maximum x cord the player can reach
-        v_x: the visual x cord of the player inside the cell grid
-        v_y: the visual y cord of the player inside the cell grid
-        bit_y: the y cord inside the bit maze
-        bit_x: the x cord inside the bit maze
-        new_direction: the new chosen direction from the player input
-        direction: the direction the player is facing
-        empty_sprite: the empty sprite for the player to remove the old frame
-        sprites: the list of sprite of the player
-        frame: the current frame that passed between 0 and 60
+        id: id of the player
+        origin: original cord of the player
+        new_direction: the new chosen direction for the player
+        direction: the current direction of the player
+        sprites: sprites of the player
+        death_animation: sprites to make the death animation
+        frame: current frame of the player
+        death_frame: current  death frame of the player
+        dead: is the player dead
+        prev_sprite: last sprite
+        v_x: visual x cord
+        v_y: visual y cord
+        bit_y: y cord inside the bit map
+        bit_x: x cord inside the bit map
     """
-
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
-        """constructor
+        """constructor for the player class
 
         Args:
-            cord_x: the cord x inside the bit maze
-            cord_y: the cord y inside the bit maze
-            maze: the cell grid
+            speed: speed of the player
+            maze: cell grid to help the player navigate the maze
+            anchors: anchors for the player to choose spot
+            (player does not use anchor but it relays on the character model
+             which need the anchors by default)
         """
         super().__init__(
             speed,
@@ -46,15 +49,12 @@ class Player(Character):
             anchors,
         )
         self.id = 0
-        self.lifes = 3
-        self.power = -1
         cord_x = len(self.maze) // 2
         cord_y = len(self.maze[0]) // 2
         self.origin = (cord_x, cord_y)
         self.reset_cords()
         self.new_direction = Direction.NORTH
         self.direction = self.new_direction
-        self.state = PlayerState.ALIVE
         self.sprites = [
             [
                 Renderer.load_image(f"assets/player/alive/{i}.png")
@@ -81,12 +81,10 @@ class Player(Character):
         self.frame = 0
         self.death_frame = 0
         self.dead = False
-        self.score = 0
         self.prev_sprite = self.get_sprite(0)
-        self.hover = 2
 
     def die(self) -> None:
-        self.state = PlayerState.DEAD
+        """trigger death state for the player"""
         self.dead = True
 
     def reset_cords(self) -> None:
@@ -163,10 +161,7 @@ class Player(Character):
         """move the player accoding to direction
 
         Args:
-            screen: the surface the player fraw itself on
             frame: the current frame
-            v_offset: the visual offset to
-
         Returns:
             a surface with the player drawn on it
         """
@@ -188,36 +183,40 @@ class Player(Character):
 
 
 class Blinky(Character):
-    """the friendly ghost blinky
+
+    """the friendly ghost blinky aka red ghost
 
     Attributes:
-        hover: the bobbing distance when moving
-        steps: the steps of the bobbing
-        accumelated_steps: the total steps accumelated
+        id: the id of the ghost
         state: the current state of the ghost
-        power: the power of the character
-        direction: the direction the character is moving towards
-        scale: the scale multiplier of the visual maze
-        sprites: the normal sprites of the character
-        frightened_sprites: the frightened sprites of the character
-        player: the player
-        frame: the current frame of the animation
-        anchors: the anchors used to choose direction
+        direction: the current direction of the ghost
+        sprites: the sprites of the ghost
+        frightened_sprites: the frightened sprites of the ghost
+        dead_sprite: the death animation of the ghost
+        player: the player object to base the path finding algo on its location
+        frame: the current frame of the ghost
+        anchors: the anchors used in path finding
         prev_sprite: the previous sprite
+        death_frame: the current death frame
+        respawn_timer: the frame count since the start of the
+        respawn count down
+        v_x: the visual cord x
+        v_y: the visual cord y
+        bit_y: the cord y in the bit maze
+        bit_x: the cord x in the bit maze
     """
-
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
-        """constructor
+        """the constructor of blinky class
 
         Args:
-            cord_x: the cord x inside the logical maze
-            cord_y: the cord y inside the logical maze
-            maze: the cell grid
+            speed: the speed of the ghost
+            maze: the grid containing the cell
+            anchors: the anchors used in path finding
         """
         super().__init__(
             speed,
@@ -226,11 +225,7 @@ class Blinky(Character):
             anchors,
         )
         self.id = 1
-        self.hover = 4
-        self.steps = 2
-        self.accumelated_steps = 0
         self.state = GhostState.CHASE
-        self.power = 0
         self.direction = Direction.NONE
         self.sprites = [
             [
@@ -326,7 +321,7 @@ class Blinky(Character):
             self.direction = valid_direction[0][1]
 
     def panic_direction(self) -> None:
-        """direction algo when the ghost is in panic mode"""
+        """direction algo when the ghost is in frightened mode"""
         possible_directions = []
         for d in Direction:
             if d == Direction.NONE:
@@ -345,6 +340,7 @@ class Blinky(Character):
         self.direction = random.choice(possible_directions)
 
     def die(self) -> None:
+        """toggle death state"""
         self.state = GhostState.DEAD
         self.bit_x = -1
         self.bit_y = -1
@@ -418,11 +414,6 @@ class Blinky(Character):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
         self.prev_sprite = sprite
-        if (
-            self.bit_x,
-            self.bit_y,
-        ) == self.origin and self.state == GhostState.DEAD:
-            self.state = GhostState.CHASE
         return sprite
 
     def get_sprite(self, frame: int) -> pygame.Surface:
@@ -447,12 +438,13 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
-    """the friendly ghost pinky
+
+    """the friendly ghost Pinky aka pink ghost
 
     Attributes:
-        origin: the bottom right corner of the maze
+        origin: the origin spot of the ghost
+        id: the id of the ghost
     """
-
     def __init__(
         self,
         speed: int,
@@ -463,8 +455,6 @@ class Pinky(Blinky):
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
         self.id = 2
-        self.death_frame = 0
-        self.respawn_timer = 0
 
     def choose_target(
         self,
@@ -483,25 +473,21 @@ class Pinky(Blinky):
 
 
 class Clyde(Blinky):
-    """the friendly ghost clyde
+
+    """the friendly ghost clyde aka the blue ghost
 
     Attributes:
-        origin: the bottom right of the maze
+        origin: the origin spot of the ghost
+        id: the id of the ghost
     """
-
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
-        """
 
-        Args:
-            speed: the speed of the ghost
-            scale: the scale modifier of the size of the maze
-            maze: the cell grid representing the maze
-            anchors: the anchors used to choose the new direction
+        """the constructor of the ghost
         """
         super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
@@ -532,9 +518,6 @@ class Clyde(Blinky):
 
 class Inky(Blinky):
     """your friendly ghost inky
-
-    Attributes:
-        origin: the top right corner of the maze
     """
 
     def __init__(
@@ -543,6 +526,7 @@ class Inky(Blinky):
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
+        """the constructor of the ghost"""
         super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, 0)
         self.id = 4

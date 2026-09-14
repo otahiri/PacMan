@@ -3,6 +3,7 @@ from src.main_game import MainGame
 from src.parsing import Parser
 import sys
 
+
 if __name__ == "__main__":
     try:
         game_config = Parser.parse()
