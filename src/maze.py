@@ -1,3 +1,6 @@
+"""the maze model responsible for anything related to the maze generation
+"""
+
 import pygame
 from src.enums import ColorType
 from src.models import Gum, SuperGum, Cell, Corner

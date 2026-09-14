@@ -157,6 +157,8 @@ class GameLogic:
                     and self.game_config.mode == "cheat"
                 ):
                     continue
+                elif (isinstance(victim, Blinky)):
+                    self.score += self.game_config.points_per_ghost
 
                 victim.die()
                 self.shake.del_shake(victim.id)

@@ -184,18 +184,39 @@ class Player(Character):
 
 class Blinky(Character):
 
+    """the friendly ghost blinky aka red ghost
+
+    Attributes:
+        id: the id of the ghost
+        state: the current state of the ghost
+        direction: the current direction of the ghost
+        sprites: the sprites of the ghost
+        frightened_sprites: the frightened sprites of the ghost
+        dead_sprite: the death animation of the ghost
+        player: the player object to base the path finding algo on its location
+        frame: the current frame of the ghost
+        anchors: the anchors used in path finding
+        prev_sprite: the previous sprite
+        death_frame: the current death frame
+        respawn_timer: the frame count since the start of the
+        respawn count down
+        v_x: the visual cord x
+        v_y: the visual cord y
+        bit_y: the cord y in the bit maze
+        bit_x: the cord x in the bit maze
+    """
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
-        """constructor
+        """the constructor of blinky class
 
         Args:
-            cord_x: the cord x inside the logical maze
-            cord_y: the cord y inside the logical maze
-            maze: the cell grid
+            speed: the speed of the ghost
+            maze: the grid containing the cell
+            anchors: the anchors used in path finding
         """
         super().__init__(
             speed,
@@ -204,10 +225,7 @@ class Blinky(Character):
             anchors,
         )
         self.id = 1
-        self.steps = 2
-        self.accumelated_steps = 0
         self.state = GhostState.CHASE
-        self.power = 0
         self.direction = Direction.NONE
         self.sprites = [
             [
@@ -303,7 +321,7 @@ class Blinky(Character):
             self.direction = valid_direction[0][1]
 
     def panic_direction(self) -> None:
-        """direction algo when the ghost is in panic mode"""
+        """direction algo when the ghost is in frightened mode"""
         possible_directions = []
         for d in Direction:
             if d == Direction.NONE:
@@ -322,6 +340,7 @@ class Blinky(Character):
         self.direction = random.choice(possible_directions)
 
     def die(self) -> None:
+        """toggle death state"""
         self.state = GhostState.DEAD
         self.bit_x = -1
         self.bit_y = -1
@@ -424,12 +443,13 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
-    """the friendly ghost pinky
+
+    """the friendly ghost Pinky aka pink ghost
 
     Attributes:
-        origin: the bottom right corner of the maze
+        origin: the origin spot of the ghost
+        id: the id of the ghost
     """
-
     def __init__(
         self,
         speed: int,
@@ -440,8 +460,6 @@ class Pinky(Blinky):
         self.origin = (0, len(maze[0]) - 1)
         self.reset_cords()
         self.id = 2
-        self.death_frame = 0
-        self.respawn_timer = 0
 
     def choose_target(
         self,
@@ -460,25 +478,21 @@ class Pinky(Blinky):
 
 
 class Clyde(Blinky):
-    """the friendly ghost clyde
+
+    """the friendly ghost clyde aka the blue ghost
 
     Attributes:
-        origin: the bottom right of the maze
+        origin: the origin spot of the ghost
+        id: the id of the ghost
     """
-
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
-        """
 
-        Args:
-            speed: the speed of the ghost
-            scale: the scale modifier of the size of the maze
-            maze: the cell grid representing the maze
-            anchors: the anchors used to choose the new direction
+        """the constructor of the ghost
         """
         super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
@@ -509,9 +523,6 @@ class Clyde(Blinky):
 
 class Inky(Blinky):
     """your friendly ghost inky
-
-    Attributes:
-        origin: the top right corner of the maze
     """
 
     def __init__(
@@ -520,6 +531,7 @@ class Inky(Blinky):
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
+        """the constructor of the ghost"""
         super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, 0)
         self.id = 4
