@@ -8,6 +8,7 @@ if __name__ == "__main__":
     try:
         game_config = Parser.parse()
         pygame.init()
+        pygame.display.set_caption('PacMan')
         screen = MainGame(game_config)
         screen.game_loop()
     except KeyboardInterrupt:
