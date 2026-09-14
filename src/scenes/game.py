@@ -159,7 +159,7 @@ class GameScene(Scene):
             self.game_logic.new_move = Direction.WEST
 
         elif key in [pygame.K_n]:
-            self.game_logic.maze.gum_count = 0
+            self.game_logic.maze_interface.gum_count = 0
 
         elif key in [pygame.K_ESCAPE]:
             self.pause = not self.pause

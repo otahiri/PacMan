@@ -7,7 +7,7 @@ from mazegenerator import MazeGenerator
 from src.render import Renderer
 
 
-class Maze:
+class MazeInterface:
 
     """maze class resposible for constructing the maze
 
@@ -29,13 +29,13 @@ class Maze:
         Args:
             maze: maze object created by MazeGenerator
         """
-        self.maze = MazeGenerator(seed=42)
+        self.maze_generator = MazeGenerator(seed=42)
         asset_path = "assets/walls/"
         self.v_step = 64
         self.half_v_step = 32
-        self.max_x = self.maze._width * self.v_step
-        self.max_y = self.maze._height * self.v_step
-        self.bit_maze = self.maze.maze
+        self.max_x = self.maze_generator._width * self.v_step
+        self.max_y = self.maze_generator._height * self.v_step
+        self.bit_maze = self.maze_generator.maze
         self.corner_images = {
             i: Renderer.load_image(f"{asset_path}{i}.png") for i in range(16)
         }
@@ -43,27 +43,8 @@ class Maze:
             Renderer.load_image(f"{asset_path}horizontanl_wall.png"),
             Renderer.load_image(f"{asset_path}vertical_wall.png"),
         ]
-        corner_grid = [
-            [Corner() for _ in range(len(self.bit_maze) + 1)]
-            for _ in range(len(self.bit_maze) + 1)
-        ]
-        self.cell_grid = [
-            [
-                Cell(
-                    self.bit_maze[y][x],
-                    [
-                        corner_grid[y][x],
-                        corner_grid[y][x + 1],
-                        corner_grid[y + 1][x],
-                        corner_grid[y + 1][x + 1],
-                    ],
-                    None,
-                    (x, y),
-                )
-                for x in range(len(self.bit_maze[0]))
-            ]
-            for y in range(len(self.bit_maze))
-        ]
+        self.cell_grid: list[list[Cell]] = []
+        self.construct_grid()
         self.gum_count = 0
         self.set_maze_content()
 
@@ -101,8 +82,8 @@ class Maze:
         """set the content of each cell"""
         gum = Renderer.load_image("assets/gum.png")
         super_gum = Renderer.load_image("assets/super_gum.png")
-        max_y = self.maze._height - 1
-        max_x = self.maze._width - 1
+        max_y = self.maze_generator._height - 1
+        max_x = self.maze_generator._width - 1
         corners = [(0, 0), (max_x, 0), (0, max_y), (max_x, max_y)]
         for y, row in enumerate(self.cell_grid):
             for x, cell in enumerate(row):
@@ -116,14 +97,39 @@ class Maze:
                         else SuperGum(100, cell.cord, super_gum)
                     )
 
+    def construct_grid(self) -> None:
+        """constructe the cell grind representing the maze"""
+        corner_grid = [
+            [Corner() for _ in range(len(self.bit_maze) + 1)]
+            for _ in range(len(self.bit_maze) + 1)
+        ]
+        self.cell_grid = [
+            [
+                Cell(
+                    self.bit_maze[y][x],
+                    [
+                        corner_grid[y][x],
+                        corner_grid[y][x + 1],
+                        corner_grid[y + 1][x],
+                        corner_grid[y + 1][x + 1],
+                    ],
+                    None,
+                    (x, y),
+                )
+                for x in range(len(self.bit_maze[0]))
+            ]
+            for y in range(len(self.bit_maze))
+
+                ]
+
     def render_maze(self) -> pygame.Surface:
         """render the maze on a surface
 
         Returns:
             the result surface with maze on it
         """
-        height = (self.maze._height * self.v_step) + self.v_step
-        width = (self.maze._width * self.v_step) + self.v_step
+        height = (self.maze_generator._height * self.v_step) + self.v_step
+        width = (self.maze_generator._width * self.v_step) + self.v_step
         maze_surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
         Renderer.fill(maze_surface, ColorType.SECONDARY)
@@ -198,5 +204,8 @@ class Maze:
                     )
 
     def reset_maze(self):
-        self.maze.generate(-1)
+        """generate  new maze after level finish"""
+        self.maze_generator.generate(-10)
+        self.bit_maze = self.maze_generator.maze
+        self.construct_grid()
         self.set_maze_content()

@@ -8,14 +8,6 @@ from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 
 
 class Renderer:
-    """[TODO:description]
-
-    Attributes:
-        colors: [TODO:attribute]
-        primary, secondary: [TODO:attribute]
-        LETTER: [TODO:attribute]
-        LETTER: [TODO:attribute]
-    """
     """Renderer class responsible for the graphics
 
     Attributes:

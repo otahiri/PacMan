@@ -1,8 +1,12 @@
+"""game logic module handle all the game logics for
+characters consumables and maze
+"""
+
 from typing import Union
 
 from src.parsing import GameConfig
 from src.render import Renderer
-from src import Player, Maze, Blinky, Pinky, Clyde, Inky
+from src import Player, MazeInterface, Blinky, Pinky, Clyde, Inky
 from src.enums import (
     ColorType,
     Direction,
@@ -48,6 +52,7 @@ class GameLogic:
         maze_surf: preloaded maze surface
         new_move: player next move
     """
+
     FRIGHTENED_DURATIONS = (
         6.0,
         5.0,
@@ -93,7 +98,7 @@ class GameLogic:
             game_config: game config object containing info extracted
             from config file
         """
-        self.maze = Maze()
+        self.maze_interface = MazeInterface()
         self.game_config = game_config
         self.game_over = False
         self.reset_level = False
@@ -111,21 +116,24 @@ class GameLogic:
         self.hearts = 0
         self.__set_hearts()
         self.v_offset = (
-            (DisplayInfo.SCREEN_WIDTH.value - self.maze.max_x) // 2,
-            (DisplayInfo.SCREEN_HEIGHT.value - self.maze.max_y) // 2,
+            (DisplayInfo.SCREEN_WIDTH.value - self.maze_interface.max_x) // 2,
+            (DisplayInfo.SCREEN_HEIGHT.value - self.maze_interface.max_y) // 2,
         )
-        self.player = Player(2, self.maze.cell_grid)
-        self.blinky = Blinky(1, self.maze.cell_grid, [self.player])
-        self.pinky = Pinky(1, self.maze.cell_grid, [self.player])
-        self.clyde = Clyde(1, self.maze.cell_grid, [self.player])
-        self.inky = Inky(1, self.maze.cell_grid, [self.player, self.blinky])
+        self.player = Player(2, self.maze_interface.cell_grid)
+        self.blinky = Blinky(1, self.maze_interface.cell_grid, [self.player])
+        self.pinky = Pinky(1, self.maze_interface.cell_grid, [self.player])
+        self.clyde = Clyde(1, self.maze_interface.cell_grid, [self.player])
+        self.inky = Inky(
+            1, self.maze_interface.cell_grid, [self.player, self.blinky]
+        )
         self.mobs = [self.blinky, self.pinky, self.clyde, self.inky]
         self.working_surf = pygame.Surface(
-            (self.maze.max_x + 64, self.maze.max_y + 64), pygame.SRCALPHA
+            (self.maze_interface.max_x + 64, self.maze_interface.max_y + 64),
+            pygame.SRCALPHA,
         )
-        self.maze_surf = self.maze.render_maze()
+        self.maze_surf = self.maze_interface.render_maze()
         self.working_surf.blit(self.maze_surf, (0, 0))
-        self.maze.render_gums(self.working_surf)
+        self.maze_interface.render_gums(self.working_surf)
         self.new_move = Direction.NONE
 
     def __set_hearts(self):
@@ -156,19 +164,20 @@ class GameLogic:
                     and self.game_config.mode == "cheat"
                 ):
                     continue
-                elif (isinstance(victim, Blinky)):
+                elif isinstance(victim, Blinky):
                     self.score += self.game_config.points_per_ghost
 
                 victim.die()
                 self.shake.del_shake(victim.id)
                 return
-        gum = self.maze.get_content(p_x, p_y)
+        gum = self.maze_interface.get_content(p_x, p_y)
         if gum:
             if gum.is_super:
                 self.global_mode = GhostState.FRIGHTENED
                 self.change_mode()
             self.score += gum.score
-            self.maze.set_content(p_x, p_y)
+            self.maze_interface.set_content(p_x, p_y)
+            print(self.maze_interface.get_gum_count())
 
     def get_score(self) -> int:
         """get current score
@@ -228,38 +237,35 @@ class GameLogic:
 
     def death_reset(self) -> None:
         """reset the maze and characters"""
-        for mob in self.mobs:
-            self.shake.del_shake(mob.id)
-            mob.reset_cords()
-            self.change_frame(mob, 0)
-            mob.state = self.global_mode
-            mob.respawn_timer = 0
-            mob.death_frame = 0
+        self.reset_characters()
         self.working_surf.blit(self.maze_surf, (0, 0))
+
+    def reset_game(self) -> None:
+        """reset the game when next level is triggered"""
+        self.time_stamp = 0.0
+        self.maze_interface.reset_maze()
+        self.death_logic(self.frame)
+        self.maze_interface.render_gums(self.working_surf)
+        self.reset_characters()
+        self.maze_surf = self.maze_interface.render_maze()
+
+    def reset_characters(self) -> None:
+        """reset the characters to their original cords"""
         self.player.reset_cords()
-        self.change_frame(self.player, 0)
+        self.player.maze = self.maze_interface.cell_grid
+        self.change_frame(self.player, self.frame)
         self.player.dead = False
         self.player.death_frame = 0
         self.death_timer = 0
-
-    def reset_game(self) -> None:
-        self.maze.reset_maze()
-        self.death_logic(self.frame)
-        self.maze_surf = self.maze.render_maze()
-        self.maze.set_maze_content()
-        self.maze.render_gums(self.working_surf)
-        self.reset_characters()
-
-    def reset_characters(self) -> None:
-        self.player.reset_cords()
-        self.change_frame(self.player, self.frame)
         for mob in self.mobs:
+            mob.maze = self.maze_interface.cell_grid
             self.shake.del_shake(mob.id)
             mob.reset_cords()
             self.change_frame(mob, 0)
             mob.state = self.global_mode
             mob.respawn_timer = 0
             mob.death_frame = 0
+            mob.state = self.global_mode
 
     def change_mode(self):
         """change the mode of all ghost to the current global mode unless
@@ -275,7 +281,7 @@ class GameLogic:
         Returns:
             working_surf surface with paused game on it
         """
-        self.maze.render_gums(self.working_surf)
+        self.maze_interface.render_gums(self.working_surf)
         self.working_surf.blit(self.maze_surf, (0, 0))
         for mob in self.mobs:
             mob_shake = self.shake.shake_objects[mob.id]
@@ -299,7 +305,7 @@ class GameLogic:
         """
         if pause:
             return self.render_pause()
-        if self.maze.get_gum_count() <= 0:
+        if self.maze_interface.get_gum_count() <= 0:
             Renderer.fill(self.working_surf, ColorType.SECONDARY)
             self.level += 1
             self.reset_level = True
@@ -327,7 +333,7 @@ class GameLogic:
         Args:
             frame: current frame of the game
         """
-        self.maze.render_gums(self.working_surf)
+        self.maze_interface.render_gums(self.working_surf)
         self.player.new_direction = self.new_move
         self.change_frame(self.player, frame)
         for mob in self.mobs:

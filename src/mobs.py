@@ -414,11 +414,6 @@ class Blinky(Character):
             self.update_visual_cord()
         sprite = self.get_sprite(frame)
         self.prev_sprite = sprite
-        if (
-            self.bit_x,
-            self.bit_y,
-        ) == self.origin and self.state == GhostState.DEAD:
-            self.state = GhostState.CHASE
         return sprite
 
     def get_sprite(self, frame: int) -> pygame.Surface:

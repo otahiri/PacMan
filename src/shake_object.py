@@ -15,14 +15,13 @@ class ShakeInfo:
         steps_y: the count of the steps to shift the object each time in the y cord
         accumelated_x: the accumelated steps of the x cord
         accumelated_y: the accumelated steps of the y cord
-        max_cycles: [TODO:attribute]
-        wait_time: [TODO:attribute]
-        current_idx: [TODO:attribute]
-        last_x: [TODO:attribute]
-        last_y: [TODO:attribute]
-        last_frame: [TODO:attribute]
-        current_time: [TODO:attribute]
-        accumelated_total: [TODO:attribute]
+        max_cycles: the maximum possible cycle of shifting the cords
+        wait_time: the wait time before applying the next shift
+        last_x: the last x cord
+        last_y: the last y cord
+        last_frame: the previous sprite
+        current_time: the current time since the last shift
+        accumelated_total: the total half cycle happend
     """
     def __init__(
         self,
@@ -41,7 +40,6 @@ class ShakeInfo:
         self.accumelated_y = 0
         self.max_cycles = max_cycles
         self.wait_time: int = wait_time
-        self.current_idx = 0
         self.last_x = 0
         self.last_y = 0
         self.last_frame: Surface
