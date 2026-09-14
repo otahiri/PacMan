@@ -204,7 +204,7 @@ class GameLogic:
             return self.render_pause()
         if self.maze.get_gum_count() <= 0:
             self.level += 1
-            if self.level > self.game_config.levels_number:
+            if self.level > 10:
                 self.game_over = True
             self.reset_maze()
             self.maze.set_gums()

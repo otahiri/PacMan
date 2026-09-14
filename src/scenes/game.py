@@ -13,14 +13,28 @@ from src.game_logic import GameLogic
 class GameScene(Scene):
     def __init__(self, game_config: GameConfig) -> None:
 
-        self.score = 0
         self.game_config = game_config
         self.game_logic = GameLogic(game_config)
+
         self.game_over = False
         self.pause = False
+
+        self.score = 0
         self.time_remaining = 0
-        self.__init_elements()
+        self.current_level = 10
+
         self.last_time = time.perf_counter()
+
+        self.__init_elements()
+        self.__set_timer()
+
+    def __set_timer(self):
+
+        match self.game_config.mode:
+            case "hardcore":
+                self.time_remaining = 90
+            case "normal":
+                self.time_remaining = 120
 
     def __init_elements(self):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
@@ -28,11 +42,6 @@ class GameScene(Scene):
 
         self.pause_bar = SceneTitle("pause", "center")
 
-        match self.game_config.mode:
-            case "hardcore":
-                self.time_remaining = 90
-            case "normal":
-                self.time_remaining = 120
         self.score_text = Text(
             "score",
             (screen_width // 2, 10),
@@ -40,10 +49,16 @@ class GameScene(Scene):
             AnchorPoint.TOP_CENTER,
         )
 
+        self.level_text = Text(
+            f"level {self.game_logic.level}",
+            (screen_width - 10, 10),
+            ColorType.PRIMARY,
+            AnchorPoint.TOP_RIGHT,
+        )
+
         self.score_number = Text(
             str(self.score), (screen_width // 2, 100), ColorType.PRIMARY
         )
-
         self.time_text = Text(
             "time",
             (screen_width // 2, screen_height - 80),
@@ -96,9 +111,31 @@ class GameScene(Scene):
             AnchorPoint.BOTTOM_CENTER,
         )
 
+    def __update_level(self):
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+
+        if self.game_logic.level != self.current_level:
+            self.current_level = self.game_logic.level
+
+            self.level_text = Text(
+                f"level {self.game_logic.level}",
+                (screen_width - 10, 10),
+                ColorType.PRIMARY,
+                AnchorPoint.TOP_RIGHT,
+            )
+
     def __render_text(self, renderer: Renderer):
         if self.pause:
             self.pause_bar.render(renderer)
+
+        renderer.render(
+            self.level_text.surf,
+            Renderer.get_pos(
+                self.level_text.pos,
+                self.level_text.size,
+                self.level_text.anchor_point,
+            ),
+        )
         renderer.render(
             self.score_text.surf,
             Renderer.get_pos(
@@ -136,6 +173,7 @@ class GameScene(Scene):
     def __render_gui(self, renderer: Renderer, delta: float) -> None:
         self.__update_time(delta)
         self.__render_text(renderer)
+        self.__update_level()
 
         heart_width = Asset.HEART_WIDTH.value
 
@@ -169,8 +207,9 @@ class GameScene(Scene):
         elif key in [pygame.K_a, pygame.K_LEFT]:
             self.game_logic.new_move = Direction.WEST
 
-        elif key in [pygame.K_n]:
+        elif key in [pygame.K_n] and self.game_config.mode == "cheat":
             self.game_logic.maze.gum_count = 0
+            self.__set_timer()
 
         elif key in [pygame.K_ESCAPE]:
             self.pause = not self.pause

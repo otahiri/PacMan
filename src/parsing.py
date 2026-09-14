@@ -27,7 +27,6 @@ class GameConfig(BaseModel):
     color_schema: NonNegativeInt
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
     seed: NonNegativeInt | None = None
-    levels_number: NonNegativeInt = 10
 
     @field_validator("heighscores_path", mode="before")
     @classmethod

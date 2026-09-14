@@ -1,6 +1,5 @@
 {
     "heighscores_path": "heighscore.json",
     "mode": "normal",
-    "levels_number": 100,
     "color_schema": 3
 }
