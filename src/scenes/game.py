@@ -130,6 +130,10 @@ class GameScene(Scene):
             renderer.render(self.heart, (x + 10, y))
 
     def render_scene(self, renderer: Renderer) -> None:
+        if self.game_logic.reset_level:
+            self.time_remaining = 200
+            self.prev_time_remaining = 200
+            self.game_logic.reset_level = False
 
         self.__update_score()
 

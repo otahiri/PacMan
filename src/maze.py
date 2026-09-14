@@ -1,6 +1,5 @@
 """the maze model responsible for anything related to the maze generation
 """
-
 import pygame
 from src.enums import ColorType
 from src.models import Gum, SuperGum, Cell, Corner
@@ -24,19 +23,19 @@ class Maze:
         cell_grid: list of all the cell of the maze
         gum_count: number of gums in the maze
     """
-    def __init__(self, maze: MazeGenerator) -> None:
+    def __init__(self) -> None:
         """
             maze object constructor
         Args:
             maze: maze object created by MazeGenerator
         """
+        self.maze = MazeGenerator(seed=42)
         asset_path = "assets/walls/"
         self.v_step = 64
         self.half_v_step = 32
-        self.max_x = maze._width * self.v_step
-        self.max_y = maze._height * self.v_step
-        self.maze = maze
-        self.bit_maze = maze.maze
+        self.max_x = self.maze._width * self.v_step
+        self.max_y = self.maze._height * self.v_step
+        self.bit_maze = self.maze.maze
         self.corner_images = {
             i: Renderer.load_image(f"{asset_path}{i}.png") for i in range(16)
         }
@@ -197,3 +196,7 @@ class Maze:
                             cord_y + self.half_v_step,
                         ),
                     )
+
+    def reset_maze(self):
+        self.maze.generate(-1)
+        self.set_maze_content()

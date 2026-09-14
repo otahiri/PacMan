@@ -9,7 +9,6 @@ from src.enums import (
     DisplayInfo,
     GhostState,
 )
-from mazegenerator import MazeGenerator
 import pygame
 from src.shake_object import Shake
 
@@ -48,7 +47,6 @@ class GameLogic:
         working_surf: surface to paint the actual game
         maze_surf: preloaded maze surface
         new_move: player next move
-        state: [TODO:attribute]
     """
     FRIGHTENED_DURATIONS = (
         6.0,
@@ -95,9 +93,10 @@ class GameLogic:
             game_config: game config object containing info extracted
             from config file
         """
-        self.maze = Maze(MazeGenerator())
+        self.maze = Maze()
         self.game_config = game_config
         self.game_over = False
+        self.reset_level = False
         self.shake = Shake()
         self.frame = 0
         self.level = 1
@@ -227,7 +226,7 @@ class GameLogic:
             self.global_mode = new_mode
             self.change_mode()
 
-    def reset_maze(self) -> None:
+    def death_reset(self) -> None:
         """reset the maze and characters"""
         for mob in self.mobs:
             self.shake.del_shake(mob.id)
@@ -242,6 +241,25 @@ class GameLogic:
         self.player.dead = False
         self.player.death_frame = 0
         self.death_timer = 0
+
+    def reset_game(self) -> None:
+        self.maze.reset_maze()
+        self.death_logic(self.frame)
+        self.maze_surf = self.maze.render_maze()
+        self.maze.set_maze_content()
+        self.maze.render_gums(self.working_surf)
+        self.reset_characters()
+
+    def reset_characters(self) -> None:
+        self.player.reset_cords()
+        self.change_frame(self.player, self.frame)
+        for mob in self.mobs:
+            self.shake.del_shake(mob.id)
+            mob.reset_cords()
+            self.change_frame(mob, 0)
+            mob.state = self.global_mode
+            mob.respawn_timer = 0
+            mob.death_frame = 0
 
     def change_mode(self):
         """change the mode of all ghost to the current global mode unless
@@ -282,11 +300,13 @@ class GameLogic:
         if pause:
             return self.render_pause()
         if self.maze.get_gum_count() <= 0:
+            Renderer.fill(self.working_surf, ColorType.SECONDARY)
             self.level += 1
-            if self.level > self.game_config.levels_number:
+            self.reset_level = True
+            self.reset_game()
+            if self.level >= self.game_config.levels_number:
                 self.game_over = True
-            self.reset_maze()
-            self.maze.set_content()
+            return self.working_surf
         self.set_global_mode(delta)
         self.accumulator += delta
         while self.accumulator > self.MS_PER_FRAME:
@@ -382,7 +402,7 @@ class GameLogic:
             self.change_frame(self.player, frame)
             if self.player.death_frame >= 9:
                 self.hearts -= 1
-                self.reset_maze()
+                self.death_reset()
 
     def change_frame(
         self,

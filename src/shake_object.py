@@ -1,7 +1,29 @@
-from pygame import  Surface
+"""the shake object model responsible to shift sprite from the center
+to simulate shaking of bobbing
+"""
+
+from pygame import Surface
 
 
 class ShakeInfo:
+    """shake info class containing info about an object to shake
+
+    Attributes:
+        max_x: the maximum x steps to shift object with
+        max_y: the maximum y steps to shift object with
+        steps_x: the count of the steps to shift the object each time in the x cord
+        steps_y: the count of the steps to shift the object each time in the y cord
+        accumelated_x: the accumelated steps of the x cord
+        accumelated_y: the accumelated steps of the y cord
+        max_cycles: [TODO:attribute]
+        wait_time: [TODO:attribute]
+        current_idx: [TODO:attribute]
+        last_x: [TODO:attribute]
+        last_y: [TODO:attribute]
+        last_frame: [TODO:attribute]
+        current_time: [TODO:attribute]
+        accumelated_total: [TODO:attribute]
+    """
     def __init__(
         self,
         max_x: int,
@@ -17,7 +39,6 @@ class ShakeInfo:
         self.steps_y: int = steps_y
         self.accumelated_x = 0
         self.accumelated_y = 0
-        self.cycles = 0
         self.max_cycles = max_cycles
         self.wait_time: int = wait_time
         self.current_idx = 0
@@ -78,9 +99,8 @@ class Shake:
                 shake_info.steps_x = -shake_info.steps_x
                 shake_info.steps_y = -shake_info.steps_y
                 shake_info.accumelated_total += 1
-                shake_info.cycles = shake_info.accumelated_total // 2
 
-            if shake_info.cycles >= shake_info.max_cycles:
+            if shake_info.accumelated_total // 2 >= shake_info.max_cycles:
                 del self.shake_objects[target_id]
                 return working_surface
         shake_info.last_x = cords[0] + shake_info.accumelated_x

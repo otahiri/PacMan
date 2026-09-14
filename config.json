@@ -4,6 +4,6 @@
     "points_per_pacgum": 10,
     "points_per_super_pacgum": 50,
     "points_per_ghost": 200,
-    "levels_number": 100,
+    "levels_number": 10,
     "color_schema": 3
 }
