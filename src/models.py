@@ -46,12 +46,20 @@ class Text:
 
 class SceneTitle:
 
-    def __init__(self, label: str, pos: str = "top") -> None:
+    def __init__(
+        self, label: str, pos: str = "top", hide_top: bool = False
+    ) -> None:
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
+        self.hide_top = hide_top
+        y_pos = 0
 
-        y_pos = screen_height // 6 if pos == "top" else screen_height // 2
+        if pos == "top":
+            y_pos = screen_height // 6
+
+        elif pos == "center":
+            y_pos = screen_height // 2
 
         self.text = Text(
             label,
@@ -67,8 +75,20 @@ class SceneTitle:
             (0, y_pos), bar_size, AnchorPoint.CENTER_LEFT
         )
 
+        if hide_top:
+            bg_size = (screen_width, y_pos)
+            self.bg = pygame.Surface(bg_size)
+            Renderer.fill(self.bg, ColorType.SECONDARY)
+            self.bg_pos = Renderer.get_pos(
+                (0, y_pos), bg_size, AnchorPoint.BOTTOM_LEFT
+            )
+
     def render(self, renderer: Renderer):
+        if self.hide_top:
+            renderer.render(self.bg, self.bg_pos)
+
         renderer.render(self.bar_surf, self.bar_pos)
+
         renderer.render(
             self.text.surf,
             Renderer.get_pos(self.text.pos, self.text.size),
