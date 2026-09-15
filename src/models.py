@@ -19,6 +19,7 @@ class Button:
 
         self.text_on = Text(name, pos, ColorType.SECONDARY)
         self.text_off = Text(name, pos, ColorType.PRIMARY)
+        self.button_state = False
 
     def is_collide(self, pos: tuple[int, int]) -> bool:
         my_x, my_y = self.pos
@@ -26,6 +27,23 @@ class Button:
         is_inside_x = my_x <= target_x <= (my_x + self.width)
         is_inside_y = my_y <= target_y <= (my_y + self.height)
         return is_inside_x and is_inside_y
+
+    def switch_state(self) -> None:
+        self.button_state = not self.button_state
+
+    def render(self, renderer: Renderer) -> None:
+
+        if self.button_state == True:
+            renderer.render(self.surf, self.pos)
+            renderer.render(
+                self.text_on.surf,
+                Renderer.get_pos(self.text_on.pos, self.text_on.size),
+            )
+        else:
+            renderer.render(
+                self.text_off.surf,
+                Renderer.get_pos(self.text_off.pos, self.text_off.size),
+            )
 
 
 class Text:

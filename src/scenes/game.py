@@ -4,7 +4,7 @@ import time
 from pygame.event import Event
 from src import Direction
 from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
-from src.models import Scene, SceneTitle, Text
+from src.models import Button, Scene, SceneTitle, Text
 from src.parsing import GameConfig
 from src.render import Renderer
 from src.game_logic import GameLogic
@@ -24,7 +24,8 @@ class GameScene(Scene):
         self.current_level = 10
 
         self.last_time = time.perf_counter()
-
+        self.pause_buttons: list[Button] = []
+        self.pause_button_idx = 0
         self.__init_elements()
         self.__set_timer()
 
@@ -39,6 +40,17 @@ class GameScene(Scene):
     def __init_elements(self):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
+
+        for i, label in enumerate(["resume", "menu"]):
+
+            new_button = Button(
+                label, (200 + (screen_width - 400) * i, screen_height - 50)
+            )
+
+            if i == 0:
+                new_button.switch_state()
+
+            self.pause_buttons.append(new_button)
 
         self.pause_bar = SceneTitle("pause", "center")
 
@@ -127,6 +139,8 @@ class GameScene(Scene):
     def __render_text(self, renderer: Renderer):
         if self.pause:
             self.pause_bar.render(renderer)
+            for button in self.pause_buttons:
+                button.render(renderer)
 
         renderer.render(
             self.level_text.surf,
@@ -185,7 +199,6 @@ class GameScene(Scene):
     def render_scene(self, renderer: Renderer) -> None:
         if self.game_logic.reset_level:
             self.__set_timer()
-            self.prev_time_remaining = self.time_remaining
             self.game_logic.reset_level = False
 
         self.__update_score()
@@ -198,6 +211,11 @@ class GameScene(Scene):
         )
         self.__render_gui(renderer, delta)
 
+    def __switch_pause_buttons(self):
+        self.pause_buttons[self.pause_button_idx].switch_state()
+        self.pause_button_idx = 1 if self.pause_button_idx == 0 else 0
+        self.pause_buttons[self.pause_button_idx].switch_state()
+
     def __handle_keydown(self, key: int) -> None:
         if key in [pygame.K_w, pygame.K_UP]:
             self.game_logic.new_move = Direction.NORTH
@@ -206,10 +224,16 @@ class GameScene(Scene):
             self.game_logic.new_move = Direction.SOUTH
 
         elif key in [pygame.K_d, pygame.K_RIGHT]:
-            self.game_logic.new_move = Direction.EAST
+            if self.pause:
+                self.__switch_pause_buttons()
+            else:
+                self.game_logic.new_move = Direction.EAST
 
         elif key in [pygame.K_a, pygame.K_LEFT]:
-            self.game_logic.new_move = Direction.WEST
+            if self.pause:
+                self.__switch_pause_buttons()
+            else:
+                self.game_logic.new_move = Direction.WEST
 
         elif key in [pygame.K_n] and self.game_config.mode == "cheat":
             self.game_logic.maze_interface.gum_count = 0
@@ -217,26 +241,45 @@ class GameScene(Scene):
         elif key in [pygame.K_ESCAPE]:
             self.pause = not self.pause
 
-    def __leave_scene(self) -> dict[str, Any]:
+    def __leave_scene(self, scene: SceneName | None = None) -> dict[str, Any]:
         return {
             "pop": True,
-            "next_scene": SceneName.SCORE_ENTRY,
+            "next_scene": scene,
             "score": self.score,
         }
 
     def handle_events(self, events: list[Event]) -> dict[str, Any]:
 
         if self.game_logic.game_over:
-            return self.__leave_scene()
+            return self.__leave_scene(SceneName.SCORE_ENTRY)
         if self.time_remaining <= 0 and self.game_config.mode != "cheat":
-            return self.__leave_scene()
+            return self.__leave_scene(SceneName.SCORE_ENTRY)
 
         for event in events:
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    return self.__leave_scene()
+                if self.pause:
+                    if event.key == pygame.K_RETURN:
+                        if self.pause_button_idx == 0:
+                            self.pause = False
+                        else:
+                            return self.__leave_scene()
+
+                self.__handle_keydown(event.key)
+
+            elif event.type == pygame.MOUSEMOTION:
+                if self.pause:
+                    for i, button in enumerate(self.pause_buttons):
+                        if button.is_collide(pygame.mouse.get_pos()):
+                            if self.pause_button_idx != i:
+                                self.__switch_pause_buttons()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if not self.pause:
+                    return {}
+
+                if self.pause_button_idx == 0:
+                    self.pause = False
                 else:
-                    self.__handle_keydown(event.key)
+                    return self.__leave_scene()
 
         return {}

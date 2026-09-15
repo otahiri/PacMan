@@ -38,28 +38,19 @@ class MainMenuScene(Scene):
         for i, label in enumerate(["play", "scores", "info", "exit"]):
 
             y = screen_height // 2 + spacing * i
-            self.buttons.append(Button(label, (x, y)))
+            new_button = Button(label, (x, y))
+            if i == 0:
+                new_button.switch_state()
+            self.buttons.append(new_button)
 
     def __repr__(self) -> str:
         return "MainMenuScene"
 
     def render_scene(self, renderer: Renderer) -> None:
         self.title.render(renderer)
-        for i, button in enumerate(self.buttons):
 
-            if self.button_idx == i:
-                renderer.render(button.surf, button.pos)
-                renderer.render(
-                    button.text_on.surf,
-                    Renderer.get_pos(button.text_on.pos, button.text_on.size),
-                )
-            else:
-                renderer.render(
-                    button.text_off.surf,
-                    Renderer.get_pos(
-                        button.text_off.pos, button.text_off.size
-                    ),
-                )
+        for button in self.buttons:
+            button.render(renderer)
 
         delta = self.__get_delta()
         self.animated_bar.render(renderer, delta)
@@ -85,6 +76,7 @@ class MainMenuScene(Scene):
                 return {}
 
     def __handle_button_selection(self, direction: str):
+        self.buttons[self.button_idx].switch_state()
         match direction:
             case "up":
                 if self.button_idx == 0:
@@ -96,6 +88,7 @@ class MainMenuScene(Scene):
                     self.button_idx = 0
                 else:
                     self.button_idx += 1
+        self.buttons[self.button_idx].switch_state()
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
 
@@ -114,13 +107,19 @@ class MainMenuScene(Scene):
             elif event.type == pygame.MOUSEMOTION:
                 new_button_idx = self.__get_mouse_selected_button_idx()
                 if new_button_idx is not None:
+
+                    self.buttons[self.button_idx].switch_state()
                     self.button_idx = new_button_idx
+                    self.buttons[self.button_idx].switch_state()
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 new_button_idx = self.__get_mouse_selected_button_idx()
 
                 if new_button_idx is not None:
+                    self.buttons[self.button_idx].switch_state()
                     self.button_idx = new_button_idx
+                    self.buttons[self.button_idx].switch_state()
+
                     return self.__go_to_scene()
 
         return {}

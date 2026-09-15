@@ -1,5 +1,5 @@
-"""the maze model responsible for anything related to the maze generation
-"""
+"""the maze model responsible for anything related to the maze generation"""
+
 import pygame
 from src.enums import ColorType
 from src.models import Gum, SuperGum, Cell, Corner
@@ -8,7 +8,6 @@ from src.render import Renderer
 
 
 class MazeInterface:
-
     """maze class resposible for constructing the maze
 
     Attributes:
@@ -23,13 +22,14 @@ class MazeInterface:
         cell_grid: list of all the cell of the maze
         gum_count: number of gums in the maze
     """
+
     def __init__(self) -> None:
         """
             maze object constructor
         Args:
             maze: maze object created by MazeGenerator
         """
-        self.maze_generator = MazeGenerator(seed=42)
+        self.maze_generator = MazeGenerator(seed=67)
         asset_path = "assets/walls/"
         self.v_step = 64
         self.half_v_step = 32
@@ -119,8 +119,7 @@ class MazeInterface:
                 for x in range(len(self.bit_maze[0]))
             ]
             for y in range(len(self.bit_maze))
-
-                ]
+        ]
 
     def render_maze(self) -> pygame.Surface:
         """render the maze on a surface
