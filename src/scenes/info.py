@@ -11,7 +11,7 @@ class InfoScene(Scene):
         self.__init_elements()
         self.last_time = time.perf_counter()
 
-    def __init_elements(self):
+    def __init_elements(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -20,7 +20,7 @@ class InfoScene(Scene):
 
         x = screen_width // 2
         y = screen_height // 2 - 400
-        self.current_y = 0
+        self.current_y = 0.0
 
         for text in [
             ("use arrow keys to navigait",),
@@ -28,6 +28,7 @@ class InfoScene(Scene):
             ("wins the game when all", "levels are completed"),
             ("getting touched by a ghost", "costs a life"),
             ("eat super gum to eat ghosts", "temporarily"),
+            ()
         ]:
             y += 80
             for line in text:
@@ -40,7 +41,7 @@ class InfoScene(Scene):
                     )
                 )
 
-    def __get_delta(self):
+    def __get_delta(self) -> float:
         current_time = time.perf_counter()
         delta = current_time - self.last_time
         self.last_time = current_time
@@ -59,7 +60,7 @@ class InfoScene(Scene):
             )
         self.title.render(renderer)
 
-    def __handle_key_scroll(self, delta: float):
+    def __handle_key_scroll(self, delta: float) -> None:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_UP]:
@@ -67,7 +68,7 @@ class InfoScene(Scene):
         elif keys[pygame.K_DOWN]:
             self.current_y -= delta * 300
 
-    def __handle_mouse_scroll(self, y_event: int, delta: float):
+    def __handle_mouse_scroll(self, y_event: int, delta: float) -> None:
 
         if y_event == 1:
             self.current_y += delta * 300 * 50

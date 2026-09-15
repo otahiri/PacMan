@@ -13,7 +13,7 @@ class ScoreboardScene(Scene):
         self.scores = scores
         self.__init_elements()
 
-    def __init_elements(self):
+    def __init_elements(self) -> None:
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value

@@ -33,7 +33,7 @@ class Button:
 
     def render(self, renderer: Renderer) -> None:
 
-        if self.button_state == True:
+        if self.button_state is True:
             renderer.render(self.surf, self.pos)
             renderer.render(
                 self.text_on.surf,
@@ -101,7 +101,7 @@ class SceneTitle:
                 (0, y_pos), bg_size, AnchorPoint.BOTTOM_LEFT
             )
 
-    def render(self, renderer: Renderer):
+    def render(self, renderer: Renderer) -> None:
         if self.hide_top:
             renderer.render(self.bg, self.bg_pos)
 
@@ -138,7 +138,7 @@ class AnimatedBar:
         self.text_width = self.text.size[0]
         self.x2: float = self.x1 - self.text_width - self.gap
 
-    def render(self, renderer: Renderer, delta: float):
+    def render(self, renderer: Renderer, delta: float) -> None:
         self.x1 -= delta * self.speed
         if self.x1 + self.gap <= 0:
             self.x1 = self.x2 + self.text_width + self.gap

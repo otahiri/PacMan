@@ -4,7 +4,6 @@ from .mobs import Character, Player, Direction, Blinky, Pinky, Clyde, Inky
 __all__ = [
     "Cell",
     "Corner",
-    "Maze",
     "Player",
     "Direction",
     "Character",

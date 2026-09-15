@@ -29,7 +29,7 @@ class GameScene(Scene):
         self.__init_elements()
         self.__set_timer()
 
-    def __set_timer(self):
+    def __set_timer(self) -> None:
 
         match self.game_config.mode:
             case "hardcore":
@@ -37,7 +37,7 @@ class GameScene(Scene):
             case "normal":
                 self.time_remaining = 120
 
-    def __init_elements(self):
+    def __init_elements(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -107,7 +107,7 @@ class GameScene(Scene):
                 str(self.score), (screen_width // 2, 100), ColorType.PRIMARY
             )
 
-    def __update_time(self, delta: float):
+    def __update_time(self, delta: float) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -123,7 +123,7 @@ class GameScene(Scene):
             AnchorPoint.BOTTOM_CENTER,
         )
 
-    def __update_level(self):
+    def __update_level(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
 
         if self.game_logic.level != self.current_level:
@@ -136,7 +136,7 @@ class GameScene(Scene):
                 AnchorPoint.TOP_RIGHT,
             )
 
-    def __render_text(self, renderer: Renderer):
+    def __render_text(self, renderer: Renderer) -> None:
         if self.pause:
             self.pause_bar.render(renderer)
             for button in self.pause_buttons:
@@ -211,7 +211,7 @@ class GameScene(Scene):
         )
         self.__render_gui(renderer, delta)
 
-    def __switch_pause_buttons(self):
+    def __switch_pause_buttons(self) -> None:
         self.pause_buttons[self.pause_button_idx].switch_state()
         self.pause_button_idx = 1 if self.pause_button_idx == 0 else 0
         self.pause_buttons[self.pause_button_idx].switch_state()

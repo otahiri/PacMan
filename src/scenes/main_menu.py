@@ -2,7 +2,7 @@ import time
 from typing import Any
 import pygame
 from src.enums import DisplayInfo, SceneName
-from src.models import AnimatedBar, Button, Scene, SceneTitle, Text
+from src.models import AnimatedBar, Button, Scene, SceneTitle
 from src.render import Renderer
 
 
@@ -25,7 +25,7 @@ class MainMenuScene(Scene):
         self.last_time = current_time
         return delta
 
-    def __init_elements(self):
+    def __init_elements(self) -> None:
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
@@ -59,6 +59,7 @@ class MainMenuScene(Scene):
         for i, button in enumerate(self.buttons):
             if button.is_collide(pygame.mouse.get_pos()):
                 return i
+        return None
 
     def __go_to_scene(self) -> dict[str, Any]:
 
@@ -75,7 +76,7 @@ class MainMenuScene(Scene):
             case _:
                 return {}
 
-    def __handle_button_selection(self, direction: str):
+    def __handle_button_selection(self, direction: str) -> None:
         self.buttons[self.button_idx].switch_state()
         match direction:
             case "up":

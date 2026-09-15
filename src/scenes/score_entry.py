@@ -14,7 +14,7 @@ class ScoreEntryScene(Scene):
         self.score = score
         self.__init_elements()
 
-    def __init_elements(self):
+    def __init_elements(self) -> None:
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
@@ -135,7 +135,7 @@ class ScoreEntryScene(Scene):
                         Renderer.get_pos(letter.pos, (self.cursor.size)),
                     )
 
-    def __move_cursor(self, direction: str):
+    def __move_cursor(self, direction: str) -> None:
         x = self.cursor.x
         y = self.cursor.y
 
@@ -171,7 +171,7 @@ class ScoreEntryScene(Scene):
                 self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
                 self.cursor.letter_hover = button.letter
 
-    def __save_score(self):
+    def __save_score(self) -> None:
         score, name = self.score, self.name_frame.name
         try:
             scores = json.loads(Parser.get_file_content(self.heighscores_path))

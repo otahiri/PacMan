@@ -136,7 +136,7 @@ class GameLogic:
         self.maze_interface.render_gums(self.working_surf)
         self.new_move = Direction.NONE
 
-    def __set_hearts(self):
+    def __set_hearts(self) -> None:
         """set heart count according to mode"""
         if self.game_config.mode == "normal":
             self.hearts = 3
@@ -177,7 +177,6 @@ class GameLogic:
                 self.change_mode()
             self.score += gum.score
             self.maze_interface.set_content(p_x, p_y)
-            print(self.maze_interface.get_gum_count())
 
     def get_score(self) -> int:
         """get current score
@@ -203,7 +202,7 @@ class GameLogic:
         """
         return self.level
 
-    def set_global_mode(self, delta: float):
+    def set_global_mode(self, delta: float) -> None:
         """set global mode according to the current wave
 
         Args:
@@ -267,7 +266,7 @@ class GameLogic:
             mob.death_frame = 0
             mob.state = self.global_mode
 
-    def change_mode(self):
+    def change_mode(self) -> None:
         """change the mode of all ghost to the current global mode unless
         they are in respawn"""
         for mob in self.mobs:
@@ -414,7 +413,7 @@ class GameLogic:
         self,
         character: Union[Player, Blinky],
         frame: int,
-    ):
+    ) -> None:
         """change the position of the sprite of character
 
         Args:

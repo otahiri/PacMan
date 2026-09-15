@@ -44,7 +44,7 @@ class MainGame:
 
         self.scores = self.__sort_scores(scores)
 
-    def __navigate(self, arguments: dict[str, Any]):
+    def __navigate(self, arguments: dict[str, Any]) -> None:
         next_scene: SceneName | None = arguments.get("next_scene")
         new_recorder: tuple[str, int] | None = arguments.get("new_recorder")
         last_score: int = arguments.get("score", 0)

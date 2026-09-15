@@ -202,7 +202,7 @@ class MazeInterface:
                         ),
                     )
 
-    def reset_maze(self):
+    def reset_maze(self) -> None:
         """generate  new maze after level finish"""
         self.maze_generator.generate(-10)
         self.bit_maze = self.maze_generator.maze
