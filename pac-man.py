@@ -1,4 +1,5 @@
 import sys
+
 try:
     import pygame
     from src.main_game import MainGame
@@ -7,7 +8,7 @@ try:
     if __name__ == "__main__":
         game_config = Parser.parse()
         pygame.init()
-        pygame.display.set_caption('PacMan')
+        pygame.display.set_caption("Pac-Meh")
         screen = MainGame(game_config)
         screen.game_loop()
 except Exception as p:

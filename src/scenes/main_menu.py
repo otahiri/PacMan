@@ -1,8 +1,8 @@
 import time
 from typing import Any
 import pygame
-from src.enums import DisplayInfo, SceneName
-from src.models import AnimatedBar, Button, Scene, SceneTitle
+from src.enums import Asset, DisplayInfo, SceneName
+from src.models import AnimatedBar, Button, Scene, SceneTitle, Text
 from src.render import Renderer
 
 
@@ -29,7 +29,9 @@ class MainMenuScene(Scene):
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
-
+        self.logo = Renderer.change_color(
+            pygame.image.load(f"{Asset.LOGO_PATH.value}.png")
+        )
         self.title = SceneTitle("main menu")
 
         x = screen_width // 2
@@ -43,12 +45,9 @@ class MainMenuScene(Scene):
                 new_button.switch_state()
             self.buttons.append(new_button)
 
-    def __repr__(self) -> str:
-        return "MainMenuScene"
-
     def render_scene(self, renderer: Renderer) -> None:
         self.title.render(renderer)
-
+        renderer.render(self.logo, (0, 300))
         for button in self.buttons:
             button.render(renderer)
 

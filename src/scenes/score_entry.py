@@ -30,9 +30,6 @@ class ScoreEntryScene(Scene):
         self.cursor = Cursor()
         self.name_frame = NameFrame()
 
-    def __repr__(self) -> str:
-        return "ScoreEntryScene"
-
     def __get_keyboard_letters(
         self,
     ) -> list[LetterButton]:
@@ -135,34 +132,34 @@ class ScoreEntryScene(Scene):
                         Renderer.get_pos(letter.pos, (self.cursor.size)),
                     )
 
-    def __move_cursor(self, direction: str) -> None:
+    def __move_cursor(self, key: int):
         x = self.cursor.x
         y = self.cursor.y
 
-        match (x, y, direction):
+        match (x, y, key):
 
-            case (7, 3, "up"):
+            case (7, 3, pygame.K_UP):
                 self.cursor.x, self.cursor.y = (9, 2)
 
-            case (_, 3, "down"):
+            case (_, 3, pygame.K_DOWN):
                 self.cursor.x, self.cursor.y = (9, 0) if x == 7 else (x, 0)
 
-            case (_, 2, "down") | (_, 0, "up"):
+            case (_, 2, pygame.K_DOWN) | (_, 0, pygame.K_UP):
                 self.cursor.x, self.cursor.y = (7, 3) if x >= 7 else (x, 3)
 
-            case (9, _, "right") | (7, 3, "right"):
+            case (9, _, pygame.K_RIGHT) | (7, 3, pygame.K_RIGHT):
                 self.cursor.x = 0
 
-            case (0, _, "left"):
+            case (0, _, pygame.K_LEFT):
                 self.cursor.x = 7 if y == 3 else 9
 
-            case (_, _, "right"):
+            case (_, _, pygame.K_RIGHT):
                 self.cursor.x += 1
-            case (_, _, "left"):
+            case (_, _, pygame.K_LEFT):
                 self.cursor.x -= 1
-            case (_, _, "up"):
+            case (_, _, pygame.K_UP):
                 self.cursor.y -= 1
-            case (_, _, "down"):
+            case (_, _, pygame.K_DOWN):
                 self.cursor.y += 1
 
         for button in self.keyboard:
@@ -195,51 +192,71 @@ class ScoreEntryScene(Scene):
             print(f"Error: {e.strerror}")
 
     def __press_action(self) -> bool:
+
         if self.cursor.letter_hover == "E":
-            if self.name_frame.name == "":
-                return False
-            self.__save_score()
-            return True
+            if self.name_frame.name != "":
+                self.__save_score()
+                return True
+            return False
+
         if len(self.name_frame.name) < 10:
             self.name_frame.update_name(self.cursor.letter_hover)
+            return False
+
         return False
+
+    def __press_return(self) -> dict[str, Any]:
+
+        if self.__press_action():
+            return {
+                "pop": True,
+                "new_recorder": (self.name_frame.name, self.score),
+            }
+        return {}
+
+    def __handle_mouse_motion(self) -> bool:
+        for letter_button in self.keyboard:
+            if letter_button.is_collide(pygame.mouse.get_pos()):
+
+                self.cursor.x, self.cursor.y = letter_button.place
+                self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
+                self.cursor.letter_hover = letter_button.letter
+                return True
+
+        return False
+
+    def __handle_mouse_click(self) -> dict[str, Any]:
+
+        # check if mouse click on letter button
+        if not self.__handle_mouse_motion():
+            return {}
+
+        if self.__press_action():
+            return {
+                "pop": True,
+                "new_recorder": (self.name_frame.name, self.score),
+            }
+
+        return {}
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
         for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    if self.__press_action():
-                        return {
-                            "pop": True,
-                            "next_scene": SceneName.MAIN_MENU,
-                            "new_recorder": (self.name_frame.name, self.score),
-                        }
 
-                elif event.key == pygame.K_RIGHT:
-                    self.__move_cursor("right")
+            match event.type:
+                case pygame.KEYDOWN:
 
-                elif event.key == pygame.K_LEFT:
-                    self.__move_cursor("left")
+                    if event.key == pygame.K_RETURN:
+                        return self.__press_return()
 
-                elif event.key == pygame.K_UP:
-                    self.__move_cursor("up")
-                elif event.key == pygame.K_DOWN:
-                    self.__move_cursor("down")
+                    else:
+                        self.__move_cursor(event.key)
 
-            elif event.type == pygame.MOUSEMOTION:
-                for button in self.keyboard:
-                    if button.is_collide(pygame.mouse.get_pos()):
-                        self.cursor.x, self.cursor.y = button.place
-                        self.cursor.is_wide = (
-                            self.cursor.y == 3 and self.cursor.x >= 7
-                        )
-                        self.cursor.letter_hover = button.letter
+                case pygame.MOUSEMOTION:
+                    self.__handle_mouse_motion()
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if self.__press_action():
-                    return {
-                        "pop": True,
-                        "next_scene": SceneName.MAIN_MENU,
-                        "new_recorder": (self.name_frame.name, self.score),
-                    }
+                case pygame.MOUSEBUTTONDOWN:
+                    if event.button != 1:
+                        return {}
+                    return self.__handle_mouse_click()
+
         return {}

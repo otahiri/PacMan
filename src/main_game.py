@@ -53,17 +53,14 @@ class MainGame:
             self.__update_score(new_recorder)
 
         if arguments.get("pop"):
-            print("pop:", self.scene_stack[-1])
             self.scene_stack.pop()
 
         match next_scene:
             case SceneName.GAME:
                 self.scene_stack.append(GameScene(self.game_config))
-                print("insert:", self.scene_stack[-1])
 
             case SceneName.SCOREBOARD:
                 self.scene_stack.append(ScoreboardScene(self.scores))
-                print("insert:", self.scene_stack[-1])
 
             case SceneName.SCORE_ENTRY:
                 self.scene_stack.append(
@@ -71,10 +68,8 @@ class MainGame:
                         self.game_config.heighscores_path, last_score
                     )
                 )
-                print("insert:", self.scene_stack[-1])
             case SceneName.INFO:
                 self.scene_stack.append(InfoScene())
-                print("insert:", self.scene_stack[-1])
 
     def game_loop(self) -> None:
         running = True

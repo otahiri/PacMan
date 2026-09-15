@@ -1,7 +1,7 @@
 import time
 from typing import Any
 import pygame
-from src.enums import ColorType, DisplayInfo
+from src.enums import ColorType, DisplayInfo, SceneName
 from src.models import Scene, SceneTitle, Text
 from src.render import Renderer
 
@@ -47,9 +47,6 @@ class InfoScene(Scene):
         self.last_time = current_time
         return delta
 
-    def __repr__(self) -> str:
-        return "InfoScene"
-
     def render_scene(self, renderer: Renderer) -> None:
 
         for text in self.body_text:
@@ -84,7 +81,11 @@ class InfoScene(Scene):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     return {"pop": True}
-            if event.type == pygame.MOUSEWHEEL:
+
+            elif event.type == pygame.MOUSEWHEEL:
                 self.__handle_mouse_scroll(event.y, delta)
 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    return {"pop": True}
         return {}

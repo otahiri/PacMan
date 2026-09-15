@@ -37,9 +37,6 @@ class ScoreboardScene(Scene):
 
         self.title = SceneTitle("score board")
 
-    def __repr__(self) -> str:
-        return "ScoreboardScene"
-
     def render_scene(self, renderer: Renderer) -> None:
         self.title.render(renderer)
         for name, score in self.scores_list:
@@ -58,8 +55,10 @@ class ScoreboardScene(Scene):
         for event in events:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                return {"pop": True, "next_scene": SceneName.MAIN_MENU}
+                if event.button == 1:
+                    return {"pop": True, "next_scene": SceneName.MAIN_MENU}
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     return {"pop": True, "next_scene": SceneName.MAIN_MENU}
+
         return {}

@@ -96,9 +96,6 @@ class GameScene(Scene):
         self.last_time = current_time
         return delta
 
-    def __repr__(self) -> str:
-        return "GameScene"
-
     def __update_score(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         if self.score != self.game_logic.get_score():

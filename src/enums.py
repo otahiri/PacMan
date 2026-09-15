@@ -46,6 +46,8 @@ class Asset(Enum):
     HEART_PATH = "assets/heart"
     BUTTON_PATH = "assets/button"
 
+    LOGO_PATH = "assets/logo"
+
     LETTER_WIDTH = 40
     LETTER_HEIGHT = 40
 
