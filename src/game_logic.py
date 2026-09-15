@@ -251,12 +251,12 @@ class GameLogic:
 
     def reset_characters(self) -> None:
         """reset the characters to their original cords"""
-        self.player.reset_cords()
         self.player.maze = self.maze_interface.cell_grid
-        self.change_frame(self.player, self.frame)
         self.player.dead = False
         self.player.death_frame = 0
         self.death_timer = 0
+        self.player.reset_cords()
+        self.change_frame(self.player, self.frame)
         for mob in self.mobs:
             mob.maze = self.maze_interface.cell_grid
             self.shake.del_shake(mob.id)

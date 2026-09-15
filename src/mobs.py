@@ -89,10 +89,12 @@ class Player(Character):
 
     def reset_cords(self) -> None:
         """reset the cordination to the original point of the character"""
-        self.v_x = self.origin[0] * self.v_step + self.half_v_step
-        self.v_y = self.origin[1] * self.v_step + self.half_v_step
-        self.bit_y = self.origin[1]
-        self.bit_x = self.origin[0]
+        self.direction = Direction.NONE
+        x, y = self.origin
+        self.v_x = x * self.v_step + self.half_v_step
+        self.v_y = y * self.v_step + self.half_v_step
+        self.bit_y = y
+        self.bit_x = x
 
     def get_sprite(self, frame: int) -> pygame.Surface:
         """get the current sprite of the player
