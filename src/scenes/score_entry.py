@@ -4,7 +4,7 @@ from typing import Any
 from pathlib import Path
 from src.parsing import Parser
 from src.render import Renderer
-from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo, SceneName
+from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 from src.models import SceneTitle, Cursor, LetterButton, NameFrame, Scene, Text
 
 

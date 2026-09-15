@@ -138,13 +138,13 @@ class AnimatedBar:
         self.text_width = self.text.size[0]
         self.x2: float = self.x1 - self.text_width - self.gap
 
-    def reset_pos(self):
+    def reset_pos(self) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
 
         self.x1 = screen_width + screen_width // 2
-        self.x2: float = self.x1 - self.text_width - self.gap
+        self.x2 = self.x1 - self.text_width - self.gap
 
-    def render(self, renderer: Renderer, delta: float):
+    def render(self, renderer: Renderer, delta: float) -> None:
         self.x1 -= delta * self.speed
         if self.x1 + self.gap <= 0:
             self.x1 = self.x2 + self.text_width + self.gap

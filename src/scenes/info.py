@@ -1,7 +1,7 @@
 import time
 from typing import Any
 import pygame
-from src.enums import ColorType, DisplayInfo, SceneName
+from src.enums import ColorType, DisplayInfo
 from src.models import Scene, SceneTitle, Text
 from src.render import Renderer
 
