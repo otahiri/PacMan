@@ -20,7 +20,7 @@ class GameScene(Scene):
         self.pause = False
 
         self.score = 0
-        self.time_remaining = 1.0
+        self.time_remaining = 0.0
         self.current_level = 10
 
         self.last_time = time.perf_counter()
@@ -184,8 +184,8 @@ class GameScene(Scene):
 
     def render_scene(self, renderer: Renderer) -> None:
         if self.game_logic.reset_level:
-            self.time_remaining = 200
-            self.prev_time_remaining = 200
+            self.__set_timer()
+            self.prev_time_remaining = self.time_remaining
             self.game_logic.reset_level = False
 
         self.__update_score()
@@ -213,7 +213,6 @@ class GameScene(Scene):
 
         elif key in [pygame.K_n] and self.game_config.mode == "cheat":
             self.game_logic.maze_interface.gum_count = 0
-            self.__set_timer()
 
         elif key in [pygame.K_ESCAPE]:
             self.pause = not self.pause

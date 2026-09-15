@@ -125,10 +125,10 @@ class Renderer:
         size: tuple[int, int],
         anchor: AnchorPoint = AnchorPoint.CENTER,
     ) -> tuple[int, int]:
-        """get position offset for the
+        """ get the correct point based on the given anchor point
 
         Args:
-            pos: current position
+            pos: wanted position
             size: size of the surface
             anchor: offset variable
 
