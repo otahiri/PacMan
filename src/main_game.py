@@ -54,6 +54,9 @@ class MainGame:
 
         if arguments.get("pop"):
             self.scene_stack.pop()
+            menu_scene = self.scene_stack[-1]
+            if isinstance(menu_scene, MainMenuScene) and not next_scene:
+                menu_scene.animated_bar.reset_pos()
 
         match next_scene:
             case SceneName.GAME:
