@@ -85,9 +85,7 @@ class GameScene(Scene):
             AnchorPoint.BOTTOM_CENTER,
         )
 
-        self.heart = Renderer.change_color(
-            pygame.image.load(f"{Asset.HEART_PATH.value}.png")
-        )
+        self.heart = Renderer.load_image(f"{Asset.HEART_PATH.value}.png")
 
     def __get_delta(self) -> float:
 

@@ -18,18 +18,24 @@ class ScoreboardScene(Scene):
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
-        padding = 200
+        padding = 150
         i = 0
         for name, score in self.scores.items():
 
             y = screen_height // 3 + i * 80
             self.scores_list.append(
                 (
-                    Text(name, (padding, y), ColorType.PRIMARY),
+                    Text(
+                        name,
+                        (padding, y),
+                        ColorType.PRIMARY,
+                        AnchorPoint.CENTER_LEFT,
+                    ),
                     Text(
                         str(score),
                         (screen_width - padding, y),
                         ColorType.PRIMARY,
+                        AnchorPoint.CENTER_RIGHT,
                     ),
                 )
             )
@@ -42,13 +48,11 @@ class ScoreboardScene(Scene):
         for name, score in self.scores_list:
             renderer.render(
                 name.surf,
-                Renderer.get_pos(name.pos, name.size, AnchorPoint.CENTER_LEFT),
+                Renderer.get_pos(name.pos, name.size, name.anchor_point),
             )
             renderer.render(
                 score.surf,
-                Renderer.get_pos(
-                    score.pos, score.size, AnchorPoint.CENTER_RIGHT
-                ),
+                Renderer.get_pos(score.pos, score.size, score.anchor_point),
             )
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:

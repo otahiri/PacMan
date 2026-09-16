@@ -13,7 +13,6 @@ from src.scenes.score_entry import ScoreEntryScene
 
 class MainGame:
     def __init__(self, game_config: GameConfig) -> None:
-        print("initialize MainGame")
         self.game_config = game_config
         self.scores: dict[str, int] = self.__sort_scores(
             game_config.heighscores

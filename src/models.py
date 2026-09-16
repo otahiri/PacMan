@@ -208,6 +208,97 @@ class LetterButton:
         return is_inside_x and is_inside_y
 
 
+class Keyboard:
+    def __init__(self) -> None:
+
+        self.letters: list[LetterButton] = []
+        self.cursor = Cursor()
+        self.__set_keyboard_letters()
+
+    def __set_keyboard_letters(
+        self,
+    ) -> None:
+
+        screen_width = DisplayInfo.SCREEN_WIDTH.value
+        screen_height = DisplayInfo.SCREEN_HEIGHT.value
+
+        spacing = 50
+
+        letters_x_number = 10
+        letters_y_number = 4
+
+        letter_width = Asset.LETTER_WIDTH.value
+        letter_height = Asset.LETTER_HEIGHT.value
+
+        # calculate all letters plus the spaces between theme minus the last space
+        keyboard_width = (letter_width * (letters_x_number - 1)) + (
+            spacing * (letters_x_number - 1)
+        )
+        keyboard_height = (letter_height * (letters_y_number - 1)) + (
+            spacing * (letters_y_number - 1)
+        )
+
+        # x, y pos for keyboard that will init the x, y pos
+        keyboard_x = screen_width // 2 - keyboard_width // 2
+        keyboard_y = screen_height - keyboard_height - 100
+
+        place_x = 0
+        place_y = 0
+
+        letter_x = keyboard_x
+        letter_y = keyboard_y
+
+        for letter_idx, letter in enumerate(
+            "0123456789abcdefghijklmnopqrstuvwxyz E"
+        ):
+            # when finish each 10 letters go to next line
+            if letter_idx % 10 == 0 and letter_idx != 0:
+                letter_y += spacing + letter_height
+                letter_x = keyboard_x
+                place_x = 0
+                place_y += 1
+
+            surf = Renderer.LETTER[letter]
+
+            letter = LetterButton(
+                surf,
+                letter,
+                (letter_x, letter_y),
+                (letter_width, letter_height),
+                (place_x, place_y),
+            )
+
+            self.letters.append(letter)
+
+            letter_x += letter_width + spacing
+            place_x += 1
+
+    def render(self, renderer: Renderer):
+        for letter in self.letters:
+
+            renderer.render(
+                letter.surf, Renderer.get_pos(letter.pos, letter.size)
+            )
+
+            if (
+                self.cursor.x == letter.place[0]
+                and self.cursor.y == letter.place[1]
+            ):
+                if self.cursor.is_wide:
+                    width, height = Renderer.get_pos(
+                        letter.pos,
+                        (self.cursor.wide_size),
+                        AnchorPoint.CENTER_LEFT,
+                    )
+                    width -= letter.size[0]
+                    renderer.render(self.cursor.wide_surf, (width, height))
+                else:
+                    renderer.render(
+                        self.cursor.surf,
+                        Renderer.get_pos(letter.pos, (self.cursor.size)),
+                    )
+
+
 class Cursor:
     def __init__(
         self,

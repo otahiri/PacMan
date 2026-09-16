@@ -29,9 +29,8 @@ class MainMenuScene(Scene):
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
-        self.logo = Renderer.change_color(
-            pygame.image.load(f"{Asset.LOGO_PATH.value}.png")
-        )
+        self.logo = Renderer.load_image(f"{Asset.LOGO_PATH.value}.png")
+
         self.title = SceneTitle("main menu")
 
         x = screen_width // 2

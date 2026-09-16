@@ -28,7 +28,7 @@ class InfoScene(Scene):
             ("wins the game when all", "levels are completed"),
             ("getting touched by a ghost", "costs a life"),
             ("eat super gum to eat ghosts", "temporarily"),
-            ()
+            (),
         ]:
             y += 80
             for line in text:

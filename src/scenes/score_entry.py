@@ -4,8 +4,14 @@ from typing import Any
 from pathlib import Path
 from src.parsing import Parser
 from src.render import Renderer
-from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
-from src.models import SceneTitle, Cursor, LetterButton, NameFrame, Scene, Text
+from src.enums import ColorType, DisplayInfo
+from src.models import (
+    Keyboard,
+    SceneTitle,
+    NameFrame,
+    Scene,
+    Text,
+)
 
 
 class ScoreEntryScene(Scene):
@@ -26,67 +32,8 @@ class ScoreEntryScene(Scene):
         )
 
         self.title = SceneTitle("score entry")
-        self.keyboard = self.__get_keyboard_letters()
-        self.cursor = Cursor()
+        self.keyboard = Keyboard()
         self.name_frame = NameFrame()
-
-    def __get_keyboard_letters(
-        self,
-    ) -> list[LetterButton]:
-        keyboard = []
-
-        spacing = 10
-
-        letters_x = 10
-        letters_y = 5
-
-        spacing_width = spacing * 5
-        spacing_height = spacing * 5
-
-        letter_width = Asset.LETTER_WIDTH.value
-        letter_height = Asset.LETTER_HEIGHT.value
-
-        keyboard_width = letter_width * letters_x + (
-            spacing_width * (letters_x - 1)
-        )
-        keyboard_height = letter_height * letters_y + spacing_height * (
-            letters_y - 1
-        )
-
-        i = 0
-        x = DisplayInfo.SCREEN_WIDTH.value // 2 - keyboard_width // 2
-        y = DisplayInfo.SCREEN_HEIGHT.value - keyboard_height
-
-        place_x = 0
-        place_y = 0
-
-        for c in "0123456789abcdefghijklmnopqrstuvwxyz E":
-            if i % 10 == 0 and i != 0:
-                y += spacing_height + letter_height
-                i = 0
-                x = DisplayInfo.SCREEN_WIDTH.value // 2 - keyboard_width // 2
-                place_x = 0
-                place_y += 1
-            if c == "E":
-                surf = Renderer.LETTER[c]
-            else:
-                surf = Renderer.LETTER[c]
-
-            letter = LetterButton(
-                surf,
-                c,
-                (x, y),
-                (letter_width, letter_height),
-                (place_x, place_y),
-            )
-
-            keyboard.append(letter)
-
-            x += letter_width + spacing_width
-            place_x += 1
-            i += 1
-
-        return keyboard
 
     def render_scene(self, renderer: Renderer) -> None:
 
@@ -100,73 +47,62 @@ class ScoreEntryScene(Scene):
             self.name_frame.surf,
             Renderer.get_pos(self.name_frame.pos, self.name_frame.size),
         )
-        if self.name_frame.name != "":
-            renderer.render(
-                self.name_frame.text.surf,
-                Renderer.get_pos(
-                    self.name_frame.text.pos, self.name_frame.text.size
-                ),
-            )
+        renderer.render(
+            self.name_frame.text.surf,
+            Renderer.get_pos(
+                self.name_frame.text.pos, self.name_frame.text.size
+            ),
+        )
+        self.keyboard.render(renderer)
 
-        for letter in self.keyboard:
+    def __update_cursor_pos(self):
 
-            renderer.render(
-                letter.surf, Renderer.get_pos(letter.pos, letter.size)
-            )
-
-            if (
-                self.cursor.x == letter.place[0]
-                and self.cursor.y == letter.place[1]
+        for button in self.keyboard.letters:
+            if button.place == (
+                self.keyboard.cursor.x,
+                self.keyboard.cursor.y,
             ):
-                if self.cursor.is_wide:
-                    width, height = Renderer.get_pos(
-                        letter.pos,
-                        (self.cursor.wide_size),
-                        AnchorPoint.CENTER_LEFT,
-                    )
-                    width -= letter.size[0]
-                    renderer.render(self.cursor.wide_surf, (width, height))
-                else:
-                    renderer.render(
-                        self.cursor.surf,
-                        Renderer.get_pos(letter.pos, (self.cursor.size)),
-                    )
+                self.keyboard.cursor.x, self.keyboard.cursor.y = button.place
+                self.keyboard.cursor.is_wide = (
+                    self.keyboard.cursor.y == 3 and self.keyboard.cursor.x >= 7
+                )
+                self.keyboard.cursor.letter_hover = button.letter
 
     def __move_cursor(self, key: int):
-        x = self.cursor.x
-        y = self.cursor.y
+        x = self.keyboard.cursor.x
+        y = self.keyboard.cursor.y
 
         match (x, y, key):
 
             case (7, 3, pygame.K_UP):
-                self.cursor.x, self.cursor.y = (9, 2)
+                self.keyboard.cursor.x, self.keyboard.cursor.y = (9, 2)
 
             case (_, 3, pygame.K_DOWN):
-                self.cursor.x, self.cursor.y = (9, 0) if x == 7 else (x, 0)
+                self.keyboard.cursor.x, self.keyboard.cursor.y = (
+                    (9, 0) if x == 7 else (x, 0)
+                )
 
             case (_, 2, pygame.K_DOWN) | (_, 0, pygame.K_UP):
-                self.cursor.x, self.cursor.y = (7, 3) if x >= 7 else (x, 3)
+                self.keyboard.cursor.x, self.keyboard.cursor.y = (
+                    (7, 3) if x >= 7 else (x, 3)
+                )
 
             case (9, _, pygame.K_RIGHT) | (7, 3, pygame.K_RIGHT):
-                self.cursor.x = 0
+                self.keyboard.cursor.x = 0
 
             case (0, _, pygame.K_LEFT):
-                self.cursor.x = 7 if y == 3 else 9
+                self.keyboard.cursor.x = 7 if y == 3 else 9
 
             case (_, _, pygame.K_RIGHT):
-                self.cursor.x += 1
+                self.keyboard.cursor.x += 1
             case (_, _, pygame.K_LEFT):
-                self.cursor.x -= 1
+                self.keyboard.cursor.x -= 1
             case (_, _, pygame.K_UP):
-                self.cursor.y -= 1
+                self.keyboard.cursor.y -= 1
             case (_, _, pygame.K_DOWN):
-                self.cursor.y += 1
+                self.keyboard.cursor.y += 1
 
-        for button in self.keyboard:
-            if button.place == (self.cursor.x, self.cursor.y):
-                self.cursor.x, self.cursor.y = button.place
-                self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
-                self.cursor.letter_hover = button.letter
+        self.__update_cursor_pos()
 
     def __save_score(self) -> None:
         score, name = self.score, self.name_frame.name
@@ -181,26 +117,20 @@ class ScoreEntryScene(Scene):
             with open(self.heighscores_path, "w") as f:
                 json.dump(scores, f, indent=4)
 
-            print(
-                "Saved new score in",
-                self.heighscores_path,
-                "successfuly.",
-            )
-
         except OSError as e:
             print("File:", self.heighscores_path.absolute())
             print(f"Error: {e.strerror}")
 
     def __press_action(self) -> bool:
 
-        if self.cursor.letter_hover == "E":
+        if self.keyboard.cursor.letter_hover == "E":
             if self.name_frame.name != "":
                 self.__save_score()
                 return True
             return False
 
         if len(self.name_frame.name) < 10:
-            self.name_frame.update_name(self.cursor.letter_hover)
+            self.name_frame.update_name(self.keyboard.cursor.letter_hover)
             return False
 
         return False
@@ -215,12 +145,16 @@ class ScoreEntryScene(Scene):
         return {}
 
     def __handle_mouse_motion(self) -> bool:
-        for letter_button in self.keyboard:
+        for letter_button in self.keyboard.letters:
             if letter_button.is_collide(pygame.mouse.get_pos()):
 
-                self.cursor.x, self.cursor.y = letter_button.place
-                self.cursor.is_wide = self.cursor.y == 3 and self.cursor.x >= 7
-                self.cursor.letter_hover = letter_button.letter
+                self.keyboard.cursor.x, self.keyboard.cursor.y = (
+                    letter_button.place
+                )
+                self.keyboard.cursor.is_wide = (
+                    self.keyboard.cursor.y == 3 and self.keyboard.cursor.x >= 7
+                )
+                self.keyboard.cursor.letter_hover = letter_button.letter
                 return True
 
         return False

@@ -46,9 +46,8 @@ class Renderer:
             for c in "0123456789abcdefghijklmnopqrstuvwxyz-E"
         }
         Renderer.LETTER[" "] = pygame.image.load(
-            f"{Asset.LETTER_PATH.value}/space.png"
+            f"{Asset.LETTER_PATH.value}/S.png"
         )
-        print("initialize Renderer")
 
     def clear(self) -> None:
         """clear main display"""
@@ -125,7 +124,7 @@ class Renderer:
         size: tuple[int, int],
         anchor: AnchorPoint = AnchorPoint.CENTER,
     ) -> tuple[int, int]:
-        """ get the correct point based on the given anchor point
+        """get the correct point based on the given anchor point
 
         Args:
             pos: wanted position
