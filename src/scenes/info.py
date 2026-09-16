@@ -23,12 +23,32 @@ class InfoScene(Scene):
         self.current_y = 0.0
 
         for text in [
-            ("use arrow keys to navigait",),
+            (
+                "use wasd or arrow keys to",
+                "navigait through the maze",
+            ),
             ("wins the level when all", "pacgums are eaten"),
             ("wins the game when all", "levels are completed"),
+            (
+                "each level has a time limit",
+                "120 in normal mode",
+                "90 in hardcore mode",
+            ),
             ("getting touched by a ghost", "costs a life"),
-            ("eat super gum to eat ghosts", "temporarily"),
-            (),
+            ("eating a pacgum increases", "the score by 10"),
+            (
+                "eating a super pacgum",
+                "increases the score by 100",
+                "and makes ghosts edible for",
+                "a short time",
+            ),
+            (
+                "eating an edible ghost",
+                "increases the score by 100",
+            ),
+            ("your goal is to achive", "the maximum score"),
+            ("ghosts respawn to their", "corner after a while", "when eaten"),
+            # ("this game")
         ]:
             y += 80
             for line in text:

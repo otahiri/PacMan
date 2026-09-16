@@ -18,7 +18,10 @@ class MainGame:
             game_config.heighscores
         )
         self.renderer: Renderer = Renderer(game_config.color_schema)
-        self.scene_stack: list[Scene] = [MainMenuScene()]
+        self.scene_stack: list[Scene] = [
+            MainMenuScene(),
+            InfoScene(),
+        ]
 
     def __sort_scores(self, scores: dict[str, int]) -> dict[str, int]:
         return {
@@ -54,8 +57,11 @@ class MainGame:
         if arguments.get("pop"):
             self.scene_stack.pop()
             menu_scene = self.scene_stack[-1]
+
+            # reset animated bar pos when returning to main menu
             if isinstance(menu_scene, MainMenuScene) and not next_scene:
                 menu_scene.animated_bar.reset_pos()
+                print("Asdasf")
 
         match next_scene:
             case SceneName.GAME:

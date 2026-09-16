@@ -140,10 +140,8 @@ class GameLogic:
         """set heart count according to mode"""
         if self.game_config.mode == "normal":
             self.hearts = 3
-        elif self.game_config.mode == "hardcore":
-            self.hearts = 1
         else:
-            self.hearts = 3
+            self.hearts = 0
 
     def handle_collision(self) -> None:
         """handle player collisions with other object"""
