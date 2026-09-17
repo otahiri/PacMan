@@ -80,7 +80,8 @@ class MainMenuScene(Scene):
         return None
 
     def __go_to_scene(self) -> dict[str, Any]:
-        """Create the scene-navigation instructions for the current menu selection.
+        """Create the scene-navigation instructions
+        for the current menu selection.
 
         Returns:
             A dictionary describing the next scene or action.

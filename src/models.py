@@ -297,7 +297,8 @@ class Keyboard:
     def __set_keyboard_letters(
         self,
     ) -> None:
-        """Create and place `LetterButton` instances for the keyboard layout."""
+        """Create and place `LetterButton`
+        instances for the keyboard layout."""
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
@@ -310,7 +311,7 @@ class Keyboard:
         letter_width = Asset.LETTER_WIDTH.value
         letter_height = Asset.LETTER_HEIGHT.value
 
-        # calculate all letters plus the spaces between theme minus the last space
+        # calculate all letters, spaces between theme minus the last space
         keyboard_width = (letter_width * (letters_x_number - 1)) + (
             spacing * (letters_x_number - 1)
         )
@@ -328,7 +329,7 @@ class Keyboard:
         letter_x = keyboard_x
         letter_y = keyboard_y
 
-        for letter_idx, letter in enumerate(
+        for letter_idx, c in enumerate(
             "0123456789abcdefghijklmnopqrstuvwxyz E"
         ):
             # when finish each 10 letters go to next line
@@ -338,11 +339,11 @@ class Keyboard:
                 place_x = 0
                 place_y += 1
 
-            surf = Renderer.LETTER[letter]
+            surf = Renderer.LETTER[c]
 
             letter = LetterButton(
                 surf,
-                letter,
+                c,
                 (letter_x, letter_y),
                 (letter_width, letter_height),
                 (place_x, place_y),
@@ -354,7 +355,8 @@ class Keyboard:
             place_x += 1
 
     def render(self, renderer: Renderer) -> None:
-        """Render keyboard (all letters) and the cursor onto the given renderer.
+        """Render keyboard (all letters) and
+        the cursor onto the given renderer.
 
         Args:
             renderer: Renderer used to draw the keyboard.
@@ -503,7 +505,11 @@ class Cell:
     """
 
     def __init__(
-        self, bit_value: int, corners: list[Corner], content: Any, cord: tuple
+        self,
+        bit_value: int,
+        corners: list[Corner],
+        content: Any,
+        cord: tuple,
     ) -> None:
         self.bit_value = bit_value
         self.content: Gum | SuperGum | None = None

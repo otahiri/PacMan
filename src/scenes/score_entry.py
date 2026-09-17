@@ -141,7 +141,8 @@ class ScoreEntryScene(Scene):
             print(f"Error: {e.strerror}")
 
     def __press_action(self) -> bool:
-        """Apply the current keyboard selection as a letter or name save action.
+        """Apply the current keyboard selection
+        as a letter or name save action.
 
         Returns:
             True when the save action is confirmed; otherwise False.
@@ -196,8 +197,8 @@ class ScoreEntryScene(Scene):
         """Handle a mouse click on the keyboard and save if a name is complete.
 
         Returns:
-            A navigation instructions when the score is saved; otherwise an empty
-            dict.
+            A navigation instructions when the score
+            is saved; otherwise an empty dict.
         """
 
         if not self.__handle_mouse_motion():

@@ -2,7 +2,7 @@
 
 from typing import Any
 import pygame
-from src.enums import AnchorPoint, ColorType, DisplayInfo, SceneName
+from src.enums import AnchorPoint, ColorType, DisplayInfo
 from src.models import Scene, SceneTitle, Text
 from src.render import Renderer
 
@@ -21,7 +21,8 @@ class ScoreboardScene(Scene):
         self.__init_elements()
 
     def __init_elements(self) -> None:
-        """Create the title and text rows used in the scoreboard display."""
+        """Create the title and text rows
+        used in the scoreboard display."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 

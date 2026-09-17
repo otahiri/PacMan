@@ -45,7 +45,8 @@ class GameConfig(BaseModel):
     @field_validator("highscores_path", mode="before")
     @classmethod
     def validate_scores_path(cls, value: str) -> str:
-        """Validate that the configured score file exists and uses a JSON suffix.
+        """Validate that the configured score
+        file exists and uses a JSON suffix.
 
         Args:
             value: File path provided in the configuration.
@@ -82,7 +83,8 @@ class GameConfig(BaseModel):
 
     @model_validator(mode="after")
     def load_scores_from_path(self) -> "GameConfig":
-        """Load and validate the score dictionary from the configured JSON file.
+        """Load and validate the score
+        dictionary from the configured JSON file.
 
         Returns:
             The validated `GameConfig` instance with `highscores` populated.
@@ -178,7 +180,8 @@ class Parser:
 
     @staticmethod
     def parse() -> GameConfig:
-        """Parse and validate the game configuration from the command-line file.
+        """Parse and validate the game configuration
+        from the command-line file.
 
         Returns:
             A validated `GameConfig` object containing the parsed data.

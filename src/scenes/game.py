@@ -122,7 +122,8 @@ class GameScene(Scene):
             )
 
     def __update_time(self, delta: float) -> None:
-        """Advance the countdown timer unless the game is paused or in cheat mode.
+        """Advance the countdown timer unless
+        the game is paused or in cheat mode.
 
         Args:
             delta: Elapsed time since the previous frame.
