@@ -17,6 +17,7 @@ class Renderer:
     """
 
     colors = [
+        ("FFFFFFFF", "00000000"),
         ("FFEDF6D6", "003E232C"),
         ("FFD3C9A1", "00323C39"),
         ("FFAFB0B0", "002E253D"),
