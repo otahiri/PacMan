@@ -130,10 +130,6 @@ class MainGame:
             for event in events:
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        running = False
-
             scene = self.scene_stack[-1]
 
             scene_arguments = scene.handle_events(events)

@@ -1,5 +1,5 @@
 {
-    "highscores_path": "heighscore.json",
+    "highscores_path": "highscore.json",
     "mode": "hardcore",
-    "color_scheme": 1
+    "color_scheme": 40000
 }

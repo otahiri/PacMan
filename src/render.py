@@ -22,6 +22,9 @@ class Renderer:
         ("FFD3C9A1", "00323C39"),
         ("FFAFB0B0", "002E253D"),
         ("FFD7BCAD", "00452F47"),
+        ("FF40318e", "0088d7de"),
+        ("FFf7f4e6", "00393442"),
+        ("FFc5cddb", "00454d5e"),
     ]
     primary, secondary = colors[0]
     LETTER: dict = dict()
