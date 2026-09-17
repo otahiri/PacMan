@@ -1,3 +1,10 @@
+"""Models and UI widgets used across the game.
+
+This module contains small UI components and core game models such as
+`Cell`, `Corner`, `Character`, `Gum` and related helper classes used by
+the game scenes and renderer.
+"""
+
 from typing import Any
 import pygame
 from abc import ABC, abstractmethod
@@ -6,6 +13,12 @@ from src.render import Renderer
 
 
 class Button:
+    """A clickable button composed of a background and text.
+
+    Args:
+        name: Button label.
+        pos: (x, y) position for the button on screen.
+    """
 
     def __init__(self, name: str, pos: tuple[int, int]) -> None:
         self.name = name
@@ -22,6 +35,14 @@ class Button:
         self.button_state = False
 
     def is_collide(self, pos: tuple[int, int]) -> bool:
+        """Return True if the given `pos` is inside the button bounds.
+
+        Args:
+            pos: Target (x, y) position to test.
+
+        Returns:
+            True when the point lies within the button.
+        """
         my_x, my_y = self.pos
         target_x, target_y = pos
         is_inside_x = my_x <= target_x <= (my_x + self.width)
@@ -29,10 +50,18 @@ class Button:
         return is_inside_x and is_inside_y
 
     def switch_state(self) -> None:
+        """Toggle the internal `button_state` flag."""
         self.button_state = not self.button_state
 
     def render(self, renderer: Renderer) -> None:
+        """Render the button using the provided `Renderer`.
 
+        The method will draw either the `text_on` or `text_off` variant
+        depending on the `button_state`.
+
+        Args:
+            renderer: Renderer instance used to blit surfaces.
+        """
         if self.button_state is True:
             renderer.render(self.surf, self.pos)
             renderer.render(
@@ -47,6 +76,14 @@ class Button:
 
 
 class Text:
+    """Renderable text containing sequence letters sprites.
+
+    Args:
+        label: The string to render.
+        pos: Position to render the text.
+        color_type: Color theme to use for the rendered text.
+        anchor_point: Anchor used when computing the destination position.
+    """
 
     def __init__(
         self,
@@ -55,7 +92,6 @@ class Text:
         color_type: ColorType,
         anchor_point: AnchorPoint = AnchorPoint.CENTER,
     ) -> None:
-
         self.label = label
         self.pos = pos
         self.surf, self.size = Renderer.get_text(label, color_type)
@@ -63,11 +99,17 @@ class Text:
 
 
 class SceneTitle:
+    """A title bar used by scenes to display a heading.
+
+    Args:
+        label: Title text to display.
+        pos: Either 'top' or 'center' to position the title vertically.
+        hide_top: When True, render a background strip.
+    """
 
     def __init__(
         self, label: str, pos: str = "top", hide_top: bool = False
     ) -> None:
-
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
         self.hide_top = hide_top
@@ -102,6 +144,11 @@ class SceneTitle:
             )
 
     def render(self, renderer: Renderer) -> None:
+        """Draw the title bar and optional background to the display.
+
+        Args:
+            renderer: Renderer instance used to blit the surfaces.
+        """
         if self.hide_top:
             renderer.render(self.bg, self.bg_pos)
 
@@ -114,6 +161,14 @@ class SceneTitle:
 
 
 class AnimatedBar:
+    """Animated text bar that scrolls horizontally across the screen.
+
+    Args:
+        label: Text label to display in the bar.
+        gap: Distance between the two moving text copies.
+        speed: Scroll speed of the animation.
+    """
+
     def __init__(self, label: str, gap: int, speed: int) -> None:
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
@@ -139,12 +194,19 @@ class AnimatedBar:
         self.x2: float = self.x1 - self.text_width - self.gap
 
     def reset_pos(self) -> None:
+        """Reset the positions of animated text to the initial state."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
 
         self.x1 = screen_width + screen_width // 2
         self.x2 = self.x1 - self.text_width - self.gap
 
     def render(self, renderer: Renderer, delta: float) -> None:
+        """Render the animated bar.
+
+        Args:
+            renderer: Renderer used to draw the bar and text.
+            delta: Time delta used to compute movement.
+        """
         self.x1 -= delta * self.speed
         if self.x1 + self.gap <= 0:
             self.x1 = self.x2 + self.text_width + self.gap
@@ -178,6 +240,15 @@ class AnimatedBar:
 
 
 class LetterButton:
+    """A single keyboard letter rendered as a button.
+
+    Args:
+        surf: Surface for the letter.
+        letter: The character represented by this button.
+        pos: Position to render the button.
+        size: Size of the letter.
+        place: Grid position inside the keyboard layout.
+    """
 
     def __init__(
         self,
@@ -194,7 +265,14 @@ class LetterButton:
         self.place = place
 
     def is_collide(self, pos: tuple[int, int]) -> bool:
+        """Return True if the given `pos` collides with this letter button.
 
+        Args:
+            pos: Point to test in screen coordinates.
+
+        Returns:
+            True when the point is within the visual bounds of the button.
+        """
         width, height = self.size
 
         width *= 2
@@ -209,8 +287,9 @@ class LetterButton:
 
 
 class Keyboard:
-    def __init__(self) -> None:
+    """On-screen keyboard composed of `LetterButton` items and cursor."""
 
+    def __init__(self) -> None:
         self.letters: list[LetterButton] = []
         self.cursor = Cursor()
         self.__set_keyboard_letters()
@@ -218,6 +297,7 @@ class Keyboard:
     def __set_keyboard_letters(
         self,
     ) -> None:
+        """Create and place `LetterButton` instances for the keyboard layout."""
 
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
@@ -273,7 +353,12 @@ class Keyboard:
             letter_x += letter_width + spacing
             place_x += 1
 
-    def render(self, renderer: Renderer):
+    def render(self, renderer: Renderer) -> None:
+        """Render keyboard (all letters) and the cursor onto the given renderer.
+
+        Args:
+            renderer: Renderer used to draw the keyboard.
+        """
         for letter in self.letters:
 
             renderer.render(
@@ -300,10 +385,11 @@ class Keyboard:
 
 
 class Cursor:
+    """Visual cursor used by the on-screen keyboard."""
+
     def __init__(
         self,
     ) -> None:
-
         width = Asset.CURSOR_WIDTH.value
         height = Asset.CURSOR_WIDTH.value
 
@@ -332,6 +418,8 @@ class Cursor:
 
 
 class NameFrame:
+    """Container for the player's name input frame."""
+
     def __init__(self) -> None:
         width, height = (
             Asset.NAME_FRAME_WIDTH.value,
@@ -350,16 +438,42 @@ class NameFrame:
         self.text = Text(" ", self.pos, ColorType.PRIMARY)
 
     def update_name(self, letter: str) -> None:
+        """Append `letter` to the current name and update the rendered text.
+
+        Args:
+            letter: Single character to append to the `name` string.
+        """
         self.name += letter
         self.text = Text(self.name, self.pos, ColorType.PRIMARY)
 
 
 class Scene(ABC):
-    @abstractmethod
-    def render_scene(self, renderer: Renderer) -> None: ...
+    """Abstract base class for all game scenes.
+
+    Subclasses define how a scene renders itself and how it responds to
+    incoming events.
+    """
 
     @abstractmethod
-    def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]: ...
+    def render_scene(self, renderer: Renderer) -> None:
+        """Render the scene to the provided renderer.
+
+        Args:
+            renderer: Renderer used to display the scene.
+        """
+        ...
+
+    @abstractmethod
+    def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
+        """Handle a list of pygame events and return action data.
+
+        Args:
+            events: Events emitted by pygame for the current frame.
+
+        Returns:
+            Dictionary containing scene actions such as transitions or updates.
+        """
+        ...
 
 
 class Corner:
@@ -370,12 +484,15 @@ class Corner:
     """
 
     def __init__(self) -> None:
-        """constructor of the Corner class"""
         self.bit = 0
 
 
 class Cell:
     """cell class that has all the attributes of the cell
+
+    Args:
+        bit: bit value of the cell
+        corners: list of corners surrounding the cell
 
     Attributes:
         bit_value: the bit value of the cell representing which  walls are open
@@ -388,12 +505,6 @@ class Cell:
     def __init__(
         self, bit_value: int, corners: list[Corner], content: Any, cord: tuple
     ) -> None:
-        """constructor of the Cell class
-
-        Args:
-            bit: bit value of the cell
-            corners: list of corners surrounding the cell
-        """
         self.bit_value = bit_value
         self.content: Gum | SuperGum | None = None
         self.top_left = corners[0]
@@ -426,6 +537,18 @@ class Cell:
 
 
 class Character(ABC):
+    """Abstract base class for all moving game characters.
+
+    This includes the player and all ghosts, which share movement,
+    animation and coordinate management methods.
+
+    Args:
+        speed: Movement speed in grid units.
+        origin: Starting (x, y) coordinate for the character.
+        maze: Cell grid used for navigation.
+        anchors: Optional helper anchors or reference objects.
+    """
+
     def __init__(
         self,
         speed: int,
@@ -443,25 +566,60 @@ class Character(ABC):
         self.origin = origin
 
     @abstractmethod
-    def get_sprite(self, frame: int) -> pygame.Surface: ...
+    def get_sprite(self, frame: int) -> pygame.Surface:
+        """Return the sprite for the current frame.
+
+        Args:
+            frame: Current animation frame index.
+
+        Returns:
+            The rendered sprite surface for this character.
+        """
+        ...
 
     @abstractmethod
-    def move(self, frame: int) -> pygame.Surface: ...
+    def move(self, frame: int) -> pygame.Surface:
+        """Advance the character state and return its sprite.
+
+        Args:
+            frame: Current frame value used for animation timing.
+
+        Returns:
+            The sprite surface after updating the character position.
+        """
+        ...
 
     @abstractmethod
-    def update_visual_cord(self) -> None: ...
+    def update_visual_cord(self) -> None:
+        """Sync the visual position with the character's internal state."""
+        ...
 
     @abstractmethod
-    def choose_direction(self) -> None: ...
+    def choose_direction(self) -> None:
+        """Choose the next movement direction based on the current state."""
+        ...
 
     @abstractmethod
-    def reset_cords(self) -> None: ...
+    def reset_cords(self) -> None:
+        """Reset the character to its initial position and state."""
+        ...
 
     @abstractmethod
-    def die(self) -> None: ...
+    def die(self) -> None:
+        """Trigger the character's death state."""
+        ...
 
 
 class Gum:
+    """collectible item placed within the maze.
+
+    Args:
+        score: Points awarded when the gum is collected.
+        cord: Grid coordinate of the gum.
+        sprite: Surface used to render the gum.
+        is_super: Whether this gum is a super-powered variant.
+    """
+
     def __init__(
         self,
         score: int,
@@ -476,6 +634,14 @@ class Gum:
 
 
 class SuperGum(Gum):
+    """Special collectible that temporarily frightens ghosts.
+
+    Args:
+        score: Points awarded when the super-gum is collected.
+        cord: Grid coordinate of the super-gum.
+        sprite: Surface used to render the super-gum.
+    """
+
     def __init__(
         self, score: int, cord: tuple, sprite: pygame.Surface
     ) -> None:

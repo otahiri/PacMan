@@ -1,5 +1,5 @@
 {
-    "heighscores_path": "heighscore.json",
-    "mode": "normal",
-    "color_schema": 1
+    "highscores_path": "heighscore.json",
+    "mode": "hardcore",
+    "color_scheme": 1
 }

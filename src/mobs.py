@@ -1,3 +1,10 @@
+"""Ghost and player character implementations.
+
+This module defines `Player` and the ghost classes (`Blinky`, `Pinky`,
+`Clyde`, `Inky`) used by the game. Each class implements movement,
+rendering helpers and state transitions used by the game logic.
+"""
+
 import random
 from src.enums import Direction, GhostState
 from src.models import Character
@@ -8,8 +15,14 @@ from src.render import Renderer
 
 
 class Player(Character):
-
     """player class
+
+    Args:
+        speed: speed of the player
+        maze: cell grid to help the player navigate the maze
+        anchors: anchors for the player to choose spot
+        (player does not use anchor but it relays on the character model
+            which need the anchors by default)
 
     Attributes:
         id: id of the player
@@ -27,21 +40,14 @@ class Player(Character):
         bit_y: y cord inside the bit map
         bit_x: x cord inside the bit map
     """
+
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
-        """constructor for the player class
 
-        Args:
-            speed: speed of the player
-            maze: cell grid to help the player navigate the maze
-            anchors: anchors for the player to choose spot
-            (player does not use anchor but it relays on the character model
-             which need the anchors by default)
-        """
         super().__init__(
             speed,
             (len(maze) // 2, len(maze[0]) // 2),
@@ -76,7 +82,7 @@ class Player(Character):
                     Renderer.rotate_surf(s, i + 1)
                     for s in self.death_animation[0]
                 ]
-                )
+            )
 
         self.frame = 0
         self.death_frame = 0
@@ -185,8 +191,12 @@ class Player(Character):
 
 
 class Blinky(Character):
-
     """the friendly ghost blinky aka red ghost
+
+    Args:
+        speed: the speed of the ghost
+        maze: the grid containing the cell
+        anchors: the anchors used in path finding
 
     Attributes:
         id: the id of the ghost
@@ -207,19 +217,13 @@ class Blinky(Character):
         bit_y: the cord y in the bit maze
         bit_x: the cord x in the bit maze
     """
+
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list = [],
     ) -> None:
-        """the constructor of blinky class
-
-        Args:
-            speed: the speed of the ghost
-            maze: the grid containing the cell
-            anchors: the anchors used in path finding
-        """
         super().__init__(
             speed,
             (0, 0),
@@ -440,13 +444,13 @@ class Blinky(Character):
 
 
 class Pinky(Blinky):
-
     """the friendly ghost Pinky aka pink ghost
 
     Attributes:
         origin: the origin spot of the ghost
         id: the id of the ghost
     """
+
     def __init__(
         self,
         speed: int,
@@ -475,22 +479,19 @@ class Pinky(Blinky):
 
 
 class Clyde(Blinky):
-
     """the friendly ghost clyde aka the blue ghost
 
     Attributes:
         origin: the origin spot of the ghost
         id: the id of the ghost
     """
+
     def __init__(
         self,
         speed: int,
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
-
-        """the constructor of the ghost
-        """
         super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, len(maze[0]) - 1)
         self.reset_cords()
@@ -519,8 +520,7 @@ class Clyde(Blinky):
 
 
 class Inky(Blinky):
-    """your friendly ghost inky
-    """
+    """your friendly ghost inky"""
 
     def __init__(
         self,
@@ -528,7 +528,6 @@ class Inky(Blinky):
         maze: list[list[Cell]],
         anchors: list,
     ) -> None:
-        """the constructor of the ghost"""
         super().__init__(speed, maze, anchors)
         self.origin = (len(maze) - 1, 0)
         self.id = 4

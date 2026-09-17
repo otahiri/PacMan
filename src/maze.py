@@ -8,7 +8,7 @@ from src.render import Renderer
 
 
 class MazeInterface:
-    """maze class resposible for constructing the maze
+    """maze class responsible for constructing the maze
 
     Attributes:
         v_step: one visual step
@@ -24,11 +24,6 @@ class MazeInterface:
     """
 
     def __init__(self) -> None:
-        """
-            maze object constructor
-        Args:
-            maze: maze object created by MazeGenerator
-        """
         self.maze_generator = MazeGenerator(seed=67)
         asset_path = "assets/walls/"
         self.v_step = 64
@@ -186,6 +181,7 @@ class MazeInterface:
     def render_gums(self, maze_surface: pygame.Surface) -> None:
         """
         render gums on the maze surface
+
         Args:
             maze_surface: result maze surface
         """
@@ -203,7 +199,7 @@ class MazeInterface:
                     )
 
     def reset_maze(self) -> None:
-        """generate  new maze after level finish"""
+        """generate new maze after level finish"""
         self.maze_generator.generate(-10)
         self.bit_maze = self.maze_generator.maze
         self.construct_grid()

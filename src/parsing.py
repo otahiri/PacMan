@@ -1,3 +1,10 @@
+"""Configuration parsing utilities and Pydantic models.
+
+This module provides `GameConfig` for validating game configuration JSON
+and the `Parser` helper for loading and pre-processing the configuration
+file passed on the command line.
+"""
+
 import sys
 import json
 from pathlib import Path
@@ -20,21 +27,39 @@ ScoreName = Annotated[
 
 
 class GameConfig(BaseModel):
+    """Validated game configuration loaded from a JSON file.
+
+    Attributes:
+        highscores: Dictionary of player names to high-score values.
+        highscores_path: Path to the high-score JSON file.
+        color_scheme: Selected color palette index.
+        mode: Gameplay mode.
+    """
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    heighscores: dict[ScoreName, NonNegativeInt] = {}
-    heighscores_path: Path
-    color_schema: NonNegativeInt
+    highscores: dict[ScoreName, NonNegativeInt] = {}
+    highscores_path: Path
+    color_scheme: NonNegativeInt
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
-    seed: NonNegativeInt | None = None
 
-    @field_validator("heighscores_path", mode="before")
+    @field_validator("highscores_path", mode="before")
     @classmethod
     def validate_scores_path(cls, value: str) -> str:
+        """Validate that the configured score file exists and uses a JSON suffix.
+
+        Args:
+            value: File path provided in the configuration.
+
+        Returns:
+            The validated path string.
+
+        Raises:
+            PydanticCustomError: If the path is missing, invalid, or not JSON.
+        """
         if not isinstance(value, str):
             raise PydanticCustomError(
                 "invalid_type",
-                "'heighscores_path' must be a valid file path",
+                "'highscores_path' must be a valid file path",
             )
 
         file = Path(value)
@@ -57,7 +82,16 @@ class GameConfig(BaseModel):
 
     @model_validator(mode="after")
     def load_scores_from_path(self) -> "GameConfig":
-        file = self.heighscores_path
+        """Load and validate the score dictionary from the configured JSON file.
+
+        Returns:
+            The validated `GameConfig` instance with `highscores` populated.
+
+        Raises:
+            PydanticCustomError: If the JSON root is invalid, the leaderboard
+                contains invalid scores, or the file cannot be read.
+        """
+        file = self.highscores_path
         try:
             scores_data: Any = json.loads(Parser.get_file_content(file))
             if not isinstance(scores_data, dict):
@@ -87,7 +121,7 @@ class GameConfig(BaseModel):
                         {"player": name},
                     )
                 scores.update({name: score})
-            self.heighscores = scores
+            self.highscores = scores
             return self
 
         except OSError:
@@ -99,9 +133,18 @@ class GameConfig(BaseModel):
 
 
 class Parser:
+    """Utility class for reading and validating configuration files."""
 
     @staticmethod
     def get_file_path() -> Path:
+        """Read the config path from command-line arguments.
+
+        Returns:
+            Path to the JSON config file.
+
+        Raises:
+            ValueError: If the command line arguments are not exactly one file.
+        """
         if len(sys.argv) != 2:
             raise ValueError(
                 "Invalid number of arguments. "
@@ -112,6 +155,14 @@ class Parser:
 
     @staticmethod
     def get_file_content(file) -> str:
+        """Return the file contents after stripping comments.
+
+        Args:
+            file: JSON configuration file to read.
+
+        Returns:
+            The cleaned configuration text without `#` or `//` comments.
+        """
         content = ""
         with open(file) as f:
             for line in f:
@@ -127,6 +178,11 @@ class Parser:
 
     @staticmethod
     def parse() -> GameConfig:
+        """Parse and validate the game configuration from the command-line file.
+
+        Returns:
+            A validated `GameConfig` object containing the parsed data.
+        """
         current_file = Path()
         try:
             file: Path = Parser.get_file_path()

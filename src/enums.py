@@ -1,7 +1,18 @@
+"""Enum definitions shared across the game.
+
+This module centralizes names used by scenes, display settings, movement
+logic, asset paths and ghost/game state transitions.
+"""
+
 from enum import Enum, auto
 
 
 class SceneName(Enum):
+    """Available game scenes.
+
+    Enum values represent the scene transitions.
+    """
+
     MAIN_MENU = auto()
     GAME = auto()
     SCORE_ENTRY = auto()
@@ -10,6 +21,12 @@ class SceneName(Enum):
 
 
 class GhostState(Enum):
+    """Possible states for each ghost entity.
+
+    The state determines chase logic, frightened behavior, death handling,
+    and respawn timing.
+    """
+
     CHASE = auto()
     SCATTER = auto()
     FRIGHTENED = auto()
@@ -18,11 +35,18 @@ class GhostState(Enum):
 
 
 class ColorType(Enum):
+    """Theme colors used by the renderer and scene elements."""
+
     PRIMARY = auto()
     SECONDARY = auto()
 
 
 class AnchorPoint(Enum):
+    """Enumeration of anchor positions for UI layout and text placement.
+
+    These values control how surfaces are aligned relative to a given point.
+    """
+
     TOP_LEFT = auto()
     TOP_CENTER = auto()
     TOP_RIGHT = auto()
@@ -37,6 +61,12 @@ class AnchorPoint(Enum):
 
 
 class Asset(Enum):
+    """Filesystem asset paths and pixel dimensions used by the game.
+
+    Values include both the asset directory names and the sprite sizes used
+    for rendering UI and maze elements.
+    """
+
     LETTER_PATH = "assets/letters"
     CURSOR_PATH = "assets/cursor"
 
@@ -70,19 +100,14 @@ class Asset(Enum):
 
 
 class DisplayInfo(Enum):
+    """Screen geometry used throughout the game."""
+
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 1280
 
 
 class Direction(Enum):
-    """represent each direction the player can face
-
-    Attributes:
-        NORTH: north direction
-        EAST: east direction
-        SOUTH: south direction
-        WEST: west direction
-    """
+    """Directions used by movement and maze traversal."""
 
     NONE = (0, 0, 0)
     NORTH = (0, -1, 0)

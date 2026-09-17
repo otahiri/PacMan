@@ -21,6 +21,11 @@ class GameLogic:
     """the main game logic class that handles everything that happens
     inside the game
 
+
+    Args:
+        game_config: game config object containing info extracted
+        from config file
+
     Attributes:
         FRIGHTENED_DURATIONS: the super gum duration according to the wave
         WAVES_AFTER_FIFTH: scatter / chase timing post wave 5
@@ -92,12 +97,6 @@ class GameLogic:
     ]
 
     def __init__(self, game_config: GameConfig) -> None:
-        """game logic constructor
-
-        Args:
-            game_config: game config object containing info extracted
-            from config file
-        """
         self.maze_interface = MazeInterface()
         self.game_config = game_config
         self.game_over = False

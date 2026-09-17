@@ -1,3 +1,5 @@
+"""Instructions scene used to display game rules and controls."""
+
 import time
 from typing import Any
 import pygame
@@ -7,11 +9,15 @@ from src.render import Renderer
 
 
 class InfoScene(Scene):
+    """Scrolling instructions screen with gameplay help text."""
+
     def __init__(self) -> None:
+
         self.__init_elements()
         self.last_time = time.perf_counter()
 
     def __init_elements(self) -> None:
+        """Build the instruction text and title for the scene."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -48,7 +54,6 @@ class InfoScene(Scene):
             ),
             ("your goal is to achive", "the maximum score"),
             ("ghosts respawn to their", "corner after a while", "when eaten"),
-            # ("this game")
         ]:
             y += 80
             for line in text:
@@ -62,13 +67,22 @@ class InfoScene(Scene):
                 )
 
     def __get_delta(self) -> float:
+        """Return elapsed time since the last frame.
+
+        Returns:
+            Time delta in seconds for smooth scroll movement.
+        """
         current_time = time.perf_counter()
         delta = current_time - self.last_time
         self.last_time = current_time
         return delta
 
     def render_scene(self, renderer: Renderer) -> None:
+        """Render the instruction text and title.
 
+        Args:
+            renderer: Renderer used to draw the scene.
+        """
         for text in self.body_text:
             x, y = text.pos
             renderer.render(
@@ -78,6 +92,11 @@ class InfoScene(Scene):
         self.title.render(renderer)
 
     def __handle_key_scroll(self, delta: float) -> None:
+        """Scroll the instructions using keyboard input.
+
+        Args:
+            delta: Elapsed time since the last frame.
+        """
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_UP]:
@@ -86,13 +105,27 @@ class InfoScene(Scene):
             self.current_y -= delta * 300
 
     def __handle_mouse_scroll(self, y_event: int, delta: float) -> None:
+        """Scroll the instructions using mouse wheel events.
 
+        Args:
+            y_event: Wheel event direction value.
+            delta: Elapsed time since the last frame.
+        """
         if y_event == 1:
             self.current_y += delta * 300 * 50
         elif y_event == -1:
             self.current_y -= delta * 300 * 50
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
+        """Handle key, mouse wheel, and click events for the info scene.
+
+        Args:
+            events: List of pygame events to process.
+
+        Returns:
+            A dictionary with a `pop` action or an empty dict if the scene
+            stays active.
+        """
         delta = self.__get_delta()
         self.__handle_key_scroll(delta)
 

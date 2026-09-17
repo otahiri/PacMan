@@ -1,3 +1,6 @@
+"""Main menu scene used to navigate to gameplay and other screens."""
+
+import sys
 import time
 from typing import Any
 import pygame
@@ -7,6 +10,8 @@ from src.render import Renderer
 
 
 class MainMenuScene(Scene):
+    """Main menu allowing access to play, score, info, and exit actions."""
+
     def __init__(self) -> None:
 
         self.buttons: list[Button] = []
@@ -19,14 +24,18 @@ class MainMenuScene(Scene):
         )
 
     def __get_delta(self) -> float:
+        """Return the elapsed time since the previous frame.
 
+        Returns:
+            Time delta in seconds used for the animated menu bar.
+        """
         current_time = time.perf_counter()
         delta = current_time - self.last_time
         self.last_time = current_time
         return delta
 
     def __init_elements(self) -> None:
-
+        """Build the logo, title and menu buttons for the main menu."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
         self.logo = Renderer.load_image(f"{Asset.LOGO_PATH.value}.png")
@@ -45,6 +54,11 @@ class MainMenuScene(Scene):
             self.buttons.append(new_button)
 
     def render_scene(self, renderer: Renderer) -> None:
+        """Render the menu title, logo, buttons and animated bar.
+
+        Args:
+            renderer: Renderer used to draw menu components.
+        """
         self.title.render(renderer)
         renderer.render(self.logo, (0, 300))
         for button in self.buttons:
@@ -54,12 +68,23 @@ class MainMenuScene(Scene):
         self.animated_bar.render(renderer, delta)
 
     def __get_mouse_selected_button_idx(self) -> int | None:
+        """Return the hovered menu button index, if any.
+
+        Returns:
+            The selected button index or `None` when the mouse is not over a
+            button.
+        """
         for i, button in enumerate(self.buttons):
             if button.is_collide(pygame.mouse.get_pos()):
                 return i
         return None
 
     def __go_to_scene(self) -> dict[str, Any]:
+        """Create the scene-navigation instructions for the current menu selection.
+
+        Returns:
+            A dictionary describing the next scene or action.
+        """
 
         match self.button_idx:
             case 0:
@@ -70,11 +95,16 @@ class MainMenuScene(Scene):
                 return {"next_scene": SceneName.INFO}
             case 3:
                 pygame.quit()
-                exit()
+                sys.exit(0)
             case _:
                 return {}
 
     def __handle_button_selection(self, direction: str) -> None:
+        """Move the button menu up or down.
+
+        Args:
+            direction: Either "up" or "down" to change the active button.
+        """
         self.buttons[self.button_idx].switch_state()
         match direction:
             case "up":
@@ -90,7 +120,14 @@ class MainMenuScene(Scene):
         self.buttons[self.button_idx].switch_state()
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
+        """Process keyboard and mouse events for the menu screen.
 
+        Args:
+            events: Pygame events received for the current frame.
+
+        Returns:
+            A dictionary with the exit instructions or an empty dict.
+        """
         for event in events:
             if event.type == pygame.KEYDOWN:
                 match event.key:

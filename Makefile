@@ -4,7 +4,7 @@ run:
 	uv run python3 pac-man.py config.json
 
 debug:
-	uv run python3 -m pdb src/__main__.py
+	uv run python3 -m pdb pac-man.py config.json
 
 install:
 	uv sync

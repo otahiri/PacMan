@@ -1,3 +1,5 @@
+"""Scoreboard scene showing the highest saved player scores."""
+
 from typing import Any
 import pygame
 from src.enums import AnchorPoint, ColorType, DisplayInfo, SceneName
@@ -6,6 +8,11 @@ from src.render import Renderer
 
 
 class ScoreboardScene(Scene):
+    """Scene that displays the top scored players in a leaderboard layout.
+
+    Args:
+        scores: Dict of players name and score value.
+    """
 
     def __init__(self, scores: dict[str, int]) -> None:
 
@@ -14,7 +21,7 @@ class ScoreboardScene(Scene):
         self.__init_elements()
 
     def __init_elements(self) -> None:
-
+        """Create the title and text rows used in the scoreboard display."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -44,6 +51,11 @@ class ScoreboardScene(Scene):
         self.title = SceneTitle("score board")
 
     def render_scene(self, renderer: Renderer) -> None:
+        """Render the title and each name and score.
+
+        Args:
+            renderer: Renderer used to blit the scoreboard.
+        """
         self.title.render(renderer)
         for name, score in self.scores_list:
             renderer.render(
@@ -56,6 +68,14 @@ class ScoreboardScene(Scene):
             )
 
     def handle_events(self, events: list[pygame.Event]) -> dict[str, Any]:
+        """Handle close actions for the scoreboard.
+
+        Args:
+            events: Pygame events to inspect for exit input.
+
+        Returns:
+            A dictionary with `pop` action or an empty dict.
+        """
         for event in events:
 
             if event.type == pygame.MOUSEBUTTONDOWN:

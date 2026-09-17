@@ -1,3 +1,10 @@
+"""Gameplay scene and pause-state logic.
+
+This module contains the main game scene, including score/timer updates,
+user input handling, pause controls, and scene transitions back to the
+score-entry flow.
+"""
+
 from typing import Any
 import pygame
 import time
@@ -11,6 +18,12 @@ from src.game_logic import GameLogic
 
 
 class GameScene(Scene):
+    """Main game scene that owns gameplay, timers, and pause controls.
+
+    Args:
+        game_config: Parsed configuration for score and mode.
+    """
+
     def __init__(self, game_config: GameConfig) -> None:
 
         self.game_config = game_config
@@ -30,7 +43,7 @@ class GameScene(Scene):
         self.__set_timer()
 
     def __set_timer(self) -> None:
-
+        """Set the timer according to the selected mode."""
         match self.game_config.mode:
             case "hardcore":
                 self.time_remaining = 90
@@ -38,6 +51,7 @@ class GameScene(Scene):
                 self.time_remaining = 120
 
     def __init_elements(self) -> None:
+        """Build the HUD, pause buttons, labels, and other scene elements."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -88,13 +102,18 @@ class GameScene(Scene):
         self.heart = Renderer.load_image(f"{Asset.HEART_PATH.value}.png")
 
     def __get_delta(self) -> float:
+        """Return the elapsed time since the last frame and refresh the timer.
 
+        Returns:
+            The time delta in seconds for the current frame update.
+        """
         current_time = time.perf_counter()
         delta = current_time - self.last_time
         self.last_time = current_time
         return delta
 
     def __update_score(self) -> None:
+        """Refresh the displayed score when the game logic has changed."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         if self.score != self.game_logic.get_score():
             self.score = self.game_logic.get_score()
@@ -103,6 +122,11 @@ class GameScene(Scene):
             )
 
     def __update_time(self, delta: float) -> None:
+        """Advance the countdown timer unless the game is paused or in cheat mode.
+
+        Args:
+            delta: Elapsed time since the previous frame.
+        """
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
 
@@ -119,6 +143,7 @@ class GameScene(Scene):
         )
 
     def __update_level(self) -> None:
+        """Refresh the current level display when the game state changes."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
 
         if self.game_logic.level != self.current_level:
@@ -132,6 +157,11 @@ class GameScene(Scene):
             )
 
     def __render_text(self, renderer: Renderer) -> None:
+        """Draw the HUD labels and score/time text.
+
+        Args:
+            renderer: Renderer instance used to blit the text.
+        """
         if self.pause:
             self.pause_bar.render(renderer)
             for button in self.pause_buttons:
@@ -180,6 +210,12 @@ class GameScene(Scene):
         )
 
     def __render_gui(self, renderer: Renderer, delta: float) -> None:
+        """Update and draw the GUI panel for the current frame.
+
+        Args:
+            renderer: Renderer instance used for drawing.
+            delta: Elapsed time in seconds since the last frame.
+        """
         self.__update_time(delta)
         self.__render_text(renderer)
         self.__update_level()
@@ -192,6 +228,11 @@ class GameScene(Scene):
             renderer.render(self.heart, (x + 10, y))
 
     def render_scene(self, renderer: Renderer) -> None:
+        """Render the game and GUI for the current frame.
+
+        Args:
+            renderer: Renderer used to draw the game scene.
+        """
         if self.game_logic.reset_level:
             self.__set_timer()
             self.game_logic.reset_level = False
@@ -207,11 +248,17 @@ class GameScene(Scene):
         self.__render_gui(renderer, delta)
 
     def __switch_pause_buttons(self) -> None:
+        """Toggle the selected pause menu option between resume and menu."""
         self.pause_buttons[self.pause_button_idx].switch_state()
         self.pause_button_idx = 1 if self.pause_button_idx == 0 else 0
         self.pause_buttons[self.pause_button_idx].switch_state()
 
     def __handle_keydown(self, key: int) -> None:
+        """Translate keyboard input into game movement or pause actions.
+
+        Args:
+            key: The key code produced by pygame.
+        """
         if key in [pygame.K_w, pygame.K_UP]:
             self.game_logic.new_move = Direction.NORTH
 
@@ -237,6 +284,14 @@ class GameScene(Scene):
             self.pause = not self.pause
 
     def __leave_scene(self, scene: SceneName | None = None) -> dict[str, Any]:
+        """Build a navigation that exits this scene.
+
+        Args:
+            scene: Optional destination scene to push after leaving.
+
+        Returns:
+            A dictionary with the exit instructions handled by `MainGame`.
+        """
         return {
             "pop": True,
             "next_scene": scene,
@@ -244,7 +299,14 @@ class GameScene(Scene):
         }
 
     def handle_events(self, events: list[Event]) -> dict[str, Any]:
+        """Process user input for movement, pause controls and mouse selection.
 
+        Args:
+            events: List of pygame events received for the current frame.
+
+        Returns:
+            A navigation instructions or empty dict if the scene stays active.
+        """
         if self.game_logic.game_over:
             return self.__leave_scene(SceneName.SCORE_ENTRY)
         if self.time_remaining <= 0 and self.game_config.mode != "cheat":

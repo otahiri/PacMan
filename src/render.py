@@ -25,20 +25,20 @@ class Renderer:
     primary, secondary = colors[0]
     LETTER: dict = dict()
 
-    def __init__(self, color_schema: int) -> None:
+    def __init__(self, color_scheme: int) -> None:
         """constructor for the Renderer class
 
         Args:
-            color_schema: index for the chosen color theme
+            color_scheme: index for the chosen color theme
         """
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
             pygame.SRCALPHA,
         )
 
-        if color_schema >= len(self.colors):
-            color_schema = len(self.colors) - 1
-        Renderer.primary, Renderer.secondary = Renderer.colors[color_schema]
+        if color_scheme >= len(self.colors):
+            color_scheme = len(self.colors) - 1
+        Renderer.primary, Renderer.secondary = Renderer.colors[color_scheme]
         Renderer.LETTER = {
             c: pygame.image.load(
                 f"{Asset.LETTER_PATH.value}/{c}.png"
@@ -50,7 +50,7 @@ class Renderer:
         )
 
     def clear(self) -> None:
-        """clear main display"""
+        """clear main display and fill it with secondary color"""
         Renderer.fill(self.__window, ColorType.SECONDARY)
 
     @staticmethod
@@ -189,10 +189,6 @@ class Renderer:
             pos: the position of the scene
         """
         self.__window.blit(source, pos)
-
-    def update_window(self) -> None:
-        """update the pygame main display"""
-        pygame.display.flip()
 
     @classmethod
     def get_text(
