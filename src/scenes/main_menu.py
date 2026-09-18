@@ -96,7 +96,7 @@ class MainMenuScene(Scene):
                 return {"next_scene": SceneName.INFO}
             case 3:
                 pygame.quit()
-                sys.exit(0)
+                sys.exit()
             case _:
                 return {}
 

@@ -12,7 +12,6 @@ from typing import Annotated, Any, Literal
 from pydantic_core import PydanticCustomError
 from pydantic import (
     BaseModel,
-    ConfigDict,
     NonNegativeInt,
     StringConstraints,
     ValidationError,
@@ -36,11 +35,56 @@ class GameConfig(BaseModel):
         mode: Gameplay mode.
     """
 
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     highscores: dict[ScoreName, NonNegativeInt] = {}
-    highscores_path: Path
-    color_scheme: NonNegativeInt
+    highscores_path: Path = Path("highscores.json")
+    color_scheme: NonNegativeInt = 0
     mode: Literal["normal", "hardcore", "cheat"] = "normal"
+
+    @staticmethod
+    def valid_field_log(field: str, value: Any):
+        print(
+            f"[Config Validation] Field '{field}' is valid. "
+            f"Using configured value: '{value}'."
+        )
+
+    @staticmethod
+    def invalid_field_log(field: str, value: Any, default: Any):
+        print(
+            f"[Config Validation] Invalid value '{value}' for '{field}'. "
+            f"Falling back to default: '{default}'."
+        )
+
+    @field_validator("color_scheme", mode="before")
+    @classmethod
+    def validate_color_scheme(cls, value: Any) -> int:
+        try:
+            int(value)
+
+        except ValueError:
+            GameConfig.invalid_field_log("color_scheme", value, 0)
+            return 0
+
+        if value < 0 or value > 7:
+            GameConfig.invalid_field_log("color_scheme", value, 0)
+            return 0
+
+        GameConfig.valid_field_log("color_scheme", value)
+        return int(value)
+
+    @field_validator("mode", mode="before")
+    @classmethod
+    def validate_mode(cls, value: Any) -> str:
+
+        if not isinstance(value, str):
+            GameConfig.invalid_field_log("mode", value, "normal")
+            return "normal"
+
+        if value not in ["normal", "hardcore", "cheat"]:
+            GameConfig.invalid_field_log("mode", value, "normal")
+            return "normal"
+
+        GameConfig.valid_field_log("mode", value)
+        return value
 
     @field_validator("highscores_path", mode="before")
     @classmethod
@@ -53,32 +97,21 @@ class GameConfig(BaseModel):
 
         Returns:
             The validated path string.
-
-        Raises:
-            PydanticCustomError: If the path is missing, invalid, or not JSON.
         """
         if not isinstance(value, str):
-            raise PydanticCustomError(
-                "invalid_type",
-                "'highscores_path' must be a valid file path",
+            GameConfig.invalid_field_log(
+                "highscores_path", value, "highscores.json"
             )
 
         file = Path(value)
 
         if file.suffix != ".json":
-            raise PydanticCustomError(
-                "invalid_extension",
-                "Invalid scores file extension for '{filepath}'."
-                " Must be .json",
-                {"filepath": str(file)},
+            GameConfig.invalid_field_log(
+                "highscores_path", value, "highscores.json"
             )
 
         if not file.is_file():
-            raise PydanticCustomError(
-                "file_not_found",
-                "File '{filepath}' does not exist",
-                {"filepath": str(file)},
-            )
+            file.write_text("{}")
         return str(file)
 
     @model_validator(mode="after")
@@ -87,7 +120,7 @@ class GameConfig(BaseModel):
         dictionary from the configured JSON file.
 
         Returns:
-            The validated `GameConfig` instance with `highscores` populated.
+            The validated GameConfig` instance with `highscores` populated.
 
         Raises:
             PydanticCustomError: If the JSON root is invalid, the leaderboard
@@ -95,6 +128,18 @@ class GameConfig(BaseModel):
         """
         file = self.highscores_path
         try:
+            if not file.is_file():
+                file.write_text("{}")
+                print(
+                    f"[Create Highscores] The file '{file}' does not exist."
+                    " Initializing empty leaderboard."
+                )
+                return self
+            else:
+                print(
+                    "[Load Highscores] Found existing "
+                    f"highscore file '{file}'."
+                )
             scores_data: Any = json.loads(Parser.get_file_content(file))
             if not isinstance(scores_data, dict):
                 raise PydanticCustomError(
@@ -193,6 +238,18 @@ class Parser:
             if file.suffix != ".json":
                 raise ValueError(
                     f"Invalid config file extension '{file}'. Must be .json"
+                )
+
+            if not file.is_file():
+                file.write_text("{}")
+                print(
+                    f"[Create configuration] The file '{file}' "
+                    "does not exist. Using default configuration."
+                )
+            else:
+                print(
+                    "[Load configuration] Configuration file"
+                    f" '{file}' already exists."
                 )
             file_content: str = Parser.get_file_content(file)
             game_config: GameConfig = GameConfig.model_validate_json(

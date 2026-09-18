@@ -40,8 +40,6 @@ class Renderer:
             pygame.SRCALPHA,
         )
 
-        if color_scheme >= len(self.colors):
-            color_scheme = len(self.colors) - 1
         Renderer.primary, Renderer.secondary = Renderer.colors[color_scheme]
         Renderer.LETTER = {
             c: pygame.image.load(
