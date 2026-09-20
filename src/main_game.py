@@ -35,10 +35,8 @@ class MainGame:
 
     def __init__(self, game_config: GameConfig) -> None:
         self.game_config = game_config
-        self.scores: dict[str, int] = self.__get_sort_scores(
-            game_config.highscores
-        )
-        self.renderer: Renderer = Renderer(game_config.color_scheme)
+        self.scores = self.__get_sort_scores(game_config.highscores)
+        self.renderer = Renderer(game_config.color_scheme)
         self.scene_stack: list[Scene] = [MainMenuScene()]
 
     def __get_sort_scores(self, scores: dict[str, int]) -> dict[str, int]:
@@ -98,7 +96,6 @@ class MainGame:
             self.scene_stack.pop()
             menu_scene = self.scene_stack[-1]
 
-            # reset animated bar pos when returning to main menu
             if isinstance(menu_scene, MainMenuScene) and not next_scene:
                 menu_scene.animated_bar.reset_pos()
 

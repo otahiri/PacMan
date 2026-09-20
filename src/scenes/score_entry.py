@@ -1,6 +1,7 @@
 """Scene for entering a player name and saving a new score."""
 
 import json
+import sys
 import pygame
 from typing import Any
 from pathlib import Path
@@ -127,18 +128,35 @@ class ScoreEntryScene(Scene):
         score, name = self.score, self.name_frame.name
         try:
             scores = json.loads(Parser.get_file_content(self.highscores_path))
+            if not isinstance(scores, dict):
+                raise ValueError("highscores file root must be a JSON object")
+
             old_score = scores.get(name)
 
-            if old_score and score <= old_score:
-                return
             scores[name] = score
+
+            if old_score is not None and score <= old_score:
+                print(
+                    f"[Highscore] '{name}' already has a better score; "
+                    f"no update needed",
+                    file=sys.stderr,
+                )
+                return
 
             with open(self.highscores_path, "w") as f:
                 json.dump(scores, f, indent=4)
 
-        except OSError as e:
-            print("File:", self.highscores_path.absolute())
-            print(f"Error: {e.strerror}")
+            print(
+                f"[Highscore] Score saved successfully: '{name}' = {score}",
+                file=sys.stderr,
+            )
+
+        except (OSError, ValueError, json.JSONDecodeError) as e:
+            print(
+                f"[Highscore] Could not save score for '{name}':",
+                e.strerror if isinstance(e, OSError) else e,
+                file=sys.stderr,
+            )
 
     def __press_action(self) -> bool:
         """Apply the current keyboard selection

@@ -25,7 +25,11 @@ class ScoreboardScene(Scene):
         used in the scoreboard display."""
         screen_width = DisplayInfo.SCREEN_WIDTH.value
         screen_height = DisplayInfo.SCREEN_HEIGHT.value
-
+        self.empty = Text(
+            "no records yet",
+            (screen_width // 2, screen_height // 2),
+            ColorType.PRIMARY,
+        )
         padding = 150
         i = 0
         for name, score in self.scores.items():
@@ -57,7 +61,13 @@ class ScoreboardScene(Scene):
         Args:
             renderer: Renderer used to blit the scoreboard.
         """
+
         self.title.render(renderer)
+        if not self.scores_list:
+            renderer.render(
+                self.empty.surf,
+                Renderer.get_pos(self.empty.pos, self.empty.size),
+            )
         for name, score in self.scores_list:
             renderer.render(
                 name.surf,
