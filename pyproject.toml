@@ -10,7 +10,6 @@ dependencies = [
     "mypy",
     "numpy>=2.2.6",
     "pygame-ce",
-    "webcolors>=25.10.0",
 ]
 
 [tool.uv.sources]
