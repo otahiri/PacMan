@@ -1,0 +1,722 @@
+Author: satifi
+Date:   Sun Sep 20 10:57:25 2026 
+fix: fix parsing and handle edge cases
+
+Author: satifi
+Date:   Fri Sep 18 17:02:54 2026 
+feat: add defaults in parsing
+
+Author: satifi
+Date:   Thu Sep 17 21:41:45 2026 
+feat: add README file
+
+Author: otahiri-
+Date:   Thu Sep 17 12:36:55 2026 
+fix: removed unused assets from the ghost frightened sprite
+
+Author: otahiri-
+Date:   Thu Sep 17 19:44:52 2026 
+readme: added more sections to the readme
+
+Author: otahiri-
+Date:   Wed Sep 16 10:04:33 2026 
+readme: starter template to readme
+
+Author: satifi
+Date:   Thu Sep 17 18:44:52 2026 
+fix: fix linting to pass make lint
+
+Author: satifi
+Date:   Thu Sep 17 18:27:14 2026 
+ref: add docstrings to all project
+
+Author: satifi
+Date:   Wed Sep 16 12:00:48 2026 
+ref: add some instructions
+
+Author: satifi
+Date:   Wed Sep 16 11:23:34 2026 
+ref: refactor score entry scene
+
+Author: satifi
+Date:   Wed Sep 16 09:08:12 2026 
+fix: fix animated bar glitch in main scene
+
+Author: otahiri-
+Date:   Tue Sep 15 21:58:11 2026 
+doc: added some docstrings
+
+Author: satifi
+Date:   Tue Sep 15 16:12:04 2026 
+wip: add logo and refactoring score entry scene
+
+Author: otahiri-
+Date:   Tue Sep 15 15:08:58 2026 
+fix: fixed all of my py errors
+
+Author: otahiri-
+Date:   Tue Sep 15 13:11:23 2026 
+fix: make the player direction into none after respawn
+
+Author: satifi
+Date:   Tue Sep 15 12:24:19 2026 
+ref: add actions in pause menu
+
+Author: otahiri-
+Date:   Tue Sep 15 10:21:29 2026 
+minor: fixed render get pos doc strings and made time reset using the
+
+__set_time func
+
+Author: otahiri-
+Date:   Mon Sep 14 18:49:40 2026 
+minor: change the title of the window to pacman
+
+Author: otahiri-
+Date:   Mon Sep 14 18:44:52 2026 
+merge/fix: Merge branch 'add_docstrings' and fixed conflicted logic
+
+between the two branches
+
+Author: otahiri-
+Date:   Mon Sep 14 18:36:48 2026 
+feat: maze randomizes after level is done
+
+Author: otahiri-
+Date:   Mon Sep 14 16:18:15 2026 
+feat: added the mechanism to reset the entire level after consuming all
+
+gums
+
+Author: satifi
+Date:   Mon Sep 14 16:10:36 2026 
+ref: make levels static and skip in cheat mode
+
+Author: satifi
+Date:   Mon Sep 14 12:54:44 2026 
+ref: add scroll in info scene
+
+Author: otahiri-
+Date:   Mon Sep 14 10:58:12 2026 
+doc: added docstrings to all the mobs and the function in the model mobs
+
+Author: otahiri-
+Date:   Sun Sep 13 21:34:35 2026 
+doc: added docstrings to many functions in render and mobs and maze files
+
+Author: satifi
+Date:   Sun Sep 13 18:30:57 2026 
+ref: add pac-man.py as main entry file and handle max int in scores values
+
+Author: satifi
+Date:   Sun Sep 13 15:48:41 2026 
+ref: refactor time logic and game over
+
+Author: otahiri-
+Date:   Sun Sep 13 15:27:12 2026 
+minor: removed wrong file that were push by accident
+
+Author: otahiri-
+Date:   Sun Sep 13 15:25:13 2026 
+fix: fixed sprite for gum not unloading when consume
+
+Author: otahiri-
+Date:   Sun Sep 13 13:04:06 2026 
+Merge branch 'fix_ugly_square'
+
+Author: otahiri-
+Date:   Sun Sep 13 12:58:00 2026 
+fix: fixed the ugly squares around sprites
+
+Author: otahiri-
+Date:   Sun Sep 13 11:44:06 2026 
+feat: apply pause logic to freeze the game
+
+Author: satifi
+Date:   Sun Sep 13 11:18:18 2026 
+feat: add pause bar
+
+Author: otahiri-
+Date:   Sat Sep 12 22:02:40 2026 
+feat: fixed the random square on ghost sprites
+
+Author: satifi
+Date:   Sat Sep 12 13:05:12 2026 
+feat: add title bar and fix score counter
+
+Author: otahiri-
+Date:   Sat Sep 12 11:52:57 2026 
+feat: fixed some issues and added level a basic system
+
+Author: otahiri-
+Date:   Sat Sep 12 10:39:59 2026 
+feat: changed the change_color to use color type and added dash and
+
+enter sprite
+
+Author: satifi
+Date:   Fri Sep 11 18:20:14 2026 
+feat: add info scene
+
+Author: satifi
+Date:   Fri Sep 11 16:42:00 2026 
+ref: refactor anchor point mechanism and replace button sprite
+
+Author: satifi
+Date:   Fri Sep 11 12:09:52 2026 
+feat: animated bar
+
+Author: otahiri-
+Date:   Fri Sep 11 09:33:42 2026 
+rewrite: rewrite get_pos to work flawlessly and added some doc strings
+
+Author: otahiri-
+Date:   Thu Sep 10 18:24:57 2026 
+feat: finished implementing the timer logic
+
+Author: otahiri-
+Date:   Thu Sep 10 17:05:09 2026 
+minor: fix some linting errors
+
+Author: otahiri-
+Date:   Thu Sep 10 15:49:15 2026 
+fix: fixed the rotated player sprite not using the secondary color as
+
+mask
+
+Author: otahiri-
+Date:   Thu Sep 10 15:38:13 2026 
+merge/fix: merged the fix_letter_printing and fixed the issue with drawing sprites
+
+Author: otahiri-
+Date:   Thu Sep 10 14:15:34 2026 
+feat: fixed the scaling issue for all assets and cleaned the code from
+
+unused variables
+
+Author: satifi
+Date:   Thu Sep 10 12:24:28 2026 
+ref: enhancing game scene and add timer
+
+Author: otahiri-
+Date:   Wed Sep 9 20:13:50 2026 
+feat: fixed the scale size and the letter bg being all messed up
+
+Author: satifi
+Date:   Wed Sep 9 19:13:12 2026 
+ref: enhancing main_menu sceen and remove options
+
+Author: otahiri-
+Date:   Wed Sep 9 14:51:58 2026 
+feat: fixed the transparency of the letters
+
+Author: satifi
+Date:   Wed Sep 9 12:20:06 2026 
+feat: finishing color schema sellection logic
+
+Author: otahiri-
+Date:   Tue Sep 8 22:42:51 2026 
+fixed merge conflict
+
+Author: satifi
+Date:   Tue Sep 8 19:28:04 2026 
+feat: change heart sprite
+
+Author: satifi
+Date:   Tue Sep 8 19:13:15 2026 
+feat: switch all game colors
+
+Author: otahiri-
+Date:   Tue Sep 8 17:51:19 2026 
+fix: made the big color of the walls transparent
+
+Author: satifi
+Date:   Tue Sep 8 17:49:49 2026 
+wip: switching color logic
+
+Author: satifi
+Date:   Mon Sep 7 16:23:22 2026 
+wip: removin scaling mechanisms
+
+Author: otahiri-
+Date:   Sun Sep 6 18:36:10 2026 
+fixed more stuff and added the ability to choose color scheme
+
+Author: otahiri-
+Date:   Sun Sep 6 16:44:38 2026 
+fix: fixed some mypy errors
+
+Author: otahiri-
+Date:   Sun Sep 6 14:56:41 2026 
+feat: added the level limit and made the art better
+
+Author: otahiri-
+Date:   Sat Sep 5 18:11:17 2026 
+feat: changed assests to remove the black lines and make the assets full white, also added a respawn animation to the ghosts, fixed some typing errors
+
+Author: otahiri-
+Date:   Sat Sep 5 11:39:44 2026 
+fix: fixed the seed not working since the model accept all the negative
+
+values as random and 0 > as valid seed also implemented the scored from
+
+the config file
+
+Author: otahiri-
+Date:   Sat Sep 5 10:14:43 2026 
+feat: removed the custom blit as mlx support something similar to blit
+
+Author: satifi
+Date:   Fri Aug 7 08:42:16 2026 
+ref: create heart class and change its position
+
+Author: satifi
+Date:   Thu Aug 6 12:57:23 2026 
+ref: refactor navigation mechaisem
+
+Author: otahiri-
+Date:   Thu Aug 6 12:26:35 2026 
+feat: made the game cycle b
+
+Author: satifi
+Date:   Thu Aug 6 10:49:34 2026 
+fix: fix linting errors
+
+Author: otahiri-
+Date:   Tue Aug 4 17:54:37 2026 
+feat: fixed the issue where the ghost leave a line when it dies
+
+Author: otahiri-
+Date:   Tue Aug 4 17:38:28 2026 
+merge: Merge branch 'enhancing_visuals'
+
+Author: otahiri-
+Date:   Tue Aug 4 17:34:14 2026 
+feat: improved animations and made logic better made the ghost die and made the player death animation much better
+
+Author: satifi
+Date:   Tue Aug 4 13:20:41 2026 
+feat: updating scoreboard after finish the game
+
+Author: otahiri-
+Date:   Tue Aug 4 12:56:05 2026 
+feat: change some sprites and made a rotate sprite function
+
+Author: otahiri-
+Date:   Mon Aug 3 19:21:17 2026 
+feat: removed the idea to make the trail and just sticked to normal animation also change some sprites
+
+Author: satifi
+Date:   Mon Aug 3 13:49:55 2026 
+feat: supporte comments inside json files
+
+Author: satifi
+Date:   Mon Aug 3 12:33:03 2026 
+feat: add save score logic in score entry
+
+Author: satifi
+Date:   Mon Aug 3 11:25:42 2026 
+feat: add scene argument to communicate between scenes
+
+Author: satifi
+Date:   Mon Aug 3 10:09:02 2026 
+ref: fix parsing bug, change display name, enhance scoreboard scene
+
+Author: otahiri-
+Date:   Sun Aug 2 18:02:05 2026 
+feat: change death animation for the player
+
+Author: otahiri-
+Date:   Sun Aug 2 17:37:55 2026 
+feat: improved the death animation
+
+Author: otahiri-
+Date:   Sun Aug 2 17:25:48 2026 
+feat: added a simple shake screen utility to make animation better
+
+Author: satifi
+Date:   Sun Aug 2 14:22:28 2026 
+feat: finish the paring and validation
+
+Author: otahiri-
+Date:   Sat Aug 1 18:25:30 2026 
+feat: added a simple death logic to the ghosts
+
+Author: otahiri-
+Date:   Sat Aug 1 17:51:03 2026 
+doc: added the doc strings for the new classes and functions
+
+Author: otahiri-
+Date:   Sat Aug 1 15:58:48 2026 
+moved the contants in the game_logic into the top of the class
+
+Author: otahiri-
+Date:   Sat Aug 1 15:55:56 2026 
+feat: finished the fright timer and made the score get updated automatically now
+
+Author: otahiri-
+Date:   Sat Aug 1 14:46:32 2026 
+feat: added a simple global mode changes depending on the global timer and the frightened mode
+
+Author: otahiri-
+Date:   Sat Aug 1 11:59:09 2026 
+feat: added a hover animation to the ghost
+
+Author: satifi
+Date:   Fri Jul 31 17:23:27 2026 
+feat: add parser class
+
+Author: satifi
+Date:   Fri Jul 31 16:54:06 2026 
+merge: merge game screens branch
+
+Author: satifi
+Date:   Fri Jul 31 16:44:58 2026 
+ref: rename cursor rendering variables
+
+Author: satifi
+Date:   Fri Jul 31 16:41:35 2026 
+feat: add name frame and finish the scene logic
+
+Author: satifi
+Date:   Fri Jul 31 12:43:32 2026 
+feat: enhance keyboard and add space and enter
+
+Author: otahiri-
+Date:   Fri Jul 31 11:37:14 2026 
+feat: added a simple accumulation logic for the delta time to make the game smoother and not run super fast on good pcs
+
+Author: otahiri-
+Date:   Fri Jul 31 10:33:45 2026 
+feat: merged the main branch to the current head for the updated  content
+
+Author: satifi
+Date:   Fri Jul 31 10:29:28 2026 
+feat: add mouse hovering and refactor cursor navigation logic
+
+Author: satifi
+Date:   Thu Jul 30 18:47:44 2026 
+fix: fix cursor navigation
+
+Author: satifi
+Date:   Thu Jul 30 17:27:35 2026 
+feat: add letter button objects and cursor
+
+Author: otahiri-
+Date:   Thu Jul 30 14:22:02 2026 
+feat: added a get score function to game logic and moved the score from game scene to game engine
+
+Author: otahiri-
+Date:   Thu Jul 30 14:01:28 2026 
+feat: moved the collision from player ghost and maze to the game logic got better structure and more logical logic fr fr
+
+Author: otahiri-
+Date:   Thu Jul 30 13:36:06 2026 
+feat: fixed the ghost choosing the NONE direction making it possible to reverse
+
+Author: otahiri-
+Date:   Thu Jul 30 11:45:55 2026 
+feat: finished the animation for death of player for the player movements and the ghosts movments
+
+Author: otahiri-
+Date:   Wed Jul 29 17:41:30 2026 
+feat: added some good assets to the game and animations for ghosts and player
+
+Author: satifi
+Date:   Wed Jul 29 12:43:10 2026 
+feat: add keayboard in score entry
+
+Author: satifi
+Date:   Wed Jul 29 11:59:44 2026 
+feat: add delta variable inside render scene
+
+Author: otahiri-
+Date:   Wed Jul 29 11:40:13 2026 
+feat: merge the visual hearts with player death
+
+Author: otahiri-
+Date:   Wed Jul 29 11:24:16 2026 
+Merge branch 'fix_gum_logic' after finishing the gum logic and the player death logic
+
+Author: otahiri-
+Date:   Wed Jul 29 11:23:49 2026 
+feat: finished the gum logic and the logic of player death
+
+Date:   Tue Jul 28 15:01:13 2026 
+merge: merged gui branch
+
+Date:   Tue Jul 28 14:45:59 2026 
+feat: add hart counter
+
+Author: otahiri-
+Date:   Tue Jul 28 14:04:12 2026 
+feat: added the death for player logic now if the player dies 3 time the scene goes to score scene
+
+Author: otahiri-
+Date:   Tue Jul 28 13:34:09 2026 
+feat: added the core logic of the gums back to the game with better animation and better logic
+
+Author: otahiri-
+Date:   Tue Jul 28 13:18:14 2026 
+merge: merged improve_animation branch
+
+Author: otahiri-
+Date:   Tue Jul 28 13:16:04 2026 
+fix: lint issues and unused imports
+
+Author: satifi
+Date:   Tue Jul 28 12:29:54 2026 
+feat: add score counter placeholder
+
+Author: satifi
+Date:   Tue Jul 28 12:06:01 2026 
+fix: fix main menu buttons size and maze size
+
+Author: otahiri-
+Date:   Tue Jul 28 12:03:46 2026 
+feat: made the animation smoother by removing the old characters sprites and printing new ones instead of removing the whole map
+
+Author: otahiri-
+Date:   Tue Jul 28 10:36:05 2026 
+merge: merged the structure logic branch
+
+Author: otahiri-
+Date:   Mon Jul 27 18:34:46 2026 
+feat: implemented custom blit and custom fill
+
+Author: satifi
+Date:   Mon Jul 27 12:55:01 2026 
+feat: fix responsive in most scens
+
+Author: satifi
+Date:   Mon Jul 27 12:15:29 2026 
+wip: fixing maze responsive values
+
+Author: otahiri-
+Date:   Mon Jul 27 12:11:34 2026 
+feat: fixed the scale using width 2 times
+
+Author: otahiri-
+Date:   Mon Jul 27 12:01:17 2026 
+feat: made the game_logic file to handle all events happening in the game
+
+Author: otahiri-
+Date:   Sun Jul 26 17:26:29 2026 
+fixed the repetitive part in the maze rendering
+
+Author: otahiri-
+Date:   Sun Jul 26 15:19:43 2026 
+feat: fixed the repeat of tuples everywhere for the scale
+
+Author: otahiri-
+Date:   Sun Jul 26 12:09:55 2026 
+feat: impelmented the dynamic scaling need more work to be perfect
+
+Author: satifi
+Date:   Sat Jul 25 15:50:26 2026 
+ref: move character abc to models
+
+Author: satifi
+Date:   Sat Jul 25 13:42:02 2026 
+ref: make rendering of game scene inside render scene method
+
+Author: satifi
+Date:   Sat Jul 25 12:55:39 2026 
+ref: move direction enum to enums and remove constructor arguments in gamescene
+
+Author: otahiri-
+Date:   Sat Jul 25 12:55:33 2026 
+merged the gums logic branch
+
+Author: otahiri-
+Date:   Sat Jul 25 12:46:37 2026 
+feat: finished the logic behind the gums and changed the value hex to bit for readability
+
+Author: otahiri-
+Date:   Sat Jul 25 11:09:30 2026 
+feat: fixed the gum consumption logic and made the movement logic more readable
+
+Author: satifi
+Date:   Fri Jul 24 17:23:19 2026 
+feat: enhance scoreboard and add custom position rendering in Text class
+
+Author: satifi
+Date:   Fri Jul 24 12:45:57 2026 
+feat: add placeholders in scoreboard scene
+
+Author: satifi
+Date:   Fri Jul 24 10:24:24 2026 
+merge: merge renderer branch
+
+Author: satifi
+Date:   Thu Jul 23 18:55:02 2026 
+feat: add options scene and maintain some code
+
+Author: otahiri-
+Date:   Thu Jul 23 16:55:34 2026 
+feat: added a simple gum consumption logic need to fix how they get erased
+
+Author: otahiri-
+Date:   Thu Jul 23 14:30:22 2026 
+feat: made the initiale setup for the gum clas
+
+Author: otahiri-
+Date:   Thu Jul 23 13:01:05 2026 
+feat: finished the ghost logic now each ghost is working perfectly
+
+Author: satifi
+Date:   Thu Jul 23 13:00:38 2026 
+feat: fix text render alignment and tranceparancy and fix linting errors
+
+Author: otahiri-
+Date:   Wed Jul 22 13:45:53 2026 
+feat: added pinky ghost
+
+Author: otahiri-
+Date:   Wed Jul 22 13:17:34 2026 
+feat: fixed the issue where the ghost get stuck in an infinite loop
+
+Author: otahiri-
+Date:   Wed Jul 22 11:50:34 2026 
+feat: added a ghost with a simple algo to follow player need to choose a better algo as the ghost get stuck easily
+
+Date:   Tue Jul 21 16:09:58 2026 
+feat: add text asset and render it
+
+Author: satifi
+Date:   Tue Jul 21 12:47:13 2026 
+feat: add renderer and use images
+
+Author: otahiri-
+Date:   Tue Jul 21 10:48:21 2026 
+feat: initial commit working on ghosts now
+
+Author: otahiri-
+Date:   Tue Jul 21 10:46:07 2026 
+minor: fixed some lint issues and added docstrings to player and maze class
+
+Author: otahiri-
+Date:   Mon Jul 20 14:17:42 2026 
+fix: removed the drawing of empty frame since the cord for it were wrong and the screen fill does the same thing
+
+Author: otahiri-
+Date:   Mon Jul 20 11:15:21 2026 
+feat: transitioned to the legacy movements instead of stopping when facing a wall
+
+Author: otahiri-
+Date:   Mon Jul 20 10:57:34 2026 
+feat: integrated the player and maze logic with the screen logic
+
+Author: otahiri-
+Date:   Sun Jul 19 14:11:43 2026 
+feat: added a simple logic integration  of the game to the game scene
+
+Author: otahiri-
+Date:   Sun Jul 19 13:02:52 2026 
+merge player logic branch
+
+Author: otahiri-
+Date:   Sun Jul 19 12:56:35 2026 
+feat: added the saperate file for maze and player and improved the print maze logic to be more efficient
+
+Author: otahiri-
+Date:   Sun Jul 19 10:52:28 2026 
+feat: added a simple animation for the player to move between cell and added move speed
+
+Author: otahiri-
+Date:   Sat Jul 18 20:31:15 2026 
+minor: added a black sprite to erase the player
+
+Author: satifi
+Date:   Sat Jul 18 14:48:51 2026 
+feat: add keyboard navigation controll
+
+Author: satifi
+Date:   Sat Jul 18 13:39:25 2026 
+refactor: add all scenes to scenes directory
+
+Author: satifi
+Date:   Sat Jul 18 12:43:00 2026 
+merge: merge main with game-screens
+
+Author: satifi
+Date:   Sat Jul 18 12:30:13 2026 
+fix: edit pyproject dependencies and makefile so project can run safely
+
+Author: satifi
+Date:   Sat Jul 18 11:45:16 2026 
+fix: scenes can communicate with screen throw handle events
+
+Author: satifi
+Date:   Fri Jul 17 18:56:15 2026 
+feat: make scenes handel events
+
+Author: satifi
+Date:   Fri Jul 17 13:23:47 2026 
+feat: add small effect in buttons
+
+Author: otahiri-
+Date:   Thu Jul 16 14:41:22 2026 
+feat: player now can move and play animation while moving
+
+Date:   Thu Jul 16 12:22:40 2026 
+feat: integrate scenes in screen
+
+Date:   Thu Jul 16 11:46:35 2026 
+feat: add models file
+
+Date:   Thu Jul 16 11:42:20 2026 
+feat: add scenes and inplement abstraction
+
+Author: satifi
+Date:   Wed Jul 15 20:04:22 2026 
+wip: add simple main menu
+
+Author: satifi
+Date:   Wed Jul 15 20:02:46 2026 
+feat: switch to pygame-ce
+
+Author: otahiri-
+Date:   Wed Jul 15 16:51:08 2026 
+feat: added docstring to the maze rendering logic
+
+Author: otahiri-
+Date:   Wed Jul 15 16:43:46 2026 
+merging draw map branch
+
+Author: otahiri-
+Date:   Wed Jul 15 16:40:18 2026 
+feat: implemented the drawing of the map using bitwise
+
+Author: otahiri-
+Date:   Tue Jul 14 18:34:43 2026 
+feat: made asset for player and the ghosts
+
+Author: satifi
+Date:   Tue Jul 14 16:30:50 2026 
+feat: add Screen class that can open window
+
+Author: satifi
+Date:   Tue Jul 14 15:02:55 2026 
+add CONTRIBUTING.md
+
+Author: otahiri-
+Date:   Mon Jul 13 11:59:58 2026 
+minor: lint changes
+
+Author: otahiri-
+Date:   Mon Jul 13 11:39:23 2026 
+feat: added the abilit to choose the map location and the map size and the thickness of the lines making the map
+
+Author: otahiri-
+Date:   Mon Jul 13 11:20:15 2026 
+feat: implemented a basic function to render map
+
+Author: otahiri-
+Date:   Mon Jul 13 09:39:05 2026 
+feat: added the initial set up for the game and used the maze generator module
+
+Author: otahiri-
+Date:   Mon Jul 13 07:28:40 2026 
+Initial commit
+
