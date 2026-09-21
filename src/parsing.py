@@ -133,13 +133,6 @@ class GameConfig(BaseModel):
             )
             return "highscores.json"
 
-        if not file.is_file():
-            print(
-                f"[Config] 'highscores_path' file does not exist; "
-                f"creating empty leaderboard file at: {file}",
-                file=sys.stderr,
-            )
-            file.write_text("{}")
         return str(file)
 
     @field_validator("color_scheme", mode="before")
