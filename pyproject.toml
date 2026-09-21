@@ -10,6 +10,7 @@ dependencies = [
     "mypy",
     "numpy>=2.2.6",
     "pygame-ce",
+    "pyinstaller>=6.22.3",
 ]
 
 [tool.uv.sources]
