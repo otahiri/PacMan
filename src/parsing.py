@@ -34,7 +34,7 @@ class GameConfig(BaseModel):
     mode: str = "normal"
 
     @staticmethod
-    def field_status_log(field: str, value: Any, is_provided: bool):
+    def field_status_log(field: str, value: Any, is_provided: bool) -> None:
         """Log whether a field came from the config file or a default.
 
         Args:
@@ -54,7 +54,7 @@ class GameConfig(BaseModel):
             )
 
     @staticmethod
-    def valid_field_log(field: str, value: Any):
+    def valid_field_log(field: str, value: Any) -> None:
         """Log a successfully validated field.
 
         Args:
@@ -64,7 +64,7 @@ class GameConfig(BaseModel):
         print(f"[Config] '{field}' accepted value: '{value}'", file=sys.stderr)
 
     @staticmethod
-    def invalid_field_log(field: str, value: Any, default: Any):
+    def invalid_field_log(field: str, value: Any, default: Any) -> None:
         """Log a rejected field and the fallback value applied.
 
         Args:
@@ -279,7 +279,7 @@ class Parser:
         return Path(sys.argv[1])
 
     @staticmethod
-    def get_file_content(file) -> str:
+    def get_file_content(file: Path) -> str:
         """Return the file contents after stripping comments.
 
         Args:

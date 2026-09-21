@@ -10,6 +10,9 @@ from src.enums import AnchorPoint, Asset, ColorType, DisplayInfo
 class Renderer:
     """Renderer class responsible for the graphics
 
+    Args:
+        color_scheme: index for the chosen color theme
+
     Attributes:
         colors: colors list containing background color and foreground color
         primary, secondary: chosen background and foreground colors
@@ -29,11 +32,6 @@ class Renderer:
     LETTER: dict = dict()
 
     def __init__(self, color_scheme: int) -> None:
-        """constructor for the Renderer class
-
-        Args:
-            color_scheme: index for the chosen color theme
-        """
         self.__window = pygame.display.set_mode(
             (DisplayInfo.SCREEN_WIDTH.value, DisplayInfo.SCREEN_HEIGHT.value),
             pygame.SRCALPHA,

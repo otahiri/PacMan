@@ -51,10 +51,23 @@ class ShakeInfo:
 
 
 class Shake:
+    """shake sprite to simulate trigger effect or bobbing effect
+
+    Attributes:
+        shake_objects: the object handeling the shaking info
+        last_x: the last x cord of the sprite
+        last_y: the last y cord of the sprite
+        last_frame: the last frame of the target
+    """
     def __init__(self) -> None:
         self.shake_objects: dict = {}
 
     def del_shake(self, target_id: int) -> None:
+        """delete the shake info of the target
+
+        Args:
+            target_id: the id of the target
+        """
         target = self.shake_objects.get(target_id, None)
         del target
 
@@ -71,6 +84,23 @@ class Shake:
         cords: tuple,
         working_surface: Surface,
     ) -> Surface:
+        """apply the offset each frame to stimulate the shake effect
+
+        Args:
+            max_x: the max x the sprite can get to
+            max_y: the max y the sprite can get to
+            steps_x: the shift x each frame takes
+            steps_y: the shift y each frame takes
+            max_cycles: the max cycle in total each shift takes
+            wait_time: the wait time between shifts
+            target_frame: the target frame to shift
+            target_id: the target id for the target
+            cords: the default cord of the target
+            working_surface: the working surface to put the shifted frame on
+
+        Returns:
+            the working surface with the shifted sprite on it
+        """
         shake_info = self.shake_objects.get(target_id, None)
         if not shake_info:
             working_surface.blit(target_frame, cords)
