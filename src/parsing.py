@@ -30,7 +30,7 @@ class GameConfig(BaseModel):
 
     highscores: dict[str, int] = {}
     highscores_path: Path = Path("highscores.json")
-    color_scheme: int = 0
+    color_scheme: int = 1
     mode: str = "normal"
 
     @staticmethod
@@ -261,24 +261,6 @@ class Parser:
     """Utility class for reading and validating configuration file."""
 
     @staticmethod
-    def get_file_path() -> Path:
-        """Read the config path from command-line arguments.
-
-        Returns:
-            Path to the JSON config file.
-
-        Raises:
-            ValueError: If the command line arguments are not exactly one file.
-        """
-        if len(sys.argv) != 2:
-            raise ValueError(
-                "Invalid number of arguments. "
-                "Usage: python3 pac-man.py <config.json>"
-            )
-
-        return Path(sys.argv[1])
-
-    @staticmethod
     def get_file_content(file: Path) -> str:
         """Return the file contents after stripping comments.
 
@@ -311,7 +293,15 @@ class Parser:
         """
 
         try:
-            file = Parser.get_file_path()
+            if len(sys.argv) == 1:
+                return GameConfig()
+            elif len(sys.argv) > 2:
+                raise ValueError(
+                    "Invalid number of arguments. "
+                    "Usage: python3 -m src <config.json>"
+                )
+
+            file = Path(sys.argv[1])
             if file.suffix != ".json":
                 raise ValueError(
                     f"Invalid config file extension '{file}'. Must be .json"

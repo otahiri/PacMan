@@ -1,7 +1,7 @@
 import sys
 import pygame
-from src.main_game import MainGame
-from src.parsing import Parser
+from .main_game import MainGame
+from .parsing import Parser
 
 try:
 
